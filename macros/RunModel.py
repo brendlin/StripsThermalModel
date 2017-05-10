@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+
+import os,sys
+the_path = ('/').join(os.getcwd().split('/')[:-1]) 
+print 'Adding %s to PYTHONPATH.'%(the_path)
+sys.path.append(the_path)
+
+print 'importing modules'
+import python.SafetyFactors as SafetyFactors
+print 'importing modules done.'
+
+
+#-----------------------------------------------
+def main(options,args) :
+
+    # Step size for calculation
+    step = 1/12.;
+    nyears = 14;
+    nstep = nyears/step;
+
+    # Coolant temperature in Celsius in each year for 14 y of operation
+    if options.cooling == '-25' :
+        print 'Setting cooling to \"flat-25\" (constant at -25 C)'
+        coolantT = [ -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25 ]
+    elif options.cooling == '-35' :
+        print 'Setting cooling to \"flat-35\" (constant at -35 C)'
+        coolantT = [ -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35 ]
+    elif options.cooling == 'ramp-25' :
+        print 'Setting cooling to \"ramp-25\" (ramping down to -25 C)'
+        coolantT = [   0,  -5, -10, -15, -15, -20, -20, -25, -25, -25, -25, -25, -25, -25 ]
+    elif options.cooling == 'ramp-35' :
+        print 'Setting cooling to \"ramp-35\" (ramping down to -35 C)'
+        coolantT = [   0,  -5, -10, -15, -15, -20, -20, -25, -30, -35, -35, -35, -35, -35 ]
+    else :
+        print 'Error! Please set a cooling scheme (\"-25\",\"-35\",\"ramp-25\",\"ramp-35\").'
+        sys.exit()
+
+    print 'This is a safety factor:',SafetyFactors.safetylayout
+
+    print 'done'
+    return
+
+#-----------------------------------------------
+if __name__ == '__main__':
+    from optparse import OptionParser
+    p = OptionParser()
+    p.add_option('--cooling',type='string',default='',dest='cooling',help='Cooling scheme (\"-25\",\"-35\",\"ramp-25\",\"ramp-35\").')
+
+    options,args = p.parse_args()
+    
+    main(options,args)
