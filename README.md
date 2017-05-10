@@ -16,7 +16,7 @@ Submodules                                                        | Purpose     
 2. Layout                    | Blah                                     | Claire
 3. PoweringEfficiency        | FEAST efficiency, DCDC2 efficiency       | Kurt *
 4. CableLosses               |                                          | Claire
-   FrontEndComponents        | Front-end components, before irradiation | (Claire)
+(4.) FrontEndComponents      | Front-end components, before irradiation | (Claire)
 5. EOSComponents             | (before irradiation)                     | Kurt
 6. AbcTidBump                | Increase in digital current in ABC       | Claire *
 7. SensorProperties          |                                          | Kurt
@@ -30,4 +30,3 @@ Submodules                                                        | Purpose     
 Other info
 -----
 
-- Something else.
