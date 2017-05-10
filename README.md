@@ -1,6 +1,10 @@
 ITK Cooling Scheme
 ========================
 
+To checkout, do:
+
+ - git clone ssh://git@gitlab.cern.ch:7999/desy-atlas/itk/StripsThermalModel.git
+
 To run, do :
 
  - cd macros
