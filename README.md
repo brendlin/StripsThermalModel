@@ -10,7 +10,6 @@ To run, do :
     cd macros
     python RunModel.py --cooling -35
 
-
 --------
 The following submodules are defined in the python directory (modules with a * are fairly large) :
 
@@ -33,4 +32,4 @@ Submodules                   | Purpose                                          
 
 Other info
 -----
-
+ - Data files are kept in the "data" directory -- an example of the format is FeastEfficiencyData.txt.
