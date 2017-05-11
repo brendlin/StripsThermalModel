@@ -14,22 +14,22 @@ To run, do :
 --------
 The following submodules are defined in the python directory (modules with a * are fairly large) :
 
-Submodules                   | Purpose                                  | Assignee   | Status
------------------------------|------------------------------------------|------------|----------------------------------------
-1. SafetyFactors             | Blah                                     | Kurt       | Done
-2. Layout                    | Blah                                     | Claire     |
-3. PoweringEfficiency        | FEAST efficiency, DCDC2 efficiency       | Kurt *     | In Progress
-4. CableLosses               |                                          | Claire     |
-(4.) FrontEndComponents      | Front-end components, before irradiation | (Claire)   |
-5. EOSComponents             | (before irradiation)                     | Kurt       | Done
-6. AbcTidBump                | Increase in digital current in ABC       | Claire *   |
-7. SensorProperties          |                                          | Kurt       | Done
-8. NominalPower              |                                          | Claire *   |
-9. ThermalImpedances         |                                          | Kurt *     |
-10. Temperatures             |                                          | Claire     |
-11. OperationalProfiles      |                                          | Kurt *     |
-12. SensorLeakage            |                                          | Claire *   |
-13. SensorTemperatureCalc    | Sensor temperature calculation           | (Both)     |
+Submodules                   | Purpose                                          | Assignee   | Status
+-----------------------------|--------------------------------------------------|------------|------------
+1. SafetyFactors             | for layout, fluence, thermal impedance, I, vbias | Kurt       | Done
+2. Layout                    |                                                  | Claire     |
+3. PoweringEfficiency        | FEAST efficiency, DCDC2 efficiency               | Kurt *     | In Progress
+4. CableLosses               |                                                  | Claire     |
+(4.) FrontEndComponents      | Front-end components, before irradiation         | (Claire)   |
+5. EOSComponents             | lpbt, gbtia, gbld (before irradiation)           | Kurt       | Done
+6. AbcTidBump                | Increase in digital current in ABC               | Claire *   |
+7. SensorProperties          | Sensor area, bias volate, resistors              | Kurt       | Done
+8. NominalPower              |                                                  | Claire *   |
+9. ThermalImpedances         | Fit for impedances (R) given simulated points    | Kurt *     | In Progress
+10. Temperatures             |                                                  | Claire     |
+11. OperationalProfiles      | Luminosity (inst, int), efficiency (?)           | Kurt *     | Done
+12. SensorLeakage            |                                                  | Claire *   |
+13. SensorTemperatureCalc    | Sensor temperature calculation                   | (Both)     |
 
 Other info
 -----
