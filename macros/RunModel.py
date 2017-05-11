@@ -6,7 +6,11 @@ print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
 
 print 'importing modules'
-import python.SafetyFactors as SafetyFactors
+import python.SafetyFactors       as SafetyFactors
+import python.PoweringEfficiency  as PoweringEfficiency
+import python.EOSComponents       as EOSComponents
+import python.SensorProperties    as SensorProperties
+import python.OperationalProfiles as OperationalProfiles
 print 'importing modules done.'
 
 
@@ -14,9 +18,9 @@ print 'importing modules done.'
 def main(options,args) :
 
     # Step size for calculation
-    step = 1/12.;
-    nyears = 14;
-    nstep = nyears/step;
+    step = 1/12.
+    nyears = 14
+    nstep = int(nyears/float(step))
 
     # Coolant temperature in Celsius in each year for 14 y of operation
     if options.cooling == '-25' :
@@ -32,7 +36,7 @@ def main(options,args) :
         print 'Setting cooling to \"ramp-35\" (ramping down to -35 C)'
         coolantT = [   0,  -5, -10, -15, -15, -20, -20, -25, -30, -35, -35, -35, -35, -35 ]
     else :
-        print 'Error! Please set a cooling scheme (\"-25\",\"-35\",\"ramp-25\",\"ramp-35\").'
+        print 'Error! Please set a cooling scheme --cooling (\"-25\",\"-35\",\"ramp-25\",\"ramp-35\").'
         sys.exit()
 
     print 'This is a safety factor:',SafetyFactors.safetylayout
