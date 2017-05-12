@@ -1,6 +1,10 @@
 ITK Cooling Scheme
 ========================
+This is an analytical model of the thermal model, based off of the analytical barrel model from
+Georg Viehhauser.
 
+Checking Out and Running
+--------
 To checkout, do:
 
     git clone ssh://git@gitlab.cern.ch:7999/desy-atlas/itk/StripsThermalModel.git
@@ -10,6 +14,7 @@ To run, do :
     cd macros
     python RunModel.py --cooling -35
 
+Submodules
 --------
 The following submodules are defined in the python directory (modules with a * are fairly large) :
 
@@ -30,6 +35,20 @@ Submodules                   | Purpose                                          
 11. OperationalProfiles      | Luminosity (inst, int), efficiency (?)           | Kurt *     | Done
 12. SensorLeakage            |                                                  | Claire *   |
 13. SensorTemperatureCalc    | Sensor temperature calculation                   | (Both)     |
+
+Simple numbers that need to be switched from barrel to endcap values:
+-----
+ - **Fluences/Total ionizing dose for the petal**. Later, extend this to include dependence on eta and
+radius (or equivalent parameterization).
+ - (more...)
+
+Data / fits that we need
+-----
+ - **FEAST efficiency** (vs temperature, current): Georg et al have an initial fit based on some data,
+but the fit could be improved and more precise data could be pushed for.
+ - **Thermal impedances**: These are currently based on thermal simulations from the the barrel, and
+need to be rederived using endcap thermal simulations.
+
 
 Other info
 -----
