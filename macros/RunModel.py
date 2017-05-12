@@ -8,10 +8,19 @@ sys.path.append(the_path)
 print 'importing modules'
 import python.GlobalSettings      as GlobalSettings
 import python.SafetyFactors       as SafetyFactors
+import python.Layout              as Layout
 import python.PoweringEfficiency  as PoweringEfficiency
+import python.CableLosses         as CableLosses
+import python.FrontEndComponents  as FrontEndComponents
 import python.EOSComponents       as EOSComponents
+import python.AbcTidBump          as AbcTidBump
 import python.SensorProperties    as SensorProperties
+import python.NominalPower        as NominalPower
+import python.ThermalImpedances   as ThermalImpedances
+import python.Temperatures        as Temperatures
 import python.OperationalProfiles as OperationalProfiles
+import python.SensorLeakage       as SensorLeakage
+import python.SensorTemperatureCalc as SensorTemperatureCalc
 print 'importing modules done.'
 
 

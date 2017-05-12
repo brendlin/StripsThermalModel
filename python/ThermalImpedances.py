@@ -6,10 +6,14 @@ import SafetyFactors
 
 # Thermal impedances in Kelvin/Watt from FEA by Graham Beck
 
-Rfit  = (Pabc + Phcc + Pfeast + Prest) * Rcm
-Rfit += (_type == 1) * Pabc * Rabc
-Rfit += (_type == 2) * Phcc * Rhcc
-Rfit += (_type == 3) * Pfeast * Rfeast
+# This is the function they use. I do not think we need it here, and instead we should
+# rewrite this in a series of TF1 objects to rederive rabc, rhcc, rfeast, rcm for the petals.
+def Rfit(Rabc,Rhcc,Rfeast,Rcm,Pabc,Phcc,Pfeast,Prest,_type) :
+    ret = (Pabc + Phcc + Pfeast + Prest) * Rcm
+    ret += (_type == 1) * Pabc * Rabc
+    ret += (_type == 2) * Phcc * Rhcc
+    ret += (_type == 3) * Pfeast * Rfeast
+    return ret
 
 # These impedances are determined from the data in the following 3 files:
 # ThermalImpedances_LongStripEOS.txt

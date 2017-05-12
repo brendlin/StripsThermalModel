@@ -3,6 +3,8 @@ ITK Cooling Scheme
 This is an analytical model of the thermal model, based off of the analytical barrel model from
 Georg Viehhauser.
 
+More information is available in the twiki https://wiki-zeuthen.desy.de/ATLAS/ThermalModelForPetal
+
 Checking Out and Running
 --------
 To checkout, do:
@@ -31,7 +33,7 @@ Submodules                   | Purpose                                          
 7. SensorProperties          | Sensor area, bias volate, resistors              | Kurt       | Done
 8. NominalPower              |                                                  | Claire *   |
 9. ThermalImpedances         | Fit for impedances (R) given simulated points    | Kurt *     | Done
-10. Temperatures             |                                                  | Claire     |
+10. Temperatures             |                                                  | Claire     | In Progress
 11. OperationalProfiles      | Luminosity (inst, int), efficiency (?)           | Kurt *     | Done
 12. SensorLeakage            |                                                  | Claire *   |
 13. SensorTemperatureCalc    | Sensor temperature calculation                   | (Both)     |
