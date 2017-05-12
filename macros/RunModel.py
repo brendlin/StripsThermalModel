@@ -6,6 +6,7 @@ print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
 
 print 'importing modules'
+import python.GlobalSettings      as GlobalSettings
 import python.SafetyFactors       as SafetyFactors
 import python.PoweringEfficiency  as PoweringEfficiency
 import python.EOSComponents       as EOSComponents
@@ -16,11 +17,6 @@ print 'importing modules done.'
 
 #-----------------------------------------------
 def main(options,args) :
-
-    # Step size for calculation
-    step = 1/12.
-    nyears = 14
-    nstep = int(nyears/float(step))
 
     # Coolant temperature in Celsius in each year for 14 y of operation
     if options.cooling == '-25' :
