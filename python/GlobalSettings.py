@@ -12,3 +12,6 @@ time_step_list = []
 time_step_list.append(0)
 for i in range(nstep) :
     time_step_list.append( time_step_list[-1] + step )
+
+# Used to live in NominalPower
+nomsensorT = 0

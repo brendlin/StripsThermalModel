@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os,sys
+import math
 the_path = ('/').join(os.getcwd().split('/')[:-1]) 
 print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
@@ -43,6 +44,12 @@ def main(options,args) :
     else :
         print 'Error! Please set a cooling scheme --cooling (\"-25\",\"-35\",\"ramp-25\",\"ramp-35\").'
         sys.exit()
+
+    # time_step_list is a list of each step through the years
+    time_step_tc = []
+    for i in range(GlobalSettings.nstep) :
+        index = int( math.floor(i * GlobalSettings.step) )
+        time_step_tc.append( coolantT[ index ] )
 
     print 'This is a safety factor:',SafetyFactors.safetylayout
 

@@ -31,7 +31,7 @@ Submodules                   | Purpose                                          
 5. EOSComponents             | lpbt, gbtia, gbld (before irradiation)           | Kurt       | Done
 6. AbcTidBump                | Increase in digital current in ABC               | Claire *   |
 7. SensorProperties          | Sensor area, bias volate, resistors              | Kurt       | Done
-8. NominalPower              |                                                  | Claire *   |
+8. NominalPower              |                                                  | Claire *   | In Progress
 9. ThermalImpedances         | Fit for impedances (R) given simulated points    | Kurt *     | Done
 10. Temperatures             |                                                  | Claire     | In Progress
 11. OperationalProfiles      | Luminosity (inst, int), efficiency (?)           | Kurt *     | Done
