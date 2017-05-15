@@ -35,7 +35,7 @@ Submodules                   | Purpose                                          
 9. ThermalImpedances         | Fit for impedances (R) given simulated points    | Kurt *     | Done
 10. Temperatures             |                                                  | Claire     | In Progress
 11. OperationalProfiles      | Luminosity (inst, int), efficiency (?)           | Kurt *     | Done
-12. SensorLeakage            |                                                  | Claire *   |
+12. SensorLeakage            | Leakage current as a function of flux (A/cm^2)   | Claire *   | In Progress
 13. SensorTemperatureCalc    | Sensor temperature calculation                   | (Both)     |
 
 Simple numbers that need to be switched from barrel to endcap values:
@@ -55,3 +55,10 @@ need to be rederived using endcap thermal simulations.
 Other info
 -----
  - Data files are kept in the "data" directory -- an example of the format is FeastEfficiencyData.txt.
+
+
+Mathematica-to-python Quick-guide
+-----
+ - "./x -> y" means replace all "x" with "y"
+ - "x[y_] := 2y": set delay, evaluated at call. Python analog: def x(y) : return 2y
+ - "x = 2y": set, meaning x is set immediately to 2y, whatever y is at the time. Python analog: x = 2y
