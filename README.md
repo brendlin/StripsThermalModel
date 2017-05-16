@@ -36,7 +36,7 @@ Submodules                   | Purpose                                          
 10. Temperatures             |                                                  | Claire     | In Progress
 11. OperationalProfiles      | Luminosity (inst, int), efficiency (?)           | Kurt *     | Done
 12. SensorLeakage            | Leakage current as a function of flux (A/cm^2)   | Claire *   | In Progress
-13. SensorTemperatureCalc    | Sensor temperature calculation                   | (Both)     |
+13. SensorTemperatureCalc    | Sensor temperature calculation                   | (Both)     | In Progress
 
 Simple numbers that need to be switched from barrel to endcap values:
 -----
