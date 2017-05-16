@@ -7,6 +7,9 @@ import GlobalSettings
 import Layout
 import CableLosses
 import FrontEndComponents
+import PoweringEfficiency
+import EOSComponents
+import AbcTidBump
 
 # Moving nomsensorT to GlobalSettings since it seems more appropriate there.
 # nomsensorT = 0
@@ -16,8 +19,11 @@ import FrontEndComponents
 # General parameters
 
 Rtape = 0.01 # tape resistance is 0.01 Ohm per module worst case
-Pamac = 1 # FIX ME
-Pfamac = 1 # FIX ME # Power in the FEAST chip due to AMAC supply*)
+Pamac = (FrontEndComponents.amac15V * FrontEndComponents.amac15I + FrontEndComponents.amac3V * FrontEndComponents.amac3I) * (1 + SafetyFactors.safetycurrent)
+
+# Power in the FEAST chip due to AMAC supply
+Pfamac  = (PoweringEfficiency.Vfeast - FrontEndComponents.amac15V) * FrontEndComponents.amac15I
+Pfamac += (PoweringEfficiency.Vfeast - FrontEndComponents.amac3V ) * FrontEndComponents.amac3I
 
 def Prhv(Is) :
     return SensorProperties.Rhv*Is*Is
@@ -32,48 +38,88 @@ def Phv(Is) :
 # module Short strip
 
 def ssIabc(Tabc,d,D) :
-    return 1 # Dummy number for now -- fix!
+    return 20 * (AbcTidBump.tid_scale_combined_factor(Tabc, d, D) * FrontEndComponents.abcId + FrontEndComponents.abcIa)
 
 def ssPabc(Tabc,d,D) :
-    return 1 # Dummy number for now -- fix!
+    return FrontEndComponents.hybridV * ssIabc(Tabc, d, D)
 
 def ssIhcc(Thcc,d,D) :
-    return 1 # Dummy number for now -- fix!
+    return 2 * (AbcTidBump.tid_scale_combined_factor(Thcc, d, D) * FrontEndComponents.hccId + FrontEndComponents.hccIa)
 
 def ssPhcc(Thcc,d,D) :
-    return 1 # Dummy number for now -- fix!
+    return FrontEndComponents.hybridV * ssIhcc(Thcc, d, D)
 
 def ssIfeast(Tabc,Thcc,d,D) :
-    return 1 # Dummy number for now -- fix!
+    return ssIabc(Tabc, d, D) + ssIhcc(Thcc, d, D)
 
 def ssPfeast(Tabc,Thcc,Tfeast,d,D) :
-    return 1 # Dummy number for now -- fix!
+    return Pfamac + ( ssPabc(Tabc,d,D) + ssPhcc(Thcc,d,D) ) * (100 / float( PoweringEfficiency.feasteff(Tfeast,ssIfeast(Tabc,Thcc,d,D)) ) - 1)
 
 def ssIdig(Tabc,Thcc,d,D) :
-    return 1 # Dummy number for now -- fix!
+    return (20 * AbcTidBump.tid_scale_combined_factor(Tabc,d,D) * FrontEndComponents.abcId + 2 * AbcTidBump.tid_scale_combined_factor(Thcc,d,D) * FrontEndComponents.hccId)
 
 def ssItape(Tabc,Thcc,Tfeast,d,D) :
-    return 1 # Dummy number for now -- fix!
+    return ( ssPabc(Tabc, d, D) + ssPhcc(Thcc, d, D) + Pamac + ssPfeast(Tabc,Thcc,Tfeast,d,D) ) / float(PoweringEfficiency.Vfeast)
 
 def ssPtape(Tabc,Thcc,Tfeast,d,D) :
-    return 1 # Dummy number for now -- fix!
+    return (Layout.nmod * ssItape(Tabc,Thcc,Tfeast,d,D) )**2 * Rtape
 
 def ssPmod(Tabc,Thcc,Tfeast,d,D,Is) :
-    return 1 # Dummy number for now -- fix!
+    return ssPabc(Tabc,d,D) + ssPhcc(Thcc,d,D) + Pamac + ssPfeast(Tabc,Thcc,Tfeast,d,D) + ssPtape(Tabc,Thcc,Tfeast,d,D) + Phv(Is)
 
 
 # Long strip module
 
+def lsIabc(Tabc,d,D) :
+    return 10 * (AbcTidBump.tid_scale_combined_factor(Tabc, d, D) * FrontEndComponents.abcId + FrontEndComponents.abcIa)
+
+def lsPabc(Tabc,d,D) :
+    return FrontEndComponents.hybridV * lsIabc(Tabc, d, D)
+
+def lsIhcc(Thcc,d,D) :
+    return (AbcTidBump.tid_scale_combined_factor(Thcc, d, D) * FrontEndComponents.hccId + FrontEndComponents.hccIa)
+
+def lsPhcc(Thcc,d,D) :
+    return FrontEndComponents.hybridV * lsIhcc(Thcc, d, D)
+
+def lsIfeast(Tabc,Thcc,d,D) :
+    return lsIabc(Tabc, d, D) + lsIhcc(Thcc, d, D)
+
+def lsPfeast(Tabc,Thcc,Tfeast,d,D) :
+    return Pfamac + ( lsPabc(Tabc,d,D) + lsPhcc(Thcc,d,D) ) * (100 / float( PoweringEfficiency.feasteff(Tfeast,lsIfeast(Tabc,Thcc,d,D)) ) - 1)
+
+def lsIdig(Tabc,Thcc,d,D) :
+    return (10 * AbcTidBump.tid_scale_combined_factor(Tabc,d,D) * FrontEndComponents.abcId + AbcTidBump.tid_scale_combined_factor(Thcc,d,D) * FrontEndComponents.hccId)
+
+def lsItape(Tabc,Thcc,Tfeast,d,D) :
+    return ( lsPabc(Tabc, d, D) + lsPhcc(Thcc, d, D) + Pamac + lsPfeast(Tabc,Thcc,Tfeast,d,D) ) / float(PoweringEfficiency.Vfeast)
+
+def lsPtape(Tabc,Thcc,Tfeast,d,D) :
+    return (Layout.nmod * lsItape(Tabc,Thcc,Tfeast,d,D) )**2 * Rtape
+
+def lsPmod(Tabc,Thcc,Tfeast,d,D,Is) :
+    return lsPabc(Tabc,d,D) + lsPhcc(Thcc,d,D) + Pamac + lsPfeast(Tabc,Thcc,Tfeast,d,D) + lsPtape(Tabc,Thcc,Tfeast,d,D) + Phv(Is)
 
 
 
 # EOS power (including powering efficiency)
 # Short strip EOS
 
+sseosI  = ( (2 * EOSComponents.lpgbtI + 2 * EOSComponents.gbld12I) / float(PoweringEfficiency.DCDC2eff) ) * (EOSComponents.eosV12/float(EOSComponents.eosV25))
+sseosI += EOSComponents.gbtiaI + 2 * EOSComponents.gbld25I
+
 def sseosP(Teos) :
-    return 1 # Dummy number for now -- fix!
+    return EOSComponents.eosV25 * sseosI * 100 / float(PoweringEfficiency.feasteff(Teos, sseosI))
+
+
 
 # Long strip EOS
+
+lseosI  = ( (EOSComponents.lpgbtI + EOSComponents.gbld12I) / float(PoweringEfficiency.DCDC2eff) ) * (EOSComponents.eosV12/float(EOSComponents.eosV25))
+lseosI += EOSComponents.gbtiaI + EOSComponents.gbld25I
+
+def lseosP(Teos) :
+    return EOSComponents.eosV25 * lseosI * 100 / float(PoweringEfficiency.feasteff(Teos, lseosI))
 
 
 
@@ -87,7 +133,8 @@ def ssPstavetape(Tabc,Thcc,Tfeast,d,D) :
     return 1 # Dummy number for now -- fix!
 
 def ssPstave(Tabc,Thcc,Tfeast,Teos,d,D,Is) :
-    return 1 # Dummy number for now -- fix!
+    return 2 * (Layout.nmod * (ssPmod(Tabc,Thcc,Tfeast,d,D,Is) - ssPtape(Tabc,Thcc,Tfeast,d,D) +
+                               Is * SensorProperties.vbias) + ssPstavetape(Tabc,Thcc,Tfeast,d,D) + sseosP(Teos) )
 
 ssPstavebare = ssPstave(GlobalSettings.nomsensorT,
                         GlobalSettings.nomsensorT,
@@ -100,7 +147,8 @@ def lsPstavetape(Tabc,Thcc,Tfeast,d,D) :
     return 1 # Dummy number for now -- fix!
 
 def lsPstave(Tabc,Thcc,Tfeast,Teos,d,D,Is) :
-    return 1 # Dummy number for now -- fix!
+    return 2 * (Layout.nmod * (lsPmod(Tabc,Thcc,Tfeast,d,D,Is) - lsPtape(Tabc,Thcc,Tfeast,d,D) +
+                               Is * SensorProperties.vbias) + lsPstavetape(Tabc,Thcc,Tfeast,d,D) + lseosP(Teos) )
 
 lsPstavebare = lsPstave(GlobalSettings.nomsensorT,
                         GlobalSettings.nomsensorT,
