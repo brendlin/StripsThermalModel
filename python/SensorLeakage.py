@@ -25,6 +25,7 @@ qrefb2 = []
 qrefb3 = []
 qrefb4 = []
 
+# size is nstep (???)
 for i in range(GlobalSettings.nstep) :
     qrefb1.append( SensorProperties.vbias * iref(OperationalProfiles.fluxb1[i]*SensorProperties.area) )
     qrefb2.append( SensorProperties.vbias * iref(OperationalProfiles.fluxb2[i]*SensorProperties.area) )

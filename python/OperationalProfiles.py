@@ -16,11 +16,10 @@ daysperyear = [ 80, 160, 160, 160, 1, 200, 200, 200, 1, 220, 220, 220, 220, 220]
 eff = [ 0.294, 0.294, 0.294, 0.294, 0.294, 0.294,
         0.308, 0.308, 0.308, 0.308, 0.308, 0.308, 0.308, 0.308 ]
 
-# luminosity ramp
+# luminosity ramp - size is nstep+1 (including time t=0)
 lumiramp = []
 lumiramp.append(0)
 for i in range(GlobalSettings.nstep) :
-    # print math.floor(i*step)
     lumiramp.append(lumiramp[-1])
     lumiramp[-1] += GlobalSettings.step * luminosity[ int(math.floor(i*GlobalSettings.step)) ]
 
@@ -59,8 +58,15 @@ tidb4 = list( (b4TID/3000.) * a for a in lumiramp )
 # Dose rate for each year for each barrel
 hoursperyear = list( 24 * daysperyear[i] * eff[i] for i in range(len(daysperyear)))
 
-doserateb1 = list( (b1TID/3000.)*luminosity[i]/float(hoursperyear[i]) for i in range(len(luminosity)) )
-doserateb2 = list( (b2TID/3000.)*luminosity[i]/float(hoursperyear[i]) for i in range(len(luminosity)) )
-doserateb3 = list( (b3TID/3000.)*luminosity[i]/float(hoursperyear[i]) for i in range(len(luminosity)) )
-doserateb4 = list( (b4TID/3000.)*luminosity[i]/float(hoursperyear[i]) for i in range(len(luminosity)) )
+doserateb1 = []
+doserateb2 = []
+doserateb3 = []
+doserateb4 = []
 
+# size of these is nstep
+for i in range(GlobalSettings.nstep) :
+    year_i = int(math.floor(i*GlobalSettings.step))
+    doserateb1.append( (b1TID/3000.)*luminosity[year_i]/float(hoursperyear[year_i]) )
+    doserateb2.append( (b2TID/3000.)*luminosity[year_i]/float(hoursperyear[year_i]) )
+    doserateb3.append( (b3TID/3000.)*luminosity[year_i]/float(hoursperyear[year_i]) )
+    doserateb4.append( (b4TID/3000.)*luminosity[year_i]/float(hoursperyear[year_i]) )

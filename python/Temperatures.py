@@ -8,6 +8,9 @@ tA = 6962.71
 
 # In the nb file, these are =: (set delay), which correspond to functions in python.
 
+def unref(qref,Ts) :
+    return 1 # Dummy number for now -- fix!
+
 # Barrel short strip stave
 
 def ssTmod(Peos,Pmod,Ps,Tc) :
