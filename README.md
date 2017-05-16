@@ -26,12 +26,12 @@ Submodules                   | Purpose                                          
 1. SafetyFactors             | for layout, fluence, thermal impedance, I, vbias | Kurt       | Done
 2. Layout                    | Number of staves per end                         | Claire     | Done
 3. PoweringEfficiency        | FEAST efficiency, DCDC2 efficiency               | Kurt *     | Done
-4. CableLosses               |                                                  | Claire     |
-(4.) FrontEndComponents      | Front-end components, before irradiation         | (Claire)   |
+4. CableLosses               | Service modules and outer cables                 | Claire     | Done
+(4.) FrontEndComponents      | Front-end components, before irradiation         | (Claire)   | Done
 5. EOSComponents             | lpbt, gbtia, gbld (before irradiation)           | Kurt       | Done
-6. AbcTidBump                | Increase in digital current in ABC               | Claire *   |
+6. AbcTidBump                | Increase in digital current in ABC               | Claire *   | Done
 7. SensorProperties          | Sensor area, bias volate, resistors              | Kurt       | Done
-8. NominalPower              |                                                  | Claire *   | In Progress
+8. NominalPower              |                                                | Claire *   | In Progress
 9. ThermalImpedances         | Fit for impedances (R) given simulated points    | Kurt *     | Done
 10. Temperatures             |                                                  | Claire     | In Progress
 11. OperationalProfiles      | Luminosity (inst, int), efficiency (?)           | Kurt *     | Done

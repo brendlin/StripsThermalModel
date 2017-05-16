@@ -6,6 +6,7 @@ import SensorProperties
 import GlobalSettings
 import Layout
 import CableLosses
+import FrontEndComponents
 
 # Moving nomsensorT to GlobalSettings since it seems more appropriate there.
 # nomsensorT = 0

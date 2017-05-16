@@ -45,7 +45,7 @@ def tid_scale_shape(collecteddose):
 #--------------------------------------------
 
 def tid_scale_combined_factor(T, doserate, collecteddose):
-    return 1 + (tid_scale_overall_fit_function.Eval(T, doserate)*tid_scale_shape(collecteddose) )
+    return 1 + (tid_scale_overall_fit_function.Eval(T, doserate)-1)*tid_scale_shape(collecteddose)
 
 # Plotting
 #    canTidProfile = TCanvas("canTidProfile", "TID bump profile", 0, 0, 600, 600)

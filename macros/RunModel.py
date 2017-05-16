@@ -25,7 +25,7 @@ import python.SensorTemperatureCalc as SensorTemperatureCalc
 print 'importing modules done.'
 
 
-def usage():
+def usage() :
     print "Usage:\n"
     print 'python '+sys.argv[0]+' --cooling <coolingScenarioTag>'
     print '--cooling:   cooling scheme: \"flat-25\",\"flat-35\",\"ramp-25\",\"ramp-35\"'
@@ -50,7 +50,7 @@ def main(options,args):
         print 'Setting cooling to \"ramp-35\" (ramping down to -35 C)'
         coolantT = [   0,  -5, -10, -15, -15, -20, -20, -25, -30, -35, -35, -35, -35, -35 ]
     else :
-        print 'Error! Please set a cooling scheme --cooling (\"flat-25\",\"flat-35\",\"ramp-25\",\"ramp-35\").'
+        print 'Error! Please set a cooling scheme: \"flat-25\",\"flat-35\",\"ramp-25\",\"ramp-35\".'
         usage()
 
     # time_step_list is a list of each step through the years
