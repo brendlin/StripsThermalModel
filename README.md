@@ -66,3 +66,4 @@ Mathematica-to-python Quick-guide
  - "./x -> y" means replace all "x" with "y"
  - "x[y_] := 2y": set delay, evaluated at call. Python analog: def x(y) : return 2y
  - "x = 2y": set, meaning x is set immediately to 2y, whatever y is at the time. Python analog: x = 2y
+ - Log in mathematica is natural logarithm (base e)
