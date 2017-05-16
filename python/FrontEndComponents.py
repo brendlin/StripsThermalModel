@@ -18,7 +18,7 @@ hccIa = 0.075 * (1 + SafetyFactors.safetycurrent)
 abcId = 0.035 * (1 + SafetyFactors.safetycurrent)
 
 # ABC analog
-abcId = 0.066 * (1 + SafetyFactors.safetycurrent)
+abcIa = 0.066 * (1 + SafetyFactors.safetycurrent)
 
 # AMACII chip
 amac15V     = 1.5
