@@ -25,9 +25,17 @@ import python.SensorTemperatureCalc as SensorTemperatureCalc
 print 'importing modules done.'
 
 
+def usage():
+    print "Usage:\n"
+    print 'python '+sys.argv[0]+' --cooling <coolingScenarioTag>'
+    print '--cooling:   cooling scheme: \"flat-25\",\"flat-35\",\"ramp-25\",\"ramp-35\"'
+    print 'Example: '
+    print 'python '+sys.argv[0]+' --cooling flat-25'
+    sys.exit()
+    
 #-----------------------------------------------
-def main(options,args) :
-
+def main(options,args):
+    
     # Coolant temperature in Celsius in each year for 14 y of operation
     if options.cooling == 'flat-25' :
         print 'Setting cooling to \"flat-25\" (constant at -25 C)'
@@ -43,7 +51,7 @@ def main(options,args) :
         coolantT = [   0,  -5, -10, -15, -15, -20, -20, -25, -30, -35, -35, -35, -35, -35 ]
     else :
         print 'Error! Please set a cooling scheme --cooling (\"flat-25\",\"flat-35\",\"ramp-25\",\"ramp-35\").'
-        sys.exit()
+        usage()
 
     # time_step_list is a list of each step through the years
     time_step_tc = []
@@ -61,9 +69,14 @@ def main(options,args) :
 
 #-----------------------------------------------
 if __name__ == '__main__':
+    
+    if len(sys.argv) < 1:
+        print "Wrong number of arguments"
+        usage()
+
     from optparse import OptionParser
     p = OptionParser()
-    p.add_option('--cooling',type='string',default='',dest='cooling',help='Cooling scheme (\"-25\",\"-35\",\"ramp-25\",\"ramp-35\").')
+    p.add_option('--cooling',type='string',default='',dest='cooling',help='Cooling scheme (\"-flat25\",\"-flat35\",\"ramp-25\",\"ramp-35\").')
 
     options,args = p.parse_args()
     
