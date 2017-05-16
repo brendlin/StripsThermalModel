@@ -29,10 +29,10 @@ print 'importing modules done.'
 def main(options,args) :
 
     # Coolant temperature in Celsius in each year for 14 y of operation
-    if options.cooling == '-25' :
+    if options.cooling == 'flat-25' :
         print 'Setting cooling to \"flat-25\" (constant at -25 C)'
         coolantT = [ -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25 ]
-    elif options.cooling == '-35' :
+    elif options.cooling == 'flat-35' :
         print 'Setting cooling to \"flat-35\" (constant at -35 C)'
         coolantT = [ -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35 ]
     elif options.cooling == 'ramp-25' :
@@ -42,7 +42,7 @@ def main(options,args) :
         print 'Setting cooling to \"ramp-35\" (ramping down to -35 C)'
         coolantT = [   0,  -5, -10, -15, -15, -20, -20, -25, -30, -35, -35, -35, -35, -35 ]
     else :
-        print 'Error! Please set a cooling scheme --cooling (\"-25\",\"-35\",\"ramp-25\",\"ramp-35\").'
+        print 'Error! Please set a cooling scheme --cooling (\"flat-25\",\"flat-35\",\"ramp-25\",\"ramp-35\").'
         sys.exit()
 
     # time_step_list is a list of each step through the years
@@ -51,7 +51,7 @@ def main(options,args) :
         index = int( math.floor(i * GlobalSettings.step) )
         time_step_tc.append( coolantT[ index ] )
 
-    print 'This is a safety factor:',SafetyFactors.safetylayout
+    print 'This is a safety factor: ',SafetyFactors.safetylayout
 
     print 'done'
     return
