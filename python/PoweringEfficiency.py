@@ -9,7 +9,8 @@ import ROOT
 
 # x is load current
 # y is temperature
-feast_fit_function = ROOT.TF2("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*y",0,5,5,65);
+# f(x,y) is efficiency
+feast_fit_function = ROOT.TF2("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*y",0,5,5,65)
 feast_fit_function.SetParameter(0, 58.0448)
 feast_fit_function.SetParameter(1, 29.6715)
 feast_fit_function.SetParameter(2,-12.4747)
@@ -17,4 +18,7 @@ feast_fit_function.SetParameter(3,  1.40142)
 
 Vfeast = 10.5 # Feast input voltage
 DCDC2eff = 0.88 # DCDC2 efficiency
+
+# Scale factor for the current at a specific collected dose
+
 

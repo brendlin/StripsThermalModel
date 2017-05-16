@@ -52,6 +52,9 @@ but the fit could be improved and more precise data could be pushed for.
 need to be rederived using endcap thermal simulations.
  - **Losses**: no value for losses in tapes? 
 
+Question
+-----
+ - **Sensor leakage**: line 28 
 
 Other info
 -----
