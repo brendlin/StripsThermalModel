@@ -4,6 +4,15 @@
 import GlobalSettings
 import Temperatures
 import NominalPower
+import SensorLeakage
+import OperationalProfiles
+import SensorProperties
+import Layout
+import SafetyFactors
+import PoweringEfficiency
+
+import ROOT
+import math
 
 # Barrel I
 
@@ -33,158 +42,230 @@ def CalculateSensorTemperature(tc) :
 
     nomT = GlobalSettings.nomsensorT
 
-    defTeos = Temperatures.ssTeos( NominalPower.sseosP(nomT),
-                                   NominalPower.ssPmod(nomT, nomT, nomT, 1, 0, 0),
-                                   0, tc[0] )
-    defTabc = Temperatures.ssTabc( NominalPower.ssPabc(nomT, 1, 0),
-                                   NominalPower.sseosP(nomT),
-                                   NominalPower.ssPmod(nomT, nomT, nomT, 1, 0, 0),
-                                   0, tc[0] )
-    defThcc = Temperatures.ssThcc( NominalPower.ssPhcc(nomT, 1, 0), NominalPower.sseosP(nomT),
-                                   NominalPower.ssPmod(nomT, nomT, nomT, 1, 0, 0),
-                                   0, tc[0] )
-    defTfeast = Temperatures.ssTfeast( NominalPower.ssPfeast(nomT, nomT, nomT, 1, 0),
+    # These are initial values. Saved slightly differently for simplicity.
+    # defTeos
+    teosb1.append(Temperatures.ssTeos( NominalPower.sseosP(nomT),
+                                       NominalPower.ssPmod(nomT, nomT, nomT, 1, 0, 0),
+                                       0, tc[0] ))
+    # defTabc
+    tabcb1.append(Temperatures.ssTabc( NominalPower.ssPabc(nomT, 1, 0),
                                        NominalPower.sseosP(nomT),
                                        NominalPower.ssPmod(nomT, nomT, nomT, 1, 0, 0),
-                                       0, tc[0] )
+                                       0, tc[0] ))
+    # defThcc
+    thccb1.append(Temperatures.ssThcc( NominalPower.ssPhcc(nomT, 1, 0), NominalPower.sseosP(nomT),
+                                   NominalPower.ssPmod(nomT, nomT, nomT, 1, 0, 0),
+                                   0, tc[0] ))
+    # defTfeast
+    tfeastb1.append(Temperatures.ssTfeast( NominalPower.ssPfeast(nomT, nomT, nomT, 1, 0),
+                                           NominalPower.sseosP(nomT),
+                                           NominalPower.ssPmod(nomT, nomT, nomT, 1, 0, 0),
+                                           0, tc[0] ))
 
-    # (*calculate temperatures, powers etc.*)
-    # For[i = 1, i <= nstep, i++,
-    #  sol = FindInstance[
-    #    (*solve for qref (with 2 solutions)*)
+    # Not sure whether nstep+1 is required...
+    for i in range(GlobalSettings.nstep) :
 
-    #    qrefb1[[i]] == 
-    #     Qref[ts, 
-    #      ssT0[sseosP[If[i == 1, defTeos, teosb1[[i - 1]]]], 
-    #       ssPmod[If[i == 1, defTabc, tabcb1[[i - 1]]], 
-    #        If[i == 1, defThcc, thccb1[[i - 1]]], 
-    #        If[i == 1, defTfeast, tfeastb1[[i - 1]]], doserateb1[[i]], 
-    #        tidb1[[i]], unref[qrefb1[[i]], ts]/vbias], tc[[i]]]],
-    #    ts, Reals, 2];
-    #  resultts = ts /. sol;(*Print[i,resultts]*);
-    #  (*select correct solution*) 
-    #  If[Length[resultts] == 1, index = 1, 
-    #   If[resultts[[1]] > resultts[[2]], index = 2, index = 1]];
-    #  (*calculate temperatures in the system based on sensor temperature*)
-    # \
-    #  (*sensor temperature*)tsb1 = Append[tsb1, resultts[[index]]];
-    #  (*temperature of ABC*)
-    #  tabcb1 = Append[tabcb1, 
-    #    ssTabc[ssPabc[If[i == 1, defTabc, tabcb1[[i - 1]]], 
-    #      doserateb1[[i]], tidb1[[i]]], 
-    #     sseosP[If[i == 1, defTeos, teosb1[[i - 1]]]], 
-    #     ssPmod[If[i == 1, defTabc, tabcb1[[i - 1]]], 
-    #      If[i == 1, defThcc, thccb1[[i - 1]]], 
-    #      If[i == 1, defTfeast, tfeastb1[[i - 1]]], doserateb1[[i]], 
-    #      tidb1[[i]], unref[qrefb1[[i]], resultts[[index]]]/vbias], 
-    #     unref[qrefb1[[i]], resultts[[index]]], tc[[i]]]];
-    #  (*temperature of HCC*)
+        lhs = SensorLeakage.qrefb1[i]
+        ts = 1 # dummy
+        rhs = Temperatures.Qref(ts,
+                                Temperatures.ssT0(NominalPower.sseosP(teosb1[-1]),
+                                                  NominalPower.ssPmod(tabcb1[-1],
+                                                                      thccb1[-1],
+                                                                      tfeastb1[-1],
+                                                                      OperationalProfiles.doserateb1[i],
+                                                                      OperationalProfiles.tidb1[i],
+                                                                      Temperatures.unref(SensorLeakage.qrefb1[i],ts)/float(SensorProperties.vbias)
+                                                                      ),
+                                                  tc[i]
+                                                  )
+                                )
 
-    #  thccb1 = Append[thccb1, 
-    #    ssThcc[ssPhcc[If[i == 1, defThcc, thccb1[[i - 1]]], 
-    #      doserateb1[[i]], tidb1[[i]]], 
-    #     sseosP[If[i == 1, defTeos, teosb1[[i - 1]]]], 
-    #     ssPmod[If[i == 1, defTabc, tabcb1[[i - 1]]], 
-    #      If[i == 1, defThcc, thccb1[[i - 1]]], 
-    #      If[i == 1, defTfeast, tfeastb1[[i - 1]]], doserateb1[[i]], 
-    #      tidb1[[i]], unref[qrefb1[[i]], resultts[[index]]]/vbias], 
-    #     unref[qrefb1[[i]], resultts[[index]]], tc[[i]]]];
-    #  (*temperature of FEAST*)
+#     f = ROOT.TF1("mine", "x*x - x", -10, 0.5 )
+#     wf = ROOT.Math.WrappedTF1(f)
+#     brf = ROOT.Math.BrentRootFinder()
+#     brf.SetFunction( wf, -10, 0.5 )
+#     brf.Solve()
+#     print 'Root:',brf.Root()
 
-    #  tfeastb1 = 
-    #   Append[tfeastb1, 
-    #    ssTfeast[
-    #     ssPfeast[If[i == 1, defTabc, tabcb1[[i - 1]]], 
-    #      If[i == 1, defThcc, thccb1[[i - 1]]], 
-    #      If[i == 1, defTfeast, tfeastb1[[i - 1]]], doserateb1[[i]], 
-    #      tidb1[[i]]], sseosP[If[i == 1, defTeos, teosb1[[i - 1]]]], 
-    #     ssPmod[If[i == 1, defTabc, tabcb1[[i - 1]]], 
-    #      If[i == 1, defThcc, thccb1[[i - 1]]], 
-    #      If[i == 1, defTfeast, tfeastb1[[i - 1]]], doserateb1[[i]], 
-    #      tidb1[[i]], unref[qrefb1[[i]], resultts[[index]]]/vbias], 
-    #     unref[qrefb1[[i]], resultts[[index]]], tc[[i]]]];
-    #  (*temperature of EOS*)
+        # (Dummy ts result)
+        resultts = 1
 
-    #  teosb1 = Append[teosb1, 
-    #    ssTeos[sseosP[If[i == 1, defTeos, teosb1[[i - 1]]]], 
-    #     ssPmod[If[i == 1, defTabc, tabcb1[[i - 1]]], 
-    #      If[i == 1, defThcc, thccb1[[i - 1]]], 
-    #      If[i == 1, defTfeast, tfeastb1[[i - 1]]], doserateb1[[i]], 
-    #      tidb1[[i]], unref[qrefb1[[i]], resultts[[index]]]/vbias], 
-    #     unref[qrefb1[[i]], resultts[[index]]], tc[[i]]]];
-    #  (*from here we can use actual temperatures*)
-    #  (*power per module \
-    # (front-end + HV)*)
+        # Calculate temperatures in the system based on sensor temperature
 
-    #  pmoduleb1 = 
-    #   Append[pmoduleb1, 
-    #    ssPmod[tabcb1[[i]], thccb1[[i]], tfeastb1[[i]], doserateb1[[i]], 
-    #      tidb1[[i]], unref[qrefb1[[i]], tsb1[[i]]]/vbias] + 
-    #     unref[qrefb1[[i]], tsb1[[i]]]];
-    #  (*power in tape per module*)
+        #  Sensor temperature
+        tsb1.append(resultts)
 
-    #  pmtapeb1 = 
-    #   Append[pmtapeb1, 
-    #    ssPtape[tabcb1[[i]], thccb1[[i]], tfeastb1[[i]], doserateb1[[i]], 
-    #     tidb1[[i]]]];
-    #  (*HV power per module (leakage + resistors*)
+        # Temperature of ABC
+        tabcb1.append(Temperatures.ssTabc(NominalPower.ssPabc(tabcb1[-1],
+                                                              OperationalProfiles.doserateb1[i],
+                                                              OperationalProfiles.tidb1[i]),
+                                          NominalPower.sseosP(teosb1[-1]),
+                                          NominalPower.ssPmod(tabcb1[-1],
+                                                              thccb1[-1],
+                                                              tfeastb1[-1],
+                                                              OperationalProfiles.doserateb1[i],
+                                                              OperationalProfiles.tidb1[i],
+                                                              Temperatures.unref(SensorLeakage.qrefb1[i],resultts)/float(SensorProperties.vbias)
+                                                              ),
+                                      Temperatures.unref(SensorLeakage.qrefb1[i],resultts), # ???
+                                      tc[i] # ???
+                                      )
+                  )
 
-    #  pmhvb1 = Append[pmhvb1, 
-    #    unref[qrefb1[[i]], tsb1[[i]]] + 
-    #     Phv[unref[qrefb1[[i]], tsb1[[i]]]/vbias]];
-    #  (*leakage current per module*)
+        # Temperature of HCC
+        thccb1.append(Temperatures.ssThcc(NominalPower.ssPhcc(thccb1[-1],
+                                                              OperationalProfiles.doserateb1[i],
+                                                              OperationalProfiles.tidb1[i]),
+                                          NominalPower.sseosP(teosb1[-1]),
+                                          NominalPower.ssPmod(tabcb1[-1],
+                                                              thccb1[-1],
+                                                              tfeastb1[-1],
+                                                              OperationalProfiles.doserateb1[i],
+                                                              OperationalProfiles.tidb1[i],
+                                                              Temperatures.unref(SensorLeakage.qrefb1[i],resultts)/float(SensorProperties.vbias)
+                                                              ),
+                                          Temperatures.unref(SensorLeakage.qrefb1[i],resultts), # ???
+                                          tc[i] # ???
+                                          )
+                      )
 
-    #  isb1 = Append[isb1, unref[qrefb1[[i]], tsb1[[i]]]/vbias];
-    #  (*HV power per module due to serial resistors*)
+        # Temperature of FEAST
+        tfeastb1.append(Temperatures.ssTfeast(NominalPower.ssPfeast(tabcb1[-1],
+                                                                    thccb1[-1],
+                                                                    tfeastb1[-1],
+                                                                    OperationalProfiles.doserateb1[i],
+                                                                    OperationalProfiles.tidb1[i]),
+                                              NominalPower.sseosP(teosb1[-1]),
+                                              NominalPower.ssPmod(tabcb1[-1],
+                                                                  thccb1[-1],
+                                                                  tfeastb1[-1],
+                                                                  OperationalProfiles.doserateb1[i],
+                                                                  OperationalProfiles.tidb1[i],
+                                                                  Temperatures.unref(SensorLeakage.qrefb1[i],resultts)/float(SensorProperties.vbias)
+                                                                  ),
+                                              Temperatures.unref(SensorLeakage.qrefb1[i],resultts), # ???
+                                              tc[i] # ???
+                                              )
+                        )
 
-    #  pmhvrb1 = 
-    #   Append[pmhvrb1, Prhv[unref[qrefb1[[i]], tsb1[[i]]]/vbias]];
-    #  (*HV per module due to parallel resistor*)
+        # Temperature of EOS
+        teosb1.append(Temperatures.ssTeos(NominalPower.sseosP(teosb1[-1]),
+                                          NominalPower.ssPmod(tabcb1[-1],
+                                                              thccb1[-1],
+                                                              tfeastb1[-1],
+                                                              OperationalProfiles.doserateb1[i],
+                                                              OperationalProfiles.tidb1[i],
+                                                              Temperatures.unref(SensorLeakage.qrefb1[i],resultts)/float(SensorProperties.vbias)
+                                                              ),
+                                          Temperatures.unref(SensorLeakage.qrefb1[i],resultts), # ???
+                                          tc[i] # ???
+                                          )
+                      )
 
-    #  pmhvmuxb1 = Append[pmhvmuxb1, Phvmux];
-    #  (*stave power B1*)
+        #
+        # From here we can use actual temperatures
+        #
 
-    #  pstaveb1 = 
-    #   Append[pstaveb1, 
-    #    ssPstave[tabcb1[[i]], thccb1[[i]], tfeastb1[[i]], teosb1[[i]], 
-    #     doserateb1[[i]], tidb1[[i]], unref[qrefb1[[i]], tsb1[[i]]]/vbias]];
-    #  (*total power for B1*)
+        # Power per module (front-end + HV)
+        pmoduleb1.append(NominalPower.ssPmod(tabcb1[-1],
+                                             thccb1[-1],
+                                             tfeastb1[-1],
+                                             OperationalProfiles.doserateb1[i],
+                                             OperationalProfiles.tidb1[i],
+                                             Temperatures.unref(SensorLeakage.qrefb1[i],tsb1[-1])/float(SensorProperties.vbias)
+                                             + Temperatures.unref(SensorLeakage.qrefb1[i],tsb1[-1])
+                                             )
+                         )
 
-    #  pb1 = Append[pb1, 
-    #    2*nstavesb1*(1 + safetylayout)/1000*
-    #     ssPstave[tabcb1[[i]], thccb1[[i]], tfeastb1[[i]], teosb1[[i]], 
-    #      doserateb1[[i]], tidb1[[i]], 
-    #      unref[qrefb1[[i]], tsb1[[i]]]/vbias]];
-    #  (*total HV power for B1*)
+        # Power in tape per module
+        pmtapeb1.append(NominalPower.ssPtape(tabcb1[-1],
+                                             thccb1[-1],
+                                             tfeastb1[-1],
+                                             OperationalProfiles.doserateb1[i],
+                                             OperationalProfiles.tidb1[i]
+                                             )
+                        )
 
-    #  phvb1 = Append[phvb1, 
-    #    2*nstavesb1*(1 + safetylayout)/1000*2*
-    #     nmod*(pmhvb1[[i]] + pmhvrb1[[i]])];
-    #  (*tape current per module*)
+        # HV power per module (leakage + resistors)
+        pmhvb1.append(Temperatures.unref(SensorLeakage.qrefb1[i],tsb1[-1])
+                      + NominalPower.Phv( Temperatures.unref(SensorLeakage.qrefb1[i],tsb1[-1])/float(SensorProperties.vbias) )
+                      )
 
-    #  itapeb1 = 
-    #   Append[itapeb1, 
-    #    ssItape[tabcb1[[i]], thccb1[[i]], tfeastb1[[i]], doserateb1[[i]], 
-    #     tidb1[[i]]]];
-    #  (*tape power for one tape (half a stave)*)
+        # Leakage current per module
+        isb1.append( Temperatures.unref(SensorLeakage.qrefb1[i],tsb1[-1])/float(SensorProperties.vbias) )
 
-    #  ptapeb1 = 
-    #   Append[ptapeb1, 
-    #    ssPstavetape[tabcb1[[i]], thccb1[[i]], tfeastb1[[i]], 
-    #     doserateb1[[i]], tidb1[[i]]]];
-    #  (*digital current per module*)
+        # HV power per module due to serial resistors
+        pmhvrb1.append( NominalPower.Prhv( Temperatures.unref(SensorLeakage.qrefb1[i],tsb1[-1])/float(SensorProperties.vbias) ) )
 
-    #  idigb1 = Append[idigb1, 
-    #    ssIdig[tabcb1[[i]], thccb1[[i]], doserateb1[[i]], tidb1[[i]]]];
-    #  (*FEAST efficiency*)
+        # HV per module due to parallel resistor
+        pmhvmuxb1.append(NominalPower.Phvmux)
 
-    #  efffeastb1 = 
-    #   Append[efffeastb1, 
-    #    feasteff[tfeastb1[[i]], 
-    #     ssIfeast[tabcb1[[i]], thccb1[[i]], doserateb1[[i]], 
-    #      tidb1[[i]]]]];
-    #  (*done*)
+        # Stave power B1
+        pstaveb1.append(NominalPower.ssPstave(tabcb1[-1],
+                                              thccb1[-1],
+                                              tfeastb1[-1],
+                                              teosb1[-1],
+                                              OperationalProfiles.doserateb1[i],
+                                              OperationalProfiles.tidb1[i],
+                                              Temperatures.unref(SensorLeakage.qrefb1[i],tsb1[-1])/float(SensorProperties.vbias)
+                                              )
+                        )
 
-    #  If[i*step == IntegerPart[i*step], 
-    #   Print["calculated year ", i*step]];
-    #  ]
+        # Total power for B1
+        pb1.append( 2 * Layout.nstavesb1 * (1 + SafetyFactors.safetylayout)
+                    * NominalPower.ssPstave(tabcb1[-1],
+                                            thccb1[-1],
+                                            tfeastb1[-1],
+                                            teosb1[-1],
+                                            OperationalProfiles.doserateb1[i],
+                                            OperationalProfiles.tidb1[i],
+                                            Temperatures.unref(SensorLeakage.qrefb1[i],tsb1[-1])/float(SensorProperties.vbias)
+                                            )
+                    / 1000.
+                    )
+
+        # Total HV power for B1
+        phvb1.append( 2 * Layout.nstavesb1 * (1 + SafetyFactors.safetylayout) * 2 * Layout.nmod * (pmhvb1[-1] + pmhvrb1[-1]) / 1000. )
+
+        # Tape current per module
+        itapeb1.append(NominalPower.ssItape(tabcb1[-1],
+                                            thccb1[-1],
+                                            tfeastb1[-1],
+                                            OperationalProfiles.doserateb1[-1],
+                                            OperationalProfiles.tidb1[-1]
+                                            )
+                       )
+
+        # Tape power for one tape (half a stave)
+        ptapeb1.append(NominalPower.ssPstavetape(tabcb1[-1],
+                                                 thccb1[-1],
+                                                 tfeastb1[-1],
+                                                 OperationalProfiles.doserateb1[-1],
+                                                 OperationalProfiles.tidb1[-1]
+                                                 )
+                       )
+
+        # Digital current per module
+        idigb1.append(NominalPower.ssIdig(tabcb1[-1],
+                                          thccb1[-1],
+                                          OperationalProfiles.doserateb1[-1],
+                                          OperationalProfiles.tidb1[-1]
+                                          )
+                      )
+
+        # FEAST efficiency
+        efffeastb1.append(PoweringEfficiency.feasteff(tfeastb1[-1],
+                                                      NominalPower.ssIfeast(tabcb1[-1],
+                                                                            thccb1[-1],
+                                                                            OperationalProfiles.doserateb1[-1],
+                                                                            OperationalProfiles.tidb1[-1]
+                                                                            )
+                                                      )
+                          )
+
+        if i and math.fabs(((i+1)*GlobalSettings.step) % 1.) < 0.000001 :
+            print 'Calculated year %.0f'%( int((i+1)*GlobalSettings.step) )
+
+        continue # end of loop
+
+    return

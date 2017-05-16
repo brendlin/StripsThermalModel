@@ -53,6 +53,9 @@ def main(options,args) :
 
     print 'This is a safety factor: ',SafetyFactors.safetylayout
 
+    # The main calculations happen here:
+    SensorTemperatureCalc.CalculateSensorTemperature(time_step_tc)
+
     print 'done'
     return
 
