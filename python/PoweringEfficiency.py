@@ -21,6 +21,11 @@ feast_fit_function.SetParameter(1,feastfitconstants[1])
 feast_fit_function.SetParameter(2,feastfitconstants[2])
 feast_fit_function.SetParameter(3,feastfitconstants[3])
 
+feast_fit_function_T10 = ROOT.TF1("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*10",0,5)
+feast_fit_function_T10.SetParameters(*feastfitconstants)
+feast_fit_function_T60 = ROOT.TF1("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*60",0,5)
+feast_fit_function_T60.SetParameters(*feastfitconstants)
+
 Vfeast = 10.5 # Feast input voltage
 DCDC2eff = 0.88 # DCDC2 efficiency
 

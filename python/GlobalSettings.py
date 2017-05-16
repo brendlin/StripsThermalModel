@@ -16,3 +16,7 @@ for i in range(nstep) :
 
 # Used to live in NominalPower
 nomsensorT = 0
+
+# Temperature kelvin / celsius conversion
+def kelvin(celsius) :
+    return 273.15 + celsius
