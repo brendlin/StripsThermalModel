@@ -24,7 +24,7 @@ Submodules                   | Purpose                                          
 -----------------------------|--------------------------------------------------|------------|------------
 0. GlobalSettings            | Settings for the analysis: nyears, nstep, step.. | Kurt       | Done
 1. SafetyFactors             | for layout, fluence, thermal impedance, I, vbias | Kurt       | Done
-2. Layout                    |                                                  | Claire     |
+2. Layout                    | ABC and HCC analog and digital parts + AMACII    | Claire     | Done
 3. PoweringEfficiency        | FEAST efficiency, DCDC2 efficiency               | Kurt *     | Done
 4. CableLosses               |                                                  | Claire     |
 (4.) FrontEndComponents      | Front-end components, before irradiation         | (Claire)   |
@@ -50,6 +50,7 @@ Data / fits that we need
 but the fit could be improved and more precise data could be pushed for.
  - **Thermal impedances**: These are currently based on thermal simulations from the the barrel, and
 need to be rederived using endcap thermal simulations.
+ - **Losses**: no value for loss in tapes? 
 
 
 Other info
