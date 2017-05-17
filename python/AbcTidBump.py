@@ -38,7 +38,7 @@ def norm(c1, c2):
     return (1 - exp(-c1*(log(c2/c1)/(c2-c1)))) - (1 - exp(-c2*(log(c2/c1)/(c2-c1))))
     
 def tid_scale_shape(collecteddose):
-    return max( (1-exp(-coeff1 * (collecteddose - 400)/1000)) - (1-exp(-coeff2 * (collecteddose-400)/1000)), 0 )/norm(coeff1, coeff2)
+    return max( (1-exp(-coeff1 * (collecteddose - 400)/1000.)) - (1-exp(-coeff2 * (collecteddose-400)/1000.)), 0 )/float(norm(coeff1, coeff2))
 
 #--------------------------------------------
 # Combined scalefactor of digital ABC current:
