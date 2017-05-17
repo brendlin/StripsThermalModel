@@ -38,6 +38,15 @@ Submodules                   | Purpose                                          
 12. SensorLeakage            | Leakage current as a function of flux (A/cm^2)   | Claire *   | Done
 13. SensorTemperatureCalc    | Sensor temperature calculation                   | (Both)     | In Progress
 
+Plotting/Checks/Investigations
+-----------
+Topic                        | Purpose                                          | Assignee   | Status
+-----------------------------|--------------------------------------------------|------------|------------
+Sensor power                 | Plotting to check correct implementation         | Claire     | 
+TID bump                     | Plot to check and investigate the modelling      | Claire     |
+Feast efficiency             | Plot to check and investigate the modelling      | Kurt       | Done
+
+
 Simple numbers that need to be switched from barrel to endcap values:
 -----
  - **Fluences/Total ionizing dose for the petal**. Later, extend this to include dependence on eta and
