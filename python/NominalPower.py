@@ -130,7 +130,9 @@ def lseosP(Teos) :
 # Short strip stave
 
 def ssPstavetape(Tabc,Thcc,Tfeast,d,D) :
-    return 1 # Dummy number for now -- fix!
+    n2_from_1_to_nmod = list( n**2 for n in range(1,Layout.nmod+1) )
+    sum_n2_from_1_to_nmod = sum(n2_from_1_to_nmod)
+    return (ssPtape(Tabc, Thcc, Tfeast, d, D) / float(Layout.nmod)**2 ) * sum_n2_from_1_to_nmod
 
 def ssPstave(Tabc,Thcc,Tfeast,Teos,d,D,Is) :
     return 2 * (Layout.nmod * (ssPmod(Tabc,Thcc,Tfeast,d,D,Is) - ssPtape(Tabc,Thcc,Tfeast,d,D) +
@@ -144,7 +146,9 @@ ssPstavebare = ssPstave(GlobalSettings.nomsensorT,
 # Long strip stave
 
 def lsPstavetape(Tabc,Thcc,Tfeast,d,D) :
-    return 1 # Dummy number for now -- fix!
+    n2_from_1_to_nmod = list( n**2 for n in range(1,Layout.nmod+1) )
+    sum_n2_from_1_to_nmod = sum(n2_from_1_to_nmod)
+    return (lsPtape(Tabc, Thcc, Tfeast, d, D) / float(Layout.nmod)**2 ) * sum_n2_from_1_to_nmod
 
 def lsPstave(Tabc,Thcc,Tfeast,Teos,d,D,Is) :
     return 2 * (Layout.nmod * (lsPmod(Tabc,Thcc,Tfeast,d,D,Is) - lsPtape(Tabc,Thcc,Tfeast,d,D) +
