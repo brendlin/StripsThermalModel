@@ -45,6 +45,7 @@ Topic                        | Purpose                                          
 Sensor power                 | Plotting to check correct implementation         | Claire     | 
 TID bump                     | Plot to check and investigate the modelling      | Claire     |
 Feast efficiency             | Plot to check and investigate the modelling      | Kurt       | Done
+Operating profiles           | Reproducing plots from Graham and Georg          | Kurt       |
 
 
 Simple numbers that need to be switched from barrel to endcap values:

@@ -9,6 +9,7 @@ print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
 
 import python.PoweringEfficiency as PoweringEfficiency
+import python.PlotUtils as PlotUtils
 
 #-----------------------------------------------
 def main(options,args) :
@@ -50,6 +51,10 @@ def main(options,args) :
     PoweringEfficiency.feast_fit_function_T60.Draw('sames')
     feast_data_10.Draw('p')
     feast_data_60.Draw('p')
+    
+    
+    
+    PlotUtils.SetStyleTitles(PoweringEfficiency.feast_fit_function_T10, "FEAST Efficiency fit", "I_{load} [A]", "FEAST Efficiency")
 
     c.Print('%s/plots/FeastEfficiency.eps'%(the_path))
     
