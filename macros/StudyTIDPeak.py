@@ -40,12 +40,21 @@ def main(options,args) :
         
     # 1D projection for data points T = -10
     c = ROOT.TCanvas('tid_scale_overall_fit_function', 'TID Overall scale factor', 500,500)
+    AbcTidBump.tid_scale_overall_fit_function_Tm10.SetLineColor(96)
+    AbcTidBump.tid_scale_overall_fit_function_Tm10.Draw()
+    
     tid_overall_Tm10 = ROOT.TGraph(len(data_m10['x']),array('d',data_m10['x']),array('d',data_m10['y']))
     tid_overall_Tm10.SetMarkerSize(1)
     tid_overall_Tm10.SetMarkerStyle(20)
-    
-    AbcTidBump.tid_scale_overall_fit_function_Tm10.Draw()
+    tid_overall_Tm10.SetMarkerColor(2)
     tid_overall_Tm10.Draw('same p')
+        
+    # Legending
+    leg= ROOT.TLegend(0.5, 0.15, 0.89, 0.3)
+    PlotUtils.SetStyleLegend(leg)
+    leg.AddEntry(tid_overall_Tm10, "Data, T = -10 C", "p")
+    leg.AddEntry(AbcTidBump.tid_scale_overall_fit_function_Tm10,"Fit, T = -10 C","l")
+    leg.Draw()
     
     PlotUtils.SetStyleTitles(AbcTidBump.tid_scale_overall_fit_function_Tm10, "TID overall scale factor, T = -10 C", "Dose rate [kRad/hr]", "TID scale factor")
     
