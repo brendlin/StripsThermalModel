@@ -34,8 +34,16 @@ tid_scale_overall_fit_function.SetParameters(*tid_scale_overall_fit_constants)
 #tid_scale_overall_fit_function.SetParameter(2, 0.287121)
 
 # Projection in plane T = -10 degC
-tid_scale_overall_fit_function_Tm10 = ROOT.TF1("tid_scale_overall_fit_function_Tm10", "[0] * exp([1]*(20 + 10))* x^[2] + 1", 0, 3)
+tid_scale_overall_fit_function_Tm10 = ROOT.TF1("tid_scale_overall_fit_function_Tm10", "[0] * exp([1]*(20 + 10))* x^[2] + 1", 0, 65)
 tid_scale_overall_fit_function_Tm10.SetParameters(*tid_scale_overall_fit_constants)
+
+# Projection in plane T = -15 degC
+tid_scale_overall_fit_function_Tm15 = ROOT.TF1("tid_scale_overall_fit_function_Tm15", "[0] * exp([1]*(20 + 15))* x^[2] + 1", 0, 65)
+tid_scale_overall_fit_function_Tm15.SetParameters(*tid_scale_overall_fit_constants)
+
+# Projection in plane T = -25 degC
+tid_scale_overall_fit_function_Tm25 = ROOT.TF1("tid_scale_overall_fit_function_Tm25", "[0] * exp([1]*(20 + 25))* x^[2] + 1", 0, 65)
+tid_scale_overall_fit_function_Tm25.SetParameters(*tid_scale_overall_fit_constants)
 
 #--------------------------------------------
 # s_shape(D)
