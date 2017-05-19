@@ -96,7 +96,7 @@ def main(options,args) :
     gr['tidb4'].Draw('l')
     leg.Draw()
     c.Print('%s/plots/TotalIonizingDoseBarrel.eps'%(the_path))
-    raw_input('pause')
+
 
 
     # dose rates
@@ -130,7 +130,6 @@ def main(options,args) :
     leg.Draw()
     c.Print('%s/plots/DoseRateBarrel.eps'%(the_path))
 
-    raw_input('pause')
     return
 
 #-----------------------------------------------
