@@ -24,6 +24,7 @@ import python.SensorLeakage       as SensorLeakage
 import python.SensorTemperatureCalc as SensorTemperatureCalc
 print 'importing modules done.'
 
+import python.PlotUtils as PlotUtils
 
 def usage() :
     print "Usage:\n"
@@ -35,6 +36,8 @@ def usage() :
     
 #-----------------------------------------------
 def main(options,args):
+
+    PlotUtils.ApplyGlobalStyle()
     
     # Coolant temperature in Celsius in each year for 14 y of operation
     if options.cooling == 'flat-25' :
@@ -58,8 +61,6 @@ def main(options,args):
     for i in range(GlobalSettings.nstep) :
         index = int( math.floor(i * GlobalSettings.step) )
         time_step_tc.append( coolantT[ index ] )
-
-    print 'This is a safety factor: ',SafetyFactors.safetylayout
 
     # The main calculations happen here:
     SensorTemperatureCalc.CalculateSensorTemperature(time_step_tc)
