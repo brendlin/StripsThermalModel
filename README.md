@@ -43,7 +43,7 @@ Plotting/Checks/Investigations
 Topic                        | Purpose                                          | Assignee   | Status
 -----------------------------|--------------------------------------------------|------------|------------
 Sensor power                 | Plotting to check correct implementation         | Claire     | 
-TID bump                     | Plot to check and investigate the modelling      | Claire     |
+TID bump                     | Plot to check and investigate the modelling      | Claire     | Done plotting
 Feast efficiency             | Plot to check and investigate the modelling      | Kurt       | Done
 Operating profiles           | Reproducing plots from Graham and Georg          | Kurt       | Done
 
@@ -62,10 +62,14 @@ but the fit could be improved and more precise data could be pushed for.
 need to be rederived using endcap thermal simulations.
  - **Losses**: no value for losses in tapes? 
 
-Question
+Questions
 -----
  - **Sensor leakage**: line 28 
  - Document (v2.1): Eq. 15a has I instead of I^2 ?
+ - **Operational profiles**: Figures 11 and 12 of report v2.3 are not matching associated plots in Mathematica file
+(Section 11) E.g. second plateau Year 8 of B1 is around 15000 kRad in the document, but 20000 kRad in Mathematica's plot.
+Was there an update in between? 
+
 
 Other info
 -----

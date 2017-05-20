@@ -13,11 +13,13 @@ import python.PlotUtils as PlotUtils
 
 #-----------------------------------------------
 def main(options,args) :
-
+    PlotUtils.ApplyGlobalStyle()
+    
     tid_overall_data = open('%s/data/AbcTidBumpData.txt'%(the_path),'r')
     
     # x -> T, y -> d, z -> TID factor
     # Collect only points at T=-10C, T=-15 and T=-25 in separate arrays
+    # Hardcoded for the moment, more elegant code later with fresh data
     data_m10 = {'y':[],'z':[]}
     data_m15 = {'y':[],'z':[]}
     data_m25 = {'y':[],'z':[]}
@@ -114,7 +116,7 @@ def main(options,args) :
     c.Print('%s/plots/AbcTidBumpOverall_factor_vs_d_restr.eps'%(the_path))
     
     #-------------------------
-    # 3D plot
+    # Overall 3D plot 
     #-------------------------
     c3 = ROOT.TCanvas("tid_scale_overall_fit_function","TID Overall scale factor",0,0,600,400);
     AbcTidBump.tid_scale_overall_fit_function.SetLineWidth(1)
@@ -133,6 +135,53 @@ def main(options,args) :
     c3.Print('%s/plots/AbcTidBumpOverall_all.eps'%(the_path))
     c3.Print('%s/plots/AbcTidBumpOverall_all.root'%(the_path))
 
+    #-------------------------
+    # Shape vs collected dose 
+    #-------------------------
+    c4 = ROOT.TCanvas('tid_scale_shape_at_D', 'TID shape scale factor',600,500)
+    dose = []
+    shapeArray = []
+    for i in range(0, 10000, 10) :
+        dose.append(float(i))
+        shapeArray.append(AbcTidBump.tid_scale_shape(i))
+    gShape = PlotUtils.MakeGraph('TIDShape','TID shape vs collected dose','Dose [kRad]','Scale factor',dose,shapeArray)
+    gShape.SetLineColor(3)
+    gShape.Draw('al')
+    
+    c4.Print('%s/plots/AbcTidBumpShape.eps'%(the_path))
+ 
+    #-------------------------
+    # Overall * shape => combined scale factor 
+    #-------------------------   
+    c5 = ROOT.TCanvas('tid_combined_1p1kRadhr', 'TID scaling for 1.1 kRad/hr',600,500)
+    # Example Mathematica for d = 1.1 kRad/hr
+    D = []
+    fTm10 = []
+    fTp10 = []
+    for i in range(0,2200, 10) :
+        D.append(i)
+        fTm10.append(AbcTidBump.tid_scale_combined_factor(-10., 1.1, i))
+        fTp10.append(AbcTidBump.tid_scale_combined_factor(10., 1.1, i))
+    
+    gCombm10 = PlotUtils.MakeGraph('TIDScaleCombined','TID scaling for 1.1 kRad/h','Dose [kRad]','Scale factor',D,fTm10)
+    gCombm10.SetLineColor(4)
+    gCombm10.SetMinimum(1.)
+    gCombm10.GetXaxis().SetNdivisions(505)
+    
+    gCombp10 = PlotUtils.MakeGraph('TIDScaleCombined','TID scaling for 1.1 kRad/h','Dose [kRad]','Scale factor',D,fTp10)
+    gCombp10.SetLineColor(3)
+    
+    gCombm10.Draw('al')
+    gCombp10.Draw('l')
+     
+    leg5 = ROOT.TLegend(0.7,0.3,0.84,0.45)
+    PlotUtils.SetStyleLegend(leg5)
+    leg5.AddEntry(gCombm10, "T = -10 #circ C", "l")
+    leg5.AddEntry(gCombp10, "T = +10 #circ C", "l")
+    leg5.Draw()
+    
+    c5.Print('%s/plots/AbcTidBumpCombinedSF.eps'%(the_path))
+    
 
 #-----------------------------------------------
 if __name__ == '__main__':

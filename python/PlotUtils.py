@@ -29,10 +29,10 @@ def ApplyGlobalStyle() :
 
     # x axis
     mystyle.SetTitleXOffset(1.0)
-    mystyle.SetLabelOffset(0.002,'x')
+    mystyle.SetLabelOffset(0.003,'x')
     # y axis
     mystyle.SetTitleOffset(1.75 ,'y')
-    mystyle.SetLabelOffset(0.002,'y')
+    mystyle.SetLabelOffset(0.003,'y')
 
     ROOT.gROOT.SetStyle("mystyle")
 
