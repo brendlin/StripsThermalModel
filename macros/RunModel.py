@@ -63,7 +63,7 @@ def main(options,args):
         time_step_tc.append( coolantT[ index ] )
 
     # The main calculations happen here:
-    SensorTemperatureCalc.CalculateSensorTemperature(time_step_tc)
+    SensorTemperatureCalc.CalculateSensorTemperature(time_step_tc,options)
 
     print 'done'
     return

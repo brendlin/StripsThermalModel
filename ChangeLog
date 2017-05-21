@@ -1,2 +1,6 @@
+2017-05-21 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Finished importing SensorTemperatureCalc
+    * Next steps written in README
+
 2017-05-20 Claire David <claire.david@cern.ch>
     * Adding this ChangeLog to better see change

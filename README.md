@@ -36,7 +36,7 @@ Submodules                   | Purpose                                          
 10. Temperatures             | Activation, barrel LS and SS                     | Claire     | Done
 11. OperationalProfiles      | Luminosity (inst, int), efficiency (?)           | Kurt *     | Done
 12. SensorLeakage            | Leakage current as a function of flux (A/cm^2)   | Claire *   | Done
-13. SensorTemperatureCalc    | Sensor temperature calculation                   | (Both)     | In Progress
+13. SensorTemperatureCalc    | Sensor temperature calculation                   | (Both)     | Done (debug!)
 
 Plotting/Checks/Investigations
 -----------
@@ -46,7 +46,34 @@ Sensor power                 | Plotting to check correct implementation         
 TID bump                     | Plot to check and investigate the modelling      | Claire     | Done plotting
 Feast efficiency             | Plot to check and investigate the modelling      | Kurt       | Done
 Operating profiles           | Reproducing plots from Graham and Georg          | Kurt       | Done
+SensorTemperatureCalc tsb1       | Sensor temperature (details?)                |            |
+SensorTemperatureCalc tabcb1     | ABC temperature (details?)                   |            |
+SensorTemperatureCalc thccb1     | HCC temperature (details?)                   |            |
+SensorTemperatureCalc tfeastb1   | FEAST temperature (details?)                 |            |
+SensorTemperatureCalc teosb1     | Module power (details?)                      |            |
+SensorTemperatureCalc pmoduleb1  | Tape power (details?)                        |            |
+SensorTemperatureCalc pmtapeb1   | HV power (details?)                          |            |
+SensorTemperatureCalc pmhvb1     | Sensor current (details?)                    |            |
+SensorTemperatureCalc isb1       |                                              |            |
+SensorTemperatureCalc pmhvrb1    |                                              |            |
+SensorTemperatureCalc pb1        |                                              |            |
+SensorTemperatureCalc phvb1      |                                              |            |
+SensorTemperatureCalc pmhvmuxb1  |                                              |            |
+SensorTemperatureCalc itapeb1    |                                              |            |
+SensorTemperatureCalc idigb1     |                                              |            |
+SensorTemperatureCalc efffeastb1 |                                              |            |
+SensorTemperatureCalc ptapeb1    |                                              |            |
+SensorTemperatureCalc pstaveb1   |                                              |            |
 
+More plots -- plotting and debugging (focus on flat-35 scenario)
+-----------
+Topic                                 | Notes                                                                              | Assignee   | Status
+--------------------------------------|------------------------------------------------------------------------------------|------------|------------
+Sensor temperature                    | p. 11 in https://indico.cern.ch/event/625365 (Baseline temperature does not agree) |            |
+Power summary plot                    | p. 11 of slides; total power, w/o HV, w/o tape loss                                | Kurt       |
+Total HV power per module             | p. 11 of slides                                                                    |            |
+Temperature summary of all components | p. 12 of slides                                                                    |            |
+Total power in B1                     | p. 12 of slides                                                                    |            |
 
 Simple numbers that need to be switched from barrel to endcap values:
 -----
