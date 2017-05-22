@@ -28,7 +28,7 @@ def main(options,args) :
     
     c = ROOT.TCanvas('blah','blah',600,500)
     gr['intLumi'].Draw('al')
-    c.Print('%s/plots/IntegratedLuminosity.eps'%(the_path))
+    c.Print('%s/plots/OperationalProfiles/IntegratedLuminosity.eps'%(the_path))
 
 
 
@@ -62,7 +62,7 @@ def main(options,args) :
     gr['days/yr'].Draw('p')
     gr['eff'].Draw('p')
     leg.Draw()
-    c.Print('%s/plots/YearlyRunProfile.eps'%(the_path))
+    c.Print('%s/plots/OperationalProfiles/YearlyRunProfile.eps'%(the_path))
 
 
 
@@ -95,7 +95,7 @@ def main(options,args) :
     gr['tidb3'].Draw('l')
     gr['tidb4'].Draw('l')
     leg.Draw()
-    c.Print('%s/plots/TotalIonizingDoseBarrel.eps'%(the_path))
+    c.Print('%s/plots/OperationalProfiles/TotalIonizingDoseBarrel.eps'%(the_path))
 
 
 
@@ -128,7 +128,7 @@ def main(options,args) :
     gr['doserateb3'].Draw('l')
     gr['doserateb4'].Draw('l')
     leg.Draw()
-    c.Print('%s/plots/DoseRateBarrel.eps'%(the_path))
+    c.Print('%s/plots/OperationalProfiles/DoseRateBarrel.eps'%(the_path))
 
     return
 

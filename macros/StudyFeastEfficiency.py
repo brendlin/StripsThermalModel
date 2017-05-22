@@ -73,7 +73,7 @@ def main(options,args) :
     
     PlotUtils.SetStyleTitles(PoweringEfficiency.feast_fit_function_T10, "FEAST Efficiency fit", "I_{load} [A]", "FEAST Efficiency")
 
-    c.Print('%s/plots/FeastEfficiency.eps'%(the_path))
+    c.Print('%s/plots/FeastEfficiency/FeastEfficiency.eps'%(the_path))
     
     return
 

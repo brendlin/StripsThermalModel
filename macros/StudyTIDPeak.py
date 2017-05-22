@@ -103,17 +103,17 @@ def main(options,args) :
     
     PlotUtils.SetStyleTitles(AbcTidBump.tid_scale_overall_fit_function_Tm15, "TID overall scale factor", "Dose rate [kRad/hr]", "TID scale factor")
     
-    #c.Print('%s/plots/AbcTidBumpOverall_Tm10.eps'%(the_path))
-    c.Print('%s/plots/AbcTidBumpOverall_factor_vs_d.eps'%(the_path))
+    #c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_Tm10.eps'%(the_path))
+    c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_factor_vs_d.eps'%(the_path))
     
     #c.SetLogx()
     #c.SetLogy()
-    #c.Print('%s/plots/AbcTidBumpOverall_factor_vs_d_log.eps'%(the_path))
+    #c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_factor_vs_d_log.eps'%(the_path))
     
     # Let's remove that -15 point at d = 62
     AbcTidBump.tid_scale_overall_fit_function_Tm15.GetXaxis().SetRangeUser(0.,4.)
     c.Update()
-    c.Print('%s/plots/AbcTidBumpOverall_factor_vs_d_restr.eps'%(the_path))
+    c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_factor_vs_d_restr.eps'%(the_path))
     
     #-------------------------
     # Overall 3D plot 
@@ -132,8 +132,8 @@ def main(options,args) :
     
     g2D.Draw('same p')
     
-    c3.Print('%s/plots/AbcTidBumpOverall_all.eps'%(the_path))
-    c3.Print('%s/plots/AbcTidBumpOverall_all.root'%(the_path))
+    c3.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_all.eps'%(the_path))
+    c3.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_all.root'%(the_path))
 
     #-------------------------
     # Shape vs collected dose 
@@ -148,7 +148,7 @@ def main(options,args) :
     gShape.SetLineColor(3)
     gShape.Draw('al')
     
-    c4.Print('%s/plots/AbcTidBumpShape.eps'%(the_path))
+    c4.Print('%s/plots/AbcTidBump/AbcTidBumpShape.eps'%(the_path))
  
     #-------------------------
     # Overall * shape => combined scale factor 
@@ -180,7 +180,7 @@ def main(options,args) :
     leg5.AddEntry(gCombp10, "T = +10 #circ C", "l")
     leg5.Draw()
     
-    c5.Print('%s/plots/AbcTidBumpCombinedSF.eps'%(the_path))
+    c5.Print('%s/plots/AbcTidBump/AbcTidBumpCombinedSF.eps'%(the_path))
     
 
 #-----------------------------------------------
