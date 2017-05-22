@@ -307,7 +307,7 @@ def CalculateSensorTemperature(tc,options) :
     gr['pmhvb1']     = MakeGraph('HVPower'          ,'HV Power per module',xtitle,'P_{%s} [W]'%('HV'    )        ,x,pmhvb1    )
     gr['isb1']       = MakeGraph('SensorCurrent'    ,'Sensor current'     ,xtitle,'I_{%s} [?]'%('sensor')        ,x,isb1      )
     gr['pmhvrb1']    = MakeGraph('pmhvrb1'          ,'pmhvrb1'            ,xtitle,'P_{%s} [W]'%('?')             ,x,pmhvrb1   )
-    gr['pb1']        = MakeGraph('pb1'              ,'pb1'                ,xtitle,'P_{%s} [W]'%('?')             ,x,pb1       )
+    gr['pb1']        = MakeGraph('SummaryTotalPower','Total Power in B1'  ,xtitle,'P_{%s} [kW]'%('B1')           ,x,pb1       )
     gr['phvb1']      = MakeGraph('phvb1'            ,'phvb1'              ,xtitle,'P_{%s} [W]'%('?')             ,x,phvb1     )
     gr['pmhvmuxb1']  = MakeGraph('pmhvmuxb1'        ,'pmhvmuxb1'          ,xtitle,'P_{%s} [W]'%('?')             ,x,pmhvmuxb1 )
     gr['itapeb1']    = MakeGraph('itapeb1'          ,'itapeb1'            ,xtitle,'I_{%s} [?]'%('?')             ,x,itapeb1   )

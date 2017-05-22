@@ -1,4 +1,5 @@
 2017-05-22 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Modified total power b1 summary plot
     * Added Temperature, Power, HV Power summary plots
     * Fix bug in FEAST efficiency
     * Fix bug in module power
