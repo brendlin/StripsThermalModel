@@ -30,6 +30,6 @@ Vfeast = 10.5 # Feast input voltage
 DCDC2eff = 0.88 # DCDC2 efficiency
 
 def feasteff(tsensor,iload) :
-    return feastfitconstants[0] + feastfitconstants[1]*iload + feastfitconstants[2]*iload*iload + feastfitconstants[2]*iload*iload*iload - (2./25.) * tsensor
+    return feast_fit_function.Eval(iload,tsensor)
 
 # Scale factor for the current at a specific collected dose
