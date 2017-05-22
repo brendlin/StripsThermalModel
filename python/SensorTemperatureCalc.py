@@ -24,23 +24,23 @@ def CalculateSensorTemperature(tc,options) :
 
     # "Initialize lists"
     tsb1       = [] # Sensor temperature
-    tabcb1     = [] # ???
-    thccb1     = [] # ???
-    tfeastb1   = [] # ???
-    teosb1     = [] # ???
+    tabcb1     = [] # ABC temperature
+    thccb1     = [] # HCC temperature
+    tfeastb1   = [] # FEAST temperature
+    teosb1     = [] # EOS temperature
     pmoduleb1  = [] # Power per module (front-end + HV)
     pmtapeb1   = [] # Power loss in tape per module
     pmhvb1     = [] # HV power per module (leakage + resistors)
-    isb1       = [] # ???
+    isb1       = [] # Sensor current
     pmhvrb1    = [] # HV power per module due to serial resistors
-    pb1        = [] # ???
-    phvb1      = [] # ???
-    pmhvmuxb1  = [] # ???
-    itapeb1    = [] # ???
-    idigb1     = [] # ???
-    efffeastb1 = [] # ???
-    ptapeb1    = [] # ???
-    pstaveb1   = [] # ???
+    pb1        = [] # Total power in B1
+    phvb1      = [] # Total HV Power (sensor+resistors) in B1
+    pmhvmuxb1  = [] # HV Power parallel resistor
+    itapeb1    = [] # Tape current per module
+    idigb1     = [] # Digital current per module
+    efffeastb1 = [] # FEAST efficiency
+    ptapeb1    = [] # Power loss in complete tape B1
+    pstaveb1   = [] # Stave Power in B1
 
     # "Initialize temperatures"
 
@@ -297,24 +297,24 @@ def CalculateSensorTemperature(tc,options) :
     # dictionary of graphs
     gr = dict()
 
-    gr['tsb1']       = MakeGraph('SensorTemperature','sensor temperature' ,xtitle,'T_{%s} [#circ^{}C]'%('sensor'),x,tsb1      )
-    gr['tabcb1']     = MakeGraph('AbcTemperature'   ,'ABC temperature'    ,xtitle,'T_{%s} [#circ^{}C]'%('ABC'   ),x,tabcb1    )
-    gr['thccb1']     = MakeGraph('HCCTemperature'   ,'HCC temperature'    ,xtitle,'T_{%s} [#circ^{}C]'%('HCC'   ),x,thccb1    )
-    gr['tfeastb1']   = MakeGraph('FEASTTemperature' ,'FEAST temperature'  ,xtitle,'T_{%s} [#circ^{}C]'%('FEAST' ),x,tfeastb1  )
-    gr['teosb1']     = MakeGraph('EOSTemperature'   ,'EOS temperature'    ,xtitle,'T_{%s} [#circ^{}C]'%('EOS'   ),x,teosb1    )
-    gr['pmoduleb1']  = MakeGraph('ModulePower'      ,'Module Power'       ,xtitle,'P_{%s} [W]'%('module')        ,x,pmoduleb1 )
-    gr['pmtapeb1']   = MakeGraph('TapePower'        ,'Tape Power Loss'    ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,pmtapeb1  )
-    gr['pmhvb1']     = MakeGraph('HVPower'          ,'HV Power per module',xtitle,'P_{%s} [W]'%('HV'    )        ,x,pmhvb1    )
-    gr['isb1']       = MakeGraph('SensorCurrent'    ,'Sensor current'     ,xtitle,'I_{%s} [?]'%('sensor')        ,x,isb1      )
-    gr['pmhvrb1']    = MakeGraph('pmhvrb1'          ,'pmhvrb1'            ,xtitle,'P_{%s} [W]'%('?')             ,x,pmhvrb1   )
-    gr['pb1']        = MakeGraph('SummaryTotalPower','Total Power in B1'  ,xtitle,'P_{%s} [kW]'%('B1')           ,x,pb1       )
-    gr['phvb1']      = MakeGraph('phvb1'            ,'phvb1'              ,xtitle,'P_{%s} [W]'%('?')             ,x,phvb1     )
-    gr['pmhvmuxb1']  = MakeGraph('pmhvmuxb1'        ,'pmhvmuxb1'          ,xtitle,'P_{%s} [W]'%('?')             ,x,pmhvmuxb1 )
-    gr['itapeb1']    = MakeGraph('itapeb1'          ,'itapeb1'            ,xtitle,'I_{%s} [?]'%('?')             ,x,itapeb1   )
-    gr['idigb1']     = MakeGraph('idigb1'           ,'idigb1'             ,xtitle,'I_{%s} [?]'%('?')             ,x,idigb1    )
-    gr['efffeastb1'] = MakeGraph('efffeastb1'       ,'efffeastb1'         ,xtitle,'Efficiency [%]'               ,x,efffeastb1)
-    gr['ptapeb1']    = MakeGraph('ptapeb1'          ,'ptapeb1'            ,xtitle,'P_{%s} [W]'%('?')             ,x,ptapeb1   )
-    gr['pstaveb1']   = MakeGraph('pstaveb1'         ,'pstaveb1'           ,xtitle,'P_{%s} [W]'%('?')             ,x,pstaveb1  )
+    gr['tsb1']       = MakeGraph('SensorTemperature'      ,'sensor temperature'                     ,xtitle,'T_{%s} [#circ^{}C]'%('sensor'),x,tsb1      )
+    gr['tabcb1']     = MakeGraph('AbcTemperature'         ,'ABC temperature'                        ,xtitle,'T_{%s} [#circ^{}C]'%('ABC'   ),x,tabcb1    )
+    gr['thccb1']     = MakeGraph('HCCTemperature'         ,'HCC temperature'                        ,xtitle,'T_{%s} [#circ^{}C]'%('HCC'   ),x,thccb1    )
+    gr['tfeastb1']   = MakeGraph('FEASTTemperature'       ,'FEAST temperature'                      ,xtitle,'T_{%s} [#circ^{}C]'%('FEAST' ),x,tfeastb1  )
+    gr['teosb1']     = MakeGraph('EOSTemperature'         ,'EOS temperature'                        ,xtitle,'T_{%s} [#circ^{}C]'%('EOS'   ),x,teosb1    )
+    gr['pmoduleb1']  = MakeGraph('ModulePower'            ,'Module Power'                           ,xtitle,'P_{%s} [W]'%('module')        ,x,pmoduleb1 )
+    gr['pmtapeb1']   = MakeGraph('TapePower'              ,'Tape Power Loss'                        ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,pmtapeb1  )
+    gr['pmhvb1']     = MakeGraph('HVPower'                ,'HV Power per module'                    ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,pmhvb1    )
+    gr['isb1']       = MakeGraph('SensorCurrent'          ,'Sensor current'                         ,xtitle,'I_{%s} [?]'%('sensor')        ,x,isb1      )
+    gr['pmhvrb1']    = MakeGraph('HVPowerSerialResistors' ,'HV Power serial resistors'              ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,pmhvrb1   )
+    gr['pb1']        = MakeGraph('SummaryTotalPower'      ,'Total Power in B1'                      ,xtitle,'P_{%s} [kW]'%('B1')           ,x,pb1       )
+    gr['phvb1']      = MakeGraph('SummaryTotalHVPower'    ,'Total HV Power (sensor+resistors) in B1',xtitle,'P_{%s} [kW]'%('HV')           ,x,phvb1     )
+    gr['pmhvmuxb1']  = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'             ,xtitle,'P_{%s} [W]'%('HV,||')             ,x,pmhvmuxb1 )
+    gr['itapeb1']    = MakeGraph('TapeCurrent'            ,'Tape current per module'                ,xtitle,'I_{%s} [A]'%('tape')          ,x,itapeb1   )
+    gr['idigb1']     = MakeGraph('DigitalCurrent'         ,'ABC and HCC digital current'            ,xtitle,'I_{%s} [A]'%('digital')       ,x,idigb1    )
+    gr['efffeastb1'] = MakeGraph('FeastEfficiency'        ,'Feast efficiency'                       ,xtitle,'Efficiency [%]'               ,x,efffeastb1)
+    gr['ptapeb1']    = MakeGraph('TotalPowerLossTapeB1'   ,'Power loss in complete tape B1'         ,xtitle,'P_{%s} [W]'%('tape')          ,x,ptapeb1   )
+    gr['pstaveb1']   = MakeGraph('TotalStavePowerB1'      ,'Stave Power in B1'                      ,xtitle,'P_{%s} [W]'%('stave')         ,x,pstaveb1  )
 
     outputpath = '%s/plots/SensorTemperatureCalc'%(('/').join(os.getcwd().split('/')[:-1]))
     outputtag = {

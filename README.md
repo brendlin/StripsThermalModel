@@ -46,24 +46,24 @@ Sensor power                 | Plotting to check correct implementation         
 TID bump                     | Plot to check and investigate the modelling      | Claire     | Done plotting
 Feast efficiency             | Plot to check and investigate the modelling      | Kurt       | Done
 Operating profiles           | Reproducing plots from Graham and Georg          | Kurt       | Done
-SensorTemperatureCalc tsb1       | Sensor temperature (details?)                |            |
-SensorTemperatureCalc tabcb1     | ABC temperature (details?)                   |            |
-SensorTemperatureCalc thccb1     | HCC temperature (details?)                   |            |
-SensorTemperatureCalc tfeastb1   | FEAST temperature (details?)                 |            |
-SensorTemperatureCalc teosb1     | Module power (details?)                      |            |
-SensorTemperatureCalc pmoduleb1  | Tape power (details?)                        |            |
-SensorTemperatureCalc pmtapeb1   | HV power (details?)                          |            |
-SensorTemperatureCalc pmhvb1     | Sensor current (details?)                    |            |
-SensorTemperatureCalc isb1       |                                              |            |
-SensorTemperatureCalc pmhvrb1    |                                              |            |
-SensorTemperatureCalc pb1        |                                              |            |
-SensorTemperatureCalc phvb1      |                                              |            |
-SensorTemperatureCalc pmhvmuxb1  |                                              |            |
-SensorTemperatureCalc itapeb1    |                                              |            |
-SensorTemperatureCalc idigb1     |                                              |            |
-SensorTemperatureCalc efffeastb1 |                                              |            |
-SensorTemperatureCalc ptapeb1    |                                              |            |
-SensorTemperatureCalc pstaveb1   |                                              |            |
+SensorTemperatureCalc tsb1       | Sensor temperature                           | Kurt       | Done
+SensorTemperatureCalc tabcb1     | ABC temperature                              | Kurt       | Done
+SensorTemperatureCalc thccb1     | HCC temperature                              | Kurt       | Done
+SensorTemperatureCalc tfeastb1   | FEAST temperature                            | Kurt       | Done
+SensorTemperatureCalc teosb1     | EOS temperature                              | Kurt       | Done
+SensorTemperatureCalc pmoduleb1  | Power per module (front-end + HV)            | Kurt       | Done
+SensorTemperatureCalc pmtapeb1   | Power loss in tape per module                | Kurt       | Done
+SensorTemperatureCalc pmhvb1     | HV power per module (leakage + resistors)    | Kurt       | Done
+SensorTemperatureCalc isb1       | Sensor current                               | Kurt       | Done
+SensorTemperatureCalc pmhvrb1    | HV power per module due to serial resistors  | Kurt       | Done
+SensorTemperatureCalc pb1        | Total power in B1                            | Kurt       | Done
+SensorTemperatureCalc phvb1      | Total HV Power (sensor+resistors) in B1      | Kurt       | Done
+SensorTemperatureCalc pmhvmuxb1  | HV Power parallel resistor                   | Kurt       | Done
+SensorTemperatureCalc itapeb1    | Tape current per module                      | Kurt       | Done
+SensorTemperatureCalc idigb1     | Digital current per module                   | Kurt       | Done
+SensorTemperatureCalc efffeastb1 | FEAST efficiency                             | Kurt       | Done
+SensorTemperatureCalc ptapeb1    | Power loss in complete tape B1               | Kurt       | Done
+SensorTemperatureCalc pstaveb1   | Stave Power in B1                            | Kurt       | Done
 
 More plots -- plotting and debugging (focus on flat-35 scenario)
 -----------
