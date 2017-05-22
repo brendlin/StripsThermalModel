@@ -28,11 +28,11 @@ def CalculateSensorTemperature(tc,options) :
     thccb1     = [] # ???
     tfeastb1   = [] # ???
     teosb1     = [] # ???
-    pmoduleb1  = [] # ???
-    pmtapeb1   = [] # ???
-    pmhvb1     = [] # ???
+    pmoduleb1  = [] # Power per module (front-end + HV)
+    pmtapeb1   = [] # Power loss in tape per module
+    pmhvb1     = [] # HV power per module (leakage + resistors)
     isb1       = [] # ???
-    pmhvrb1    = [] # ???
+    pmhvrb1    = [] # HV power per module due to serial resistors
     pb1        = [] # ???
     phvb1      = [] # ???
     pmhvmuxb1  = [] # ???
@@ -200,7 +200,7 @@ def CalculateSensorTemperature(tc,options) :
                                              )
                          )
 
-        # Power in tape per module
+        # Power loss in tape per module
         pmtapeb1.append(NominalPower.ssPtape(tabcb1[-1],
                                              thccb1[-1],
                                              tfeastb1[-1],
@@ -303,7 +303,7 @@ def CalculateSensorTemperature(tc,options) :
     gr['tfeastb1']   = MakeGraph('FEASTTemperature' ,'FEAST temperature'  ,xtitle,'T_{%s} [#circ^{}C]'%('FEAST' ),x,tfeastb1  )
     gr['teosb1']     = MakeGraph('EOSTemperature'   ,'EOS temperature'    ,xtitle,'T_{%s} [#circ^{}C]'%('EOS'   ),x,teosb1    )
     gr['pmoduleb1']  = MakeGraph('ModulePower'      ,'Module Power'       ,xtitle,'P_{%s} [W]'%('module')        ,x,pmoduleb1 )
-    gr['pmtapeb1']   = MakeGraph('TapePower'        ,'Tape Power'         ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,pmtapeb1  )
+    gr['pmtapeb1']   = MakeGraph('TapePower'        ,'Tape Power Loss'    ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,pmtapeb1  )
     gr['pmhvb1']     = MakeGraph('HVPower'          ,'HV Power per module',xtitle,'P_{%s} [W]'%('HV'    )        ,x,pmhvb1    )
     gr['isb1']       = MakeGraph('SensorCurrent'    ,'Sensor current'     ,xtitle,'I_{%s} [?]'%('sensor')        ,x,isb1      )
     gr['pmhvrb1']    = MakeGraph('pmhvrb1'          ,'pmhvrb1'            ,xtitle,'P_{%s} [W]'%('?')             ,x,pmhvrb1   )
@@ -325,10 +325,10 @@ def CalculateSensorTemperature(tc,options) :
         }.get(options.cooling,'unknownScenario')
 
     scenariolabel = {
-        'flat-25':'Flat -25#circ cooling scenario',
-        'flat-35':'Flat -35#circ cooling scenario',
-        'ramp-25':'Ramp -25#circ cooling scenario',
-        'ramp-35':'Ramp -35#circ cooling scenario',
+        'flat-25':'Flat #minus25#circ cooling scenario',
+        'flat-35':'Flat #minus35#circ cooling scenario',
+        'ramp-25':'Ramp #minus25#circ cooling scenario',
+        'ramp-35':'Ramp #minus35#circ cooling scenario',
         }.get(options.cooling,'unknown cooling scenario')
 
     # Write out to file
@@ -351,6 +351,52 @@ def CalculateSensorTemperature(tc,options) :
         c.Print('%s/%s_%s.eps'%(outputpath,gr[g].GetName(),outputtag))
 
     # Kurt, put any extra plots here
+
+    #
+    # Module power
+    #
+    c.Clear()
+    # pmoduleb1_noHV is (Power per module) minus (HV power + HV power due to serial resistors)
+    pmoduleb1_noHV  = list(pmoduleb1[i] - (pmhvb1[i] + pmhvrb1[i]) for i in range(len(pmoduleb1)))
+    gr['pmoduleb1_noHV'] = MakeGraph('ModulePower_noHV','Power without HV',xtitle,'P [W]',x,pmoduleb1_noHV)
+    pmoduleb1_noHV_noTapeLoss = list(pmoduleb1[i] - (pmhvb1[i] + pmhvrb1[i]) - pmtapeb1[i] for i in range(len(pmoduleb1)))
+    gr['pmoduleb1_noHV_noTapeLoss'] = MakeGraph('ModulePower_noHV_NoTapeLoss','Power w/o HV and w/o tape loss',xtitle,'P [W]',x,pmoduleb1_noHV_noTapeLoss)
+    colors = {'pmoduleb1'                :ROOT.kGreen+1,
+              'pmoduleb1_noHV'           :ROOT.kBlue+1,
+              'pmoduleb1_noHV_noTapeLoss':ROOT.kRed+1
+              }
+    leg = ROOT.TLegend(0.50,0.81,0.78,0.94)
+    PlotUtils.SetStyleLegend(leg)
+    for i,key in enumerate(['pmoduleb1','pmoduleb1_noHV','pmoduleb1_noHV_noTapeLoss']) :
+        gr[key].SetLineColor(colors.get(key))
+        gr[key].Draw('l' if i else 'al')
+        leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
+    leg.Draw()
+    text.Draw()
+    c.Print('%s/%s_%s.eps'%(outputpath,'SummaryPowerPerModule',outputtag))
+
+    #
+    # Temperatures
+    #
+    c.Clear()
+    gr['tcoolant'] = MakeGraph('CoolantTemperature','coolant temperature',xtitle,'T_{%s} [#circ^{}C]',x,tc)
+    colors = {'tabcb1'  :ROOT.kBlue+1,
+              'thccb1'  :ROOT.kRed+1,
+              'tfeastb1':ROOT.kOrange+1,
+              'teosb1'  :ROOT.kCyan+1,
+              'tsb1'    :ROOT.kGreen,
+              'tcoolant':ROOT.kMagenta+1,
+              }
+    leg = ROOT.TLegend(0.52,0.69,0.80,0.93)
+    PlotUtils.SetStyleLegend(leg)
+    for i,key in enumerate(['tabcb1','thccb1','tfeastb1','teosb1','tsb1','tcoolant']) :
+        gr[key].SetLineColor(colors.get(key))
+        gr[key].Draw('l' if i else 'al')
+        gr[key].GetHistogram().GetYaxis().SetRangeUser(-40,100)
+        leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
+    leg.Draw()
+    text.Draw()
+    c.Print('%s/%s_%s.eps'%(outputpath,'SummaryTemperature',outputtag))
 
     # Kurt, put any extra plots here -- End.
 

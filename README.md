@@ -70,9 +70,9 @@ More plots -- plotting and debugging (focus on flat-35 scenario)
 Topic                                 | Notes                                                                              | Assignee   | Status
 --------------------------------------|------------------------------------------------------------------------------------|------------|------------
 Sensor temperature                    | p. 11 in https://indico.cern.ch/event/625365 (Baseline temperature does not agree) |            |
-Power summary plot                    | p. 11 of slides; total power, w/o HV, w/o tape loss                                | Kurt       |
+Power summary plot                    | p. 11 of slides; total power, w/o HV, w/o tape loss                                | Kurt       | Done, not debugged
 Total HV power per module             | p. 11 of slides                                                                    |            |
-Temperature summary of all components | p. 12 of slides                                                                    |            |
+Temperature summary of all components | p. 12 of slides                                                                    | Kurt       | Done, not debugged
 Total power in B1                     | p. 12 of slides                                                                    |            |
 
 Simple numbers that need to be switched from barrel to endcap values:
