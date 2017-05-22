@@ -29,7 +29,8 @@ def main(options,args) :
     
     timesMicroAmp = 1000000.
     
-    for f in range(7) :
+    for f in range(61) :
+        f = f/10. # Step in 1/10 steps, to get features at low fluence
         # Output in microA/cm^2 
         pts['fluence'].append(f) # x axis = fluence in unit 10^14 neq/cm^2
         pts['700V'].append(timesMicroAmp* SensorLeakage.iref700(f*10**14))
@@ -56,7 +57,7 @@ def main(options,args) :
             drawOption = 'l'
     
     leg.Draw()
-    c.Print('%s/plots/SensorLeakagePower.eps'%(the_path))
+    c.Print('%s/plots/SensorLeakage/SensorLeakagePower.eps'%(the_path))
     return
 
 #-----------------------------------------------

@@ -1,3 +1,6 @@
+2017-05-22 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Fix small inconsistency in SensorLeakagePower.eps plot, at low fluence
+
 2017-05-22 Claire David <claire.david@cern.ch>
     * Adding Tref in Temperature
     * Adding StudySensorLeakagePower.py
