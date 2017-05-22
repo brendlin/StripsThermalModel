@@ -196,8 +196,8 @@ def CalculateSensorTemperature(tc,options) :
                                              OperationalProfiles.doserateb1[i],
                                              OperationalProfiles.tidb1[i],
                                              Temperatures.unref(SensorLeakage.qrefb1[i],resultts)/float(SensorProperties.vbias)
-                                             + Temperatures.unref(SensorLeakage.qrefb1[i],resultts)
                                              )
+                         + Temperatures.unref(SensorLeakage.qrefb1[i],resultts)
                          )
 
         # Power loss in tape per module
@@ -370,6 +370,7 @@ def CalculateSensorTemperature(tc,options) :
     for i,key in enumerate(['pmoduleb1','pmoduleb1_noHV','pmoduleb1_noHV_noTapeLoss']) :
         gr[key].SetLineColor(colors.get(key))
         gr[key].Draw('l' if i else 'al')
+        gr[key].GetHistogram().GetYaxis().SetRangeUser(0,15)
         leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
     leg.Draw()
     text.Draw()
@@ -397,6 +398,29 @@ def CalculateSensorTemperature(tc,options) :
     leg.Draw()
     text.Draw()
     c.Print('%s/%s_%s.eps'%(outputpath,'SummaryTemperature',outputtag))
+
+    #
+    # HV power summary
+    #
+    c.Clear()
+    gr['pmoduleb1'].SetTitle('Total HV power per module')
+    hv_power_resistors = list(pmhvrb1[i] + pmhvmuxb1[i] for i in range(len(pmhvb1)))
+    gr['hv_power_resistors'] = MakeGraph('HVPowerResistors','HV power contributions all resistors',xtitle,'P [W]',x,hv_power_resistors)
+    gr['pmhvmuxb1'].SetTitle('HV power contribution parallel resistor')
+    colors = {'pmhvb1'            :ROOT.kBlue+1,
+              'hv_power_resistors':ROOT.kGreen+1,
+              'pmhvmuxb1'         :ROOT.kRed+1,
+              }
+    leg = ROOT.TLegend(0.50,0.81,0.78,0.94)
+    PlotUtils.SetStyleLegend(leg)
+    for i,key in enumerate(['pmhvb1','hv_power_resistors','pmhvmuxb1']) :
+        gr[key].SetLineColor(colors.get(key))
+        gr[key].Draw('l' if i else 'al')
+        gr[key].GetHistogram().GetYaxis().SetRangeUser(0,2)
+        leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
+    leg.Draw()
+    text.Draw()
+    c.Print('%s/%s_%s.eps'%(outputpath,'SummaryHVPower',outputtag))
 
     # Kurt, put any extra plots here -- End.
 
