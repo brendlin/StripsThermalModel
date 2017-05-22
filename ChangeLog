@@ -1,3 +1,8 @@
+2017-05-22 Claire David <claire.david@cern.ch>
+    * Adding Tref in Temperature
+    * Adding StudySensorLeakagePower.py
+    * Plot SensorLeakagePower.eps consistent with doc
+
 2017-05-22 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Added Sensor Temperature plot; update all plots.
     * Modified total power b1 summary plot

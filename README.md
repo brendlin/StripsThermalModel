@@ -42,7 +42,7 @@ Plotting/Checks/Investigations
 -----------
 Topic                        | Purpose                                          | Assignee   | Status
 -----------------------------|--------------------------------------------------|------------|------------
-Sensor power                 | Plotting to check correct implementation         | Claire     | 
+Sensor power                 | Plotting to check correct implementation         | Claire     | Done plotting
 TID bump                     | Plot to check and investigate the modelling      | Claire     | Done plotting
 Feast efficiency             | Plot to check and investigate the modelling      | Kurt       | Done
 Operating profiles           | Reproducing plots from Graham and Georg          | Kurt       | Done
