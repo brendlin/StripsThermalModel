@@ -31,7 +31,7 @@ def CalculateSensorTemperature(tc,options) :
     pmoduleb1  = [] # Power per module (front-end + HV)
     pmtapeb1   = [] # Power loss in tape per module
     pmhvb1     = [] # HV power per module (leakage + resistors)
-    isb1       = [] # Sensor current
+    isb1       = [] # Sensor current (Leakage current per module)
     pmhvrb1    = [] # HV power per module due to serial resistors
     pb1        = [] # Total power in B1
     phvb1      = [] # Total HV Power (sensor+resistors) in B1
@@ -254,8 +254,8 @@ def CalculateSensorTemperature(tc,options) :
         itapeb1.append(NominalPower.ssItape(tabcb1[-1],
                                             thccb1[-1],
                                             tfeastb1[-1],
-                                            OperationalProfiles.doserateb1[-1],
-                                            OperationalProfiles.tidb1[-1]
+                                            OperationalProfiles.doserateb1[i],
+                                            OperationalProfiles.tidb1[i]
                                             )
                        )
 
@@ -263,16 +263,16 @@ def CalculateSensorTemperature(tc,options) :
         ptapeb1.append(NominalPower.ssPstavetape(tabcb1[-1],
                                                  thccb1[-1],
                                                  tfeastb1[-1],
-                                                 OperationalProfiles.doserateb1[-1],
-                                                 OperationalProfiles.tidb1[-1]
+                                                 OperationalProfiles.doserateb1[i],
+                                                 OperationalProfiles.tidb1[i]
                                                  )
                        )
 
         # Digital current per module
         idigb1.append(NominalPower.ssIdig(tabcb1[-1],
                                           thccb1[-1],
-                                          OperationalProfiles.doserateb1[-1],
-                                          OperationalProfiles.tidb1[-1]
+                                          OperationalProfiles.doserateb1[i],
+                                          OperationalProfiles.tidb1[i]
                                           )
                       )
 
@@ -280,8 +280,8 @@ def CalculateSensorTemperature(tc,options) :
         efffeastb1.append(PoweringEfficiency.feasteff(tfeastb1[-1],
                                                       NominalPower.ssIfeast(tabcb1[-1],
                                                                             thccb1[-1],
-                                                                            OperationalProfiles.doserateb1[-1],
-                                                                            OperationalProfiles.tidb1[-1]
+                                                                            OperationalProfiles.doserateb1[i],
+                                                                            OperationalProfiles.tidb1[i]
                                                                             )
                                                       )
                           )
@@ -305,11 +305,11 @@ def CalculateSensorTemperature(tc,options) :
     gr['pmoduleb1']  = MakeGraph('ModulePower'            ,'Module Power'                           ,xtitle,'P_{%s} [W]'%('module')        ,x,pmoduleb1 )
     gr['pmtapeb1']   = MakeGraph('TapePower'              ,'Tape Power Loss'                        ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,pmtapeb1  )
     gr['pmhvb1']     = MakeGraph('HVPower'                ,'HV Power per module'                    ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,pmhvb1    )
-    gr['isb1']       = MakeGraph('SensorCurrent'          ,'Sensor current'                         ,xtitle,'I_{%s} [?]'%('sensor')        ,x,isb1      )
+    gr['isb1']       = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current'               ,xtitle,'I_{%s} [A]'%('sensor')        ,x,isb1      )
     gr['pmhvrb1']    = MakeGraph('HVPowerSerialResistors' ,'HV Power serial resistors'              ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,pmhvrb1   )
     gr['pb1']        = MakeGraph('SummaryTotalPower'      ,'Total Power in B1'                      ,xtitle,'P_{%s} [kW]'%('B1')           ,x,pb1       )
     gr['phvb1']      = MakeGraph('SummaryTotalHVPower'    ,'Total HV Power (sensor+resistors) in B1',xtitle,'P_{%s} [kW]'%('HV')           ,x,phvb1     )
-    gr['pmhvmuxb1']  = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'             ,xtitle,'P_{%s} [W]'%('HV,||')             ,x,pmhvmuxb1 )
+    gr['pmhvmuxb1']  = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'             ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,pmhvmuxb1 )
     gr['itapeb1']    = MakeGraph('TapeCurrent'            ,'Tape current per module'                ,xtitle,'I_{%s} [A]'%('tape')          ,x,itapeb1   )
     gr['idigb1']     = MakeGraph('DigitalCurrent'         ,'ABC and HCC digital current'            ,xtitle,'I_{%s} [A]'%('digital')       ,x,idigb1    )
     gr['efffeastb1'] = MakeGraph('FeastEfficiency'        ,'Feast efficiency'                       ,xtitle,'Efficiency [%]'               ,x,efffeastb1)

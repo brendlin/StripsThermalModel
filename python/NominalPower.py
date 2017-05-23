@@ -56,7 +56,7 @@ def ssPfeast(Tabc,Thcc,Tfeast,d,D) :
     return Pfamac + ( ssPabc(Tabc,d,D) + ssPhcc(Thcc,d,D) ) * (100 / float( PoweringEfficiency.feasteff(Tfeast,ssIfeast(Tabc,Thcc,d,D)) ) - 1)
 
 def ssIdig(Tabc,Thcc,d,D) :
-    return (20 * AbcTidBump.tid_scale_combined_factor(Tabc,d,D) * FrontEndComponents.abcId + 2 * AbcTidBump.tid_scale_combined_factor(Thcc,d,D) * FrontEndComponents.hccId)
+    return 20 * AbcTidBump.tid_scale_combined_factor(Tabc,d,D) * FrontEndComponents.abcId + 2 * AbcTidBump.tid_scale_combined_factor(Thcc,d,D) * FrontEndComponents.hccId
 
 def ssItape(Tabc,Thcc,Tfeast,d,D) :
     return ( ssPabc(Tabc, d, D) + ssPhcc(Thcc, d, D) + Pamac + ssPfeast(Tabc,Thcc,Tfeast,d,D) ) / float(PoweringEfficiency.Vfeast)

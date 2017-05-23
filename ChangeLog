@@ -1,3 +1,6 @@
+2017-05-23 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Debug model with B1 implemented, compare against mathematica notebook
+
 2017-05-22 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Label output plots in SensorTemperatureCalc
     * Fix small inconsistency in SensorLeakagePower.eps plot, at low fluence
