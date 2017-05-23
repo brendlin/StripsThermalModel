@@ -1,10 +1,11 @@
 #
 # SensorProperties
 #
+import Config
 import SafetyFactors
 
 # Sensor area in cm2
-area = 9.554*9.554
+area = Config.GetDouble('SensorProperties.area')
 
 # Bias voltage (incl. resistors)
 vbias = 500.*SafetyFactors.vbiasscale # bias voltage is 500V

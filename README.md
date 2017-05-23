@@ -36,7 +36,7 @@ Submodules                   | Purpose                                          
 10. Temperatures             | Activation, barrel LS and SS                     | Claire     | Done
 11. OperationalProfiles      | Luminosity (inst, int), efficiency (?)           | Kurt *     | Done
 12. SensorLeakage            | Leakage current as a function of flux (A/cm^2)   | Claire *   | Done
-13. SensorTemperatureCalc    | Sensor temperature calculation                   | (Both)     | Done (debug!)
+13. SensorTemperatureCalc    | Sensor temperature calculation                   | (Both)     | Done, debugged w/B1
 
 Plotting/Checks/Investigations
 -----------
@@ -69,7 +69,7 @@ More plots -- plotting and debugging (focus on flat-35 scenario)
 -----------
 Topic                                 | Notes                                                                              | Assignee   | Status
 --------------------------------------|------------------------------------------------------------------------------------|------------|------------
-Sensor temperature                    | p. 11 in https://indico.cern.ch/event/625365 (Baseline temperature does not agree) | Kurt       | Done, debugged
+Sensor temperature                    | p. 11 in https://indico.cern.ch/event/625365                                       | Kurt       | Done, debugged
 Power summary plot                    | p. 11 of slides; total power, w/o HV, w/o tape loss                                | Kurt       | Done, debugged
 Total HV power per module             | p. 11 of slides                                                                    | Kurt       | Done, debugged
 Temperature summary of all components | p. 12 of slides                                                                    | Kurt       | Done, debugged

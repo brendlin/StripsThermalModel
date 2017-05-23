@@ -1,4 +1,10 @@
 2017-05-23 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Multiple changes to make more flexible configuration:
+    * Introduce Config.py, --config option, and barrel config files in data directory
+    * Removed separate treatment of "ss" and "ls" modules -- differences treated in configs instead
+    * Running with --config Barrel_SS_B1.config reproduces previous result
+
+2017-05-23 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Debug model with B1 implemented, compare against mathematica notebook
 
 2017-05-22 Kurt Brendlinger <kurt.brendlinger@cern.ch>

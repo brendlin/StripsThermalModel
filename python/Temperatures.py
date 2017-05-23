@@ -17,51 +17,26 @@ def unref(qref,Ts) :
 
 # Barrel short strip stave
 
-def ssTmod(Peos,Pmod,Ps,Tc) :
-    return Tc + ThermalImpedances.ssRc * (Peos + Pmod + Ps) + ThermalImpedances.ssRm * (Pmod + Ps)
+def Tmod(Peos,Pmod,Ps,Tc) :
+    return Tc + ThermalImpedances.Rc * (Peos + Pmod + Ps) + ThermalImpedances.Rm * (Pmod + Ps)
 
-def ssTeos(Peos,Pmod,Ps,Tc) :
-    return Tc + ThermalImpedances.ssRc * (Peos + Pmod + Ps) + ThermalImpedances.ssReos * Peos
+def Teos(Peos,Pmod,Ps,Tc) :
+    return Tc + ThermalImpedances.Rc * (Peos + Pmod + Ps) + ThermalImpedances.Reos * Peos
 
-def ssTabc(Pabc,Peos,Pmod,Ps,Tc) :
-    return ssTmod(Peos,Pmod,Ps,Tc) + Pabc * ThermalImpedances.ssRabc
+def Tabc(Pabc,Peos,Pmod,Ps,Tc) :
+    return Tmod(Peos,Pmod,Ps,Tc) + Pabc * ThermalImpedances.Rabc
 
-def ssThcc(Phcc,Peos,Pmod,Ps,Tc) :
-    return ssTmod(Peos,Pmod,Ps,Tc) + Phcc * ThermalImpedances.ssRhcc
+def Thcc(Phcc,Peos,Pmod,Ps,Tc) :
+    return Tmod(Peos,Pmod,Ps,Tc) + Phcc * ThermalImpedances.Rhcc
 
-def ssTfeast(Pfeast,Peos,Pmod,Ps,Tc) :
-    return ssTmod(Peos,Pmod,Ps,Tc) + Pfeast * ThermalImpedances.ssRfeast
+def Tfeast(Pfeast,Peos,Pmod,Ps,Tc) :
+    return Tmod(Peos,Pmod,Ps,Tc) + Pfeast * ThermalImpedances.Rfeast
 
-def ssT0(Peos,Pmod,Tc) :
-    return Tc + (Peos + Pmod) * ThermalImpedances.ssRc + Pmod * ThermalImpedances.ssRm
+def T0(Peos,Pmod,Tc) :
+    return Tc + (Peos + Pmod) * ThermalImpedances.Rc + Pmod * ThermalImpedances.Rm
 
-def ssTs(Peos,Pmod,Ps,Tc) :
-    return ssT0(Peos,Pmod,Tc) + Ps * ThermalImpedances.ssRt
+def Ts(Peos,Pmod,Ps,Tc) :
+    return T0(Peos,Pmod,Tc) + Ps * ThermalImpedances.Rt
 
 def Qref(Ts,T0) :
-    return (Ts - T0)/ThermalImpedances.ssRt * (GlobalSettings.kelvin(-15)/GlobalSettings.kelvin(Ts))**2 * exp(tA * (1./GlobalSettings.kelvin(Ts) - 1./GlobalSettings.kelvin(-15)))
-
-
-# Barrel long strip stave
-
-def lsTmod(Peos,Pmod,Ps,Tc) :
-    return Tc + ThermalImpedances.lsRc * (Peos + Pmod + Ps) + ThermalImpedances.lsRm * (Pmod + Ps)
-
-def lsTeos(Peos,Pmod,Ps,Tc) :
-    return Tc + ThermalImpedances.lsRc * (Peos + Pmod + Ps) + ThermalImpedances.lsReos * Peos
-
-def lsTabc(Pabc,Peos,Pmod,Ps,Tc) :
-    return lsTmod(Peos,Pmod,Ps,Tc) + Pabc * ThermalImpedances.lsRabc
-
-def lsThcc(Phcc,Peos,Pmod,Ps,Tc) :
-    return lsTmod(Peos,Pmod,Ps,Tc) + Phcc * ThermalImpedances.lsRhcc
-
-def lsTfeast(Pfeast,Peos,Pmod,Ps,Tc) :
-    return lsTmod(Peos,Pmod,Ps,Tc) + Pfeast * ThermalImpedances.lsRfeast
-
-def lsT0(Peos,Pmod,Tc) :
-    return Tc + (Peos + Pmod) * ThermalImpedances.lsRc + Pmod * ThermalImpedances.lsRm
-
-def lsTs(Peos,Pmod,Ps,Tc) :
-    return lsT0(Peos,Pmod,Tc) + Ps * ThermalImpedances.lsRt
-
+    return (Ts - T0)/ThermalImpedances.Rt * (GlobalSettings.kelvin(-15)/GlobalSettings.kelvin(Ts))**2 * exp(tA * (1./GlobalSettings.kelvin(Ts) - 1./GlobalSettings.kelvin(-15)))
