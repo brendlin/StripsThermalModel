@@ -20,14 +20,8 @@ def iref700(j) :
 def oldiref(j) :
     return (1.22 + (2.68e-14) * j) / 1000000.
 
-qrefb1 = []
-qrefb2 = []
-qrefb3 = []
-qrefb4 = []
+qref = []
 
 # size is nstep (???)
 for i in range(GlobalSettings.nstep) :
-    qrefb1.append( SensorProperties.vbias * iref(OperationalProfiles.fluxb1[i]*SensorProperties.area) )
-    qrefb2.append( SensorProperties.vbias * iref(OperationalProfiles.fluxb2[i]*SensorProperties.area) )
-    qrefb3.append( SensorProperties.vbias * iref(OperationalProfiles.fluxb3[i]*SensorProperties.area) )
-    qrefb4.append( SensorProperties.vbias * iref(OperationalProfiles.fluxb4[i]*SensorProperties.area) )
+    qref.append( SensorProperties.vbias * iref(OperationalProfiles.flux_list[i]*SensorProperties.area) )

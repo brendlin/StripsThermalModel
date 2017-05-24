@@ -46,24 +46,24 @@ Sensor power                 | Plotting to check correct implementation         
 TID bump                     | Plot to check and investigate the modelling      | Claire     | Done plotting
 Feast efficiency             | Plot to check and investigate the modelling      | Kurt       | Done
 Operating profiles           | Reproducing plots from Graham and Georg          | Kurt       | Done
-SensorTemperatureCalc tsb1       | Sensor temperature                           | Kurt       | Done
-SensorTemperatureCalc tabcb1     | ABC temperature                              | Kurt       | Done
-SensorTemperatureCalc thccb1     | HCC temperature                              | Kurt       | Done
-SensorTemperatureCalc tfeastb1   | FEAST temperature                            | Kurt       | Done
-SensorTemperatureCalc teosb1     | EOS temperature                              | Kurt       | Done
-SensorTemperatureCalc pmoduleb1  | Power per module (front-end + HV)            | Kurt       | Done
-SensorTemperatureCalc pmtapeb1   | Power loss in tape per module                | Kurt       | Done
-SensorTemperatureCalc pmhvb1     | HV power per module (leakage + resistors)    | Kurt       | Done
-SensorTemperatureCalc isb1       | Sensor current                               | Kurt       | Done
-SensorTemperatureCalc pmhvrb1    | HV power per module due to serial resistors  | Kurt       | Done
-SensorTemperatureCalc pb1        | Total power in B1                            | Kurt       | Done
-SensorTemperatureCalc phvb1      | Total HV Power (sensor+resistors) in B1      | Kurt       | Done
-SensorTemperatureCalc pmhvmuxb1  | HV Power parallel resistor                   | Kurt       | Done
-SensorTemperatureCalc itapeb1    | Tape current per module                      | Kurt       | Done
-SensorTemperatureCalc idigb1     | Digital current per module                   | Kurt       | Done
-SensorTemperatureCalc efffeastb1 | FEAST efficiency                             | Kurt       | Done
-SensorTemperatureCalc ptapeb1    | Power loss in complete tape B1               | Kurt       | Done
-SensorTemperatureCalc pstaveb1   | Stave Power in B1                            | Kurt       | Done
+SensorTemperatureCalc tsensor    | Sensor temperature                           | Kurt       | Done
+SensorTemperatureCalc tabc       | ABC temperature                              | Kurt       | Done
+SensorTemperatureCalc thcc       | HCC temperature                              | Kurt       | Done
+SensorTemperatureCalc tfeast     | FEAST temperature                            | Kurt       | Done
+SensorTemperatureCalc teos       | EOS temperature                              | Kurt       | Done
+SensorTemperatureCalc pmodule    | Power per module (front-end + HV)            | Kurt       | Done
+SensorTemperatureCalc pmtape     | Power loss in tape per module                | Kurt       | Done
+SensorTemperatureCalc pmhv       | HV power per module (leakage + resistors)    | Kurt       | Done
+SensorTemperatureCalc isensor    | Sensor current                               | Kurt       | Done
+SensorTemperatureCalc pmhvr      | HV power per module due to serial resistors  | Kurt       | Done
+SensorTemperatureCalc powertotal | Total power in layer                         | Kurt       | Done
+SensorTemperatureCalc phvtotal   | Total HV Power (sensor+resistors) in layer   | Kurt       | Done
+SensorTemperatureCalc pmhvmux    | HV Power parallel resistor                   | Kurt       | Done
+SensorTemperatureCalc itape      | Tape current per module                      | Kurt       | Done
+SensorTemperatureCalc idig       | Digital current per module                   | Kurt       | Done
+SensorTemperatureCalc efffeast   | FEAST efficiency                             | Kurt       | Done
+SensorTemperatureCalc ptape      | Power loss in complete tape in layer         | Kurt       | Done
+SensorTemperatureCalc pstave     | Stave Power in layer                         | Kurt       | Done
 
 More plots -- plotting and debugging (focus on flat-35 scenario)
 -----------
