@@ -2,10 +2,14 @@
 import ROOT
 
 internal_config = ROOT.TEnv()
-configname = ''
+confname = ['None']
+
+def GetName() :
+    return confname[0]
 
 def SetConfigFile(filepath,doprint=True) :
     configname = filepath.split('/')[-1]
+    confname[0] = configname
 
     # Reset TEnv
     if internal_config.GetTable() :
@@ -18,9 +22,13 @@ def SetConfigFile(filepath,doprint=True) :
         print 'Error! Failed to load config file %s -- Exiting.'%(configname)
         import sys; sys.exit()
 
-    print 'Loaded config file %s:'%(configname)
     if doprint :
+        print 'Loaded config file %s:'%(configname)
         internal_config.Print()
+    else :
+        print 'Loaded config file %s.'%(configname)
+
+    return
 
 def EnsureDefined(key) :
     if not internal_config.Defined(key) :

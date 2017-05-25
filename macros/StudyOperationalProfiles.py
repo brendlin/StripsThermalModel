@@ -8,7 +8,6 @@ the_path = ('/').join(os.getcwd().split('/')[:-1])
 print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
 
-import python.OperationalProfiles as OperationalProfiles
 import python.GlobalSettings as GlobalSettings
 import python.PlotUtils as PlotUtils
 
@@ -16,6 +15,19 @@ import python.PlotUtils as PlotUtils
 def main(options,args) :
 
     PlotUtils.ApplyGlobalStyle()
+
+    if options.barrel :
+        config_files = ['Barrel_SS_B1.config',
+                        'Barrel_SS_B2.config',
+                        'Barrel_LS_B3.config',
+                        'Barrel_LS_B4.config'
+                        ]
+        structure_names = ['B1','B2','B3','B4']
+
+    # Config must be loaded before loading any other module.
+    import python.Config as Config
+    Config.SetConfigFile('%s/data/%s'%(the_path,config_files[0]),doprint=False)
+    import python.OperationalProfiles as OperationalProfiles
 
     gr = dict()
 
@@ -50,6 +62,7 @@ def main(options,args) :
                                     list(range(1,GlobalSettings.nyears+1)),
                                     list(a*100. for a in OperationalProfiles.eff)
                                     )
+
     colors = {'lumi/yr':ROOT.kGreen,'days/yr':ROOT.kBlue,'eff':ROOT.kRed+1}
     leg = ROOT.TLegend(0.54,0.24,0.84,0.41)
     PlotUtils.SetStyleLegend(leg)
@@ -64,69 +77,50 @@ def main(options,args) :
     leg.Draw()
     c.Print('%s/plots/OperationalProfiles/YearlyRunProfile.eps'%(the_path))
 
+    for i,conf in enumerate(config_files) :
+        Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
+        Config.ReloadAllPythonModules()
 
+        # accumulated total ionizing dose
+        name = structure_names[i]
+        gr['tid%s'%name] = PlotUtils.MakeGraph('Tid%s'%(name),name,'Time [year]','Dose [kRad]',
+                                               GlobalSettings.time_step_list,
+                                               OperationalProfiles.tid_dose)
 
-    # accumulated total ionizing dose
-    gr['tidb1'] = PlotUtils.MakeGraph('TidB1','B1','Time [year]','Dose [kRad]',
-                                           GlobalSettings.time_step_list,
-                                           OperationalProfiles.tidb1)
-    gr['tidb2'] = PlotUtils.MakeGraph('TidB2','B2','Time [year]','Dose [kRad]',
-                                           GlobalSettings.time_step_list,
-                                           OperationalProfiles.tidb2)
-    gr['tidb3'] = PlotUtils.MakeGraph('TidB3','B3','Time [year]','Dose [kRad]',
-                                           GlobalSettings.time_step_list,
-                                           OperationalProfiles.tidb3)
-    gr['tidb4'] = PlotUtils.MakeGraph('TidB4','B4','Time [year]','Dose [kRad]',
-                                           GlobalSettings.time_step_list,
-                                           OperationalProfiles.tidb4)
+        # dose rates
+        gr['doserate%s'%name] = PlotUtils.MakeGraph('DoseRate%s'%name,name,'Time [year]','Dose rate [kRad/h]',
+                                                    GlobalSettings.time_step_list[1:],
+                                                    OperationalProfiles.doserate)
 
+    # accumulated total ionizing dose -- plot
     leg = ROOT.TLegend(0.22,0.65,0.43,0.82)
     PlotUtils.SetStyleLegend(leg)
-    colors = {'tidb1':ROOT.kGreen,'tidb2':ROOT.kBlue,
-              'tidb3':ROOT.kRed+1,'tidb4':ROOT.kOrange+1}
 
-    for g in ['tidb1','tidb2','tidb3','tidb4'] :
-        gr[g].SetLineColor(colors.get(g,ROOT.kBlack))
-        leg.AddEntry(gr[g],gr[g].GetTitle(),'l')
+    colors = {'B1':ROOT.kGreen,
+              'B2':ROOT.kBlue,
+              'B3':ROOT.kRed+1,
+              'B4':ROOT.kOrange+1,
+              }
 
     c.Clear()
-    gr['tidb1'].Draw('al')
-    gr['tidb2'].Draw('l')
-    gr['tidb3'].Draw('l')
-    gr['tidb4'].Draw('l')
+    for i,name in enumerate(structure_names) :
+        nm = 'tid%s'%(name)
+        gr[nm].SetLineColor(colors.get(name,ROOT.kBlack))
+        leg.AddEntry(gr[nm],gr[nm].GetTitle(),'l')
+        gr[nm].Draw('l' if i else 'al')
     leg.Draw()
     c.Print('%s/plots/OperationalProfiles/TotalIonizingDoseBarrel.eps'%(the_path))
 
-
-
-    # dose rates
-    gr['doserateb1'] = PlotUtils.MakeGraph('DoseRateB1','B1','Time [year]','Dose rate [kRad/h]',
-                                           GlobalSettings.time_step_list[1:],
-                                           OperationalProfiles.doserateb1)
-    gr['doserateb2'] = PlotUtils.MakeGraph('DoseRateB2','B2','Time [year]','Dose rate [kRad/h]',
-                                           GlobalSettings.time_step_list[1:],
-                                           OperationalProfiles.doserateb2)
-    gr['doserateb3'] = PlotUtils.MakeGraph('DoseRateB3','B3','Time [year]','Dose rate [kRad/h]',
-                                           GlobalSettings.time_step_list[1:],
-                                           OperationalProfiles.doserateb3)
-    gr['doserateb4'] = PlotUtils.MakeGraph('DoseRateB4','B4','Time [year]','Dose rate [kRad/h]',
-                                           GlobalSettings.time_step_list[1:],
-                                           OperationalProfiles.doserateb4)
-
+    # dose rates -- plot
     leg = ROOT.TLegend(0.72,0.61,0.93,0.78)
     PlotUtils.SetStyleLegend(leg)
-    colors = {'doserateb1':ROOT.kGreen,'doserateb2':ROOT.kBlue,
-              'doserateb3':ROOT.kRed+1,'doserateb4':ROOT.kOrange+1}
-
-    for g in ['doserateb1','doserateb2','doserateb3','doserateb4'] :
-        gr[g].SetLineColor(colors.get(g,ROOT.kBlack))
-        leg.AddEntry(gr[g],gr[g].GetTitle(),'l')
 
     c.Clear()
-    gr['doserateb1'].Draw('al')
-    gr['doserateb2'].Draw('l')
-    gr['doserateb3'].Draw('l')
-    gr['doserateb4'].Draw('l')
+    for i,name in enumerate(structure_names) :
+        nm = 'doserate%s'%(name)
+        gr[nm].SetLineColor(colors.get(name,ROOT.kBlack))
+        leg.AddEntry(gr[nm],gr[nm].GetTitle(),'l')
+        gr[nm].Draw('l' if i else 'al')
     leg.Draw()
     c.Print('%s/plots/OperationalProfiles/DoseRateBarrel.eps'%(the_path))
 
@@ -136,6 +130,7 @@ def main(options,args) :
 if __name__ == '__main__':
     from optparse import OptionParser
     p = OptionParser()
+    p.add_option('--barrel',action='store_true',default=True,dest='barrel',help='Run the barrel')
     
     options,args = p.parse_args()
     

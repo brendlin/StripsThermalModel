@@ -1,4 +1,9 @@
 2017-05-25 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Simplify some of the ExtendedRunModel.py code
+    * Update StudyBlah.py to run with the new config-file scheme
+    * Small fixes
+
+2017-05-25 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Add ExtendedRunModel.py to model multiple layers / rings simultaneously
     * Add ExtendedModelSummaryPlots.py as a companion to ExtendedRunModel, for plotting.
     * Add option to SensorTemperatureCalc to not save detailed plots (used by ExtendedRunModel.py)

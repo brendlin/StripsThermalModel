@@ -52,13 +52,11 @@ def main(options,args):
 
     # Config must be loaded before loading any other module.
     import python.Config as Config
-    Config.SetConfigFile('%s/data/%s'%(the_path,config_files[0]),doprint=options.barrel)
+    Config.SetConfigFile('%s/data/%s'%(the_path,config_files[0]),doprint=False)
 
     if options.endcap :
         Config.SetValue('OperationalProfiles.totalflux',GetFlux(0,0))
         Config.SetValue('OperationalProfiles.tid_in_3000fb',GetTID(0,0))
-        print 'CALCULATING Ring %d Disk %d:'%(0,0)
-        Config.Print()
 
     print 'importing modules'
     import python.GlobalSettings      as GlobalSettings
@@ -107,39 +105,32 @@ def main(options,args):
     # Barrel configuration:
     #
     if options.barrel :
-        # The first calculation happens here:
-        results.append(SensorTemperatureCalc.CalculateSensorTemperature(time_step_tc,options))
 
-        # Now do the other structures:
-        for conf in config_files[1:] :
+        # Loop over the layers:
+        for conf in config_files :
             Config.SetConfigFile('%s/data/%s'%(the_path,conf))
             Config.ReloadAllPythonModules()
+
             results.append(SensorTemperatureCalc.CalculateSensorTemperature(time_step_tc,options))
 
     #
     # Endcap configuration:
     #
     if options.endcap :
-        # The first calculation happens here:
-        results.append(SensorTemperatureCalc.CalculateSensorTemperature(time_step_tc,options))
-        structure_names.append('R%dD%d'%(0,0))
 
         # Loop over the rings (config files)
         for ring,conf in enumerate(config_files) :
 
-            # (We already loaded config file 0
-            if ring != 0 :
-                Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
+            Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
 
+            # Loop over the disks
             for disk in range(6) :
-                if ring == 0 and disk == 0 :
-                    continue # we already did the first point.
                 Config.SetValue('OperationalProfiles.totalflux',GetFlux(ring,disk))
                 Config.SetValue('OperationalProfiles.tid_in_3000fb',GetTID(ring,disk))
-                print 'CALCULATING Ring %d Disk %d:'%(ring,disk)
+                print 'CALCULATING Ring %d Disk %d (%s):'%(ring,disk,Config.GetName())
                 Config.Print()
-
                 Config.ReloadAllPythonModules()
+
                 results.append(SensorTemperatureCalc.CalculateSensorTemperature(time_step_tc,options))
                 structure_names.append('R%dD%d'%(ring,disk))
 

@@ -8,6 +8,10 @@ the_path = ('/').join(os.getcwd().split('/')[:-1])
 print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
 
+# Dummy config must be loaded before loading any other module.
+import python.Config as Config
+Config.SetConfigFile('%s/data/%s'%(the_path,'Barrel_SS_B1.config'),doprint=False)
+
 import python.GlobalSettings as GlobalSettings
 import python.SensorLeakage as SensorLeakage
 import python.PlotUtils as PlotUtils
