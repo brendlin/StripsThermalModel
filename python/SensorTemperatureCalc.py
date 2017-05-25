@@ -287,8 +287,8 @@ def CalculateSensorTemperature(tc,options) :
                                                     )
                         )
 
-        if i and math.fabs(((i+1)*GlobalSettings.step) % 1.) < 0.000001 :
-            print 'Calculated year %.0f'%( int((i+1)*GlobalSettings.step) )
+        # if i and math.fabs(((i+1)*GlobalSettings.step) % 1.) < 0.000001 :
+        #     print 'Calculated year %.0f'%( int((i+1)*GlobalSettings.step) )
 
         continue # end of loop
 
@@ -308,7 +308,7 @@ def CalculateSensorTemperature(tc,options) :
     gr['pmhv']       = MakeGraph('HVPower'                ,'HV Power per module'                       ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,pmhv      )
     gr['isensor']    = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current'                  ,xtitle,'I_{%s} [A]'%('sensor')        ,x,isensor   )
     gr['pmhvr']      = MakeGraph('HVPowerSerialResistors' ,'HV Power serial resistors'                 ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,pmhvr     )
-    gr['powertotal'] = MakeGraph('SummaryTotalPower'      ,'Total Power in layer'                      ,xtitle,'P_{%s} [kW]'%('B1')           ,x,powertotal)
+    gr['powertotal'] = MakeGraph('SummaryTotalPower'      ,'Total Power in layer'                      ,xtitle,'P [kW]'                       ,x,powertotal)
     gr['phvtotal']   = MakeGraph('SummaryTotalHVPower'    ,'Total HV Power (sensor+resistors) in layer',xtitle,'P_{%s} [kW]'%('HV')           ,x,phvtotal  )
     gr['pmhvmux']    = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'                ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,pmhvmux   )
     gr['itape']      = MakeGraph('TapeCurrent'            ,'Tape current per module'                   ,xtitle,'I_{%s} [A]'%('tape')          ,x,itape     )
@@ -318,27 +318,20 @@ def CalculateSensorTemperature(tc,options) :
     gr['pstave']     = MakeGraph('TotalStavePower'        ,'Stave Power in layer'                      ,xtitle,'P_{%s} [W]'%('stave')         ,x,pstave    )
 
     outputpath = '%s/plots/SensorTemperatureCalc'%(('/').join(os.getcwd().split('/')[:-1]))
-    outputtag = {
-        'flat-25':'flat_m25',
-        'flat-35':'flat_m35',
-        'ramp-25':'ramp_m25',
-        'ramp-35':'ramp_m35'
-        }.get(options.cooling,'unknownScenario')
 
-    scenariolabel = {
-        'flat-25':'Flat #minus25#circ cooling scenario',
-        'flat-35':'Flat #minus35#circ cooling scenario',
-        'ramp-25':'Ramp #minus25#circ cooling scenario',
-        'ramp-35':'Ramp #minus35#circ cooling scenario',
-        }.get(options.cooling,'unknown cooling scenario')
+    outputtag = PlotUtils.GetCoolingOutputTag(options.cooling)
+    scenariolabel = PlotUtils.GetCoolingScenarioLabel(options.cooling)
+
+    dosave = (not hasattr(options,'save') or options.save)
 
     # Write out to file
-    outfilename = '%s/%s_%s.root'%(outputpath,'SensorTemperatureCalc',outputtag)
-    out = ROOT.TFile(outfilename,'recreate')
-    for g in gr.keys() :
-        gr[g].Write()
-    out.Close()
-    print 'Wrote file %s'%(outfilename)
+    if dosave :
+        outfilename = '%s/%s_%s.root'%(outputpath,'SensorTemperatureCalc',outputtag)
+        out = ROOT.TFile(outfilename,'recreate')
+        for g in gr.keys() :
+            gr[g].Write()
+        out.Close()
+        print 'Wrote file %s'%(outfilename)
 
     # Write plots
     c = ROOT.TCanvas('blah','blah',600,500)
@@ -349,7 +342,8 @@ def CalculateSensorTemperature(tc,options) :
         c.Clear()
         gr[g].Draw('al')
         text.Draw()
-        c.Print('%s/%s_%s.eps'%(outputpath,gr[g].GetName(),outputtag))
+        if dosave :
+            c.Print('%s/%s_%s.eps'%(outputpath,gr[g].GetName(),outputtag))
 
     # Kurt, put any extra plots here
 
@@ -375,7 +369,8 @@ def CalculateSensorTemperature(tc,options) :
         leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
     leg.Draw()
     text.Draw()
-    c.Print('%s/%s_%s.eps'%(outputpath,'SummaryPowerPerModule',outputtag))
+    if dosave :
+        c.Print('%s/%s_%s.eps'%(outputpath,'SummaryPowerPerModule',outputtag))
 
     #
     # Temperatures
@@ -398,7 +393,8 @@ def CalculateSensorTemperature(tc,options) :
         leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
     leg.Draw()
     text.Draw()
-    c.Print('%s/%s_%s.eps'%(outputpath,'SummaryTemperature',outputtag))
+    if dosave :
+        c.Print('%s/%s_%s.eps'%(outputpath,'SummaryTemperature',outputtag))
 
     #
     # HV power summary
@@ -421,7 +417,8 @@ def CalculateSensorTemperature(tc,options) :
         leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
     leg.Draw()
     text.Draw()
-    c.Print('%s/%s_%s.eps'%(outputpath,'SummaryHVPower',outputtag))
+    if dosave :
+        c.Print('%s/%s_%s.eps'%(outputpath,'SummaryHVPower',outputtag))
 
     # Kurt, put any extra plots here -- End.
 
@@ -429,4 +426,8 @@ def CalculateSensorTemperature(tc,options) :
 
     # Claire, put any extra plots here -- End.
 
-    return
+    return_items = dict()
+    return_items['powertotal'] = powertotal
+    return_items['pmodule'] = pmodule
+
+    return return_items

@@ -34,6 +34,13 @@ def ApplyGlobalStyle() :
     mystyle.SetTitleOffset(1.75 ,'y')
     mystyle.SetLabelOffset(0.003,'y')
 
+    # line styles for the extended model
+    mystyle.SetLineStyleString(10,'60 10');
+    mystyle.SetLineStyleString(11,'50 10');
+    mystyle.SetLineStyleString(12,'40 10');
+    mystyle.SetLineStyleString(13,'30 10');
+    mystyle.SetLineStyleString(14,'20 10');
+
     ROOT.gROOT.SetStyle("mystyle")
 
 def SetStyleTitles(tobject, title, xtitle, ytitle) :
@@ -80,3 +87,21 @@ def MakeGraph(name,title,xtitle,ytitle,xlist,ylist) :
     graph.GetYaxis().SetTitle(ytitle)
     graph.SetLineWidth(3)
     return graph
+
+def GetCoolingOutputTag(cooling_option) :
+    outputtag = {
+        'flat-25':'flat_m25',
+        'flat-35':'flat_m35',
+        'ramp-25':'ramp_m25',
+        'ramp-35':'ramp_m35'
+        }.get(cooling_option,'unknownScenario')
+    return outputtag
+
+def GetCoolingScenarioLabel(cooling_option) :
+    scenariolabel = {
+        'flat-25':'Flat #minus25#circ cooling scenario',
+        'flat-35':'Flat #minus35#circ cooling scenario',
+        'ramp-25':'Ramp #minus25#circ cooling scenario',
+        'ramp-35':'Ramp #minus35#circ cooling scenario',
+        }.get(cooling_option,'unknown cooling scenario')
+    return scenariolabel

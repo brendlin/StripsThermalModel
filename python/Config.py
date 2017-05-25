@@ -4,7 +4,7 @@ import ROOT
 internal_config = ROOT.TEnv()
 configname = ''
 
-def SetConfigFile(filepath) :
+def SetConfigFile(filepath,doprint=True) :
     configname = filepath.split('/')[-1]
 
     # Reset TEnv
@@ -13,9 +13,14 @@ def SetConfigFile(filepath) :
         internal_config.GetTable().Clear()
 
     # Load the new file
-    internal_config.ReadFile(filepath,ROOT.kEnvGlobal)
+    loaded = internal_config.ReadFile(filepath,ROOT.kEnvGlobal)
+    if loaded != 0 :
+        print 'Error! Failed to load config file %s -- Exiting.'%(configname)
+        import sys; sys.exit()
+
     print 'Loaded config file %s:'%(configname)
-    internal_config.Print()
+    if doprint :
+        internal_config.Print()
 
 def EnsureDefined(key) :
     if not internal_config.Defined(key) :
@@ -34,12 +39,19 @@ def GetStr(key) :
     EnsureDefined(key)
     return internal_config.GetValue(key,'none')
 
+def SetValue(name,value) :
+    internal_config.SetValue(name,value)
+    return
+
+def Print() :
+    internal_config.Print()
+    return
 
 # For reloading python module, in case e.g. the config file changed.
 def ReloadPythonModule(module) :
     import imp
     imp.reload(module)
-    print 'Reloaded %s'%(module.__name__)
+    #print 'Reloaded %s'%(module.__name__)
 
 def ReloadAllPythonModules() :
     import sys
@@ -48,6 +60,8 @@ def ReloadAllPythonModules() :
             continue
         if hasattr(sys.modules[i],'__file__') and 'StripsThermalModel' in sys.modules[i].__file__ :
             if '__init__' in sys.modules[i].__file__ :
+                continue
+            if 'Config.py' in sys.modules[i].__file__ :
                 continue
             ReloadPythonModule(sys.modules[i])
 

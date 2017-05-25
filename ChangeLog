@@ -1,3 +1,15 @@
+2017-05-25 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add ExtendedRunModel.py to model multiple layers / rings simultaneously
+    * Add ExtendedModelSummaryPlots.py as a companion to ExtendedRunModel, for plotting.
+    * Add option to SensorTemperatureCalc to not save detailed plots (used by ExtendedRunModel.py)
+    * SensorTemperatureCalc now returns values to be used by ExtendedRunModel.py
+    * Add Endcap_R0.config (Also R1, R2, ... R5) -- filled with values from Barrel_SS_B1.config
+
+2017-05-24 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Move barrel-specific parameters from Layout and OperationalProfiles to barrel config files
+    * Fix up naming scheme in SensorTemperatureCalc (no more specific references to B1)
+    * Running with --config Barrel_SS_B1.config reproduces previous result
+
 2017-05-23 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Multiple changes to make more flexible configuration:
     * Introduce Config.py, --config option, and barrel config files in data directory
