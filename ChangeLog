@@ -1,4 +1,7 @@
 2017-06-03 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Some labeling improvements
+    * Add EOS power plot (for debugging)
+    * Stop the calculation if thermal runaway is reached
     * Fill in some of the easy endcap configurables
     * Add protection so that current FEAST efficiency parameterization does not go positive at I>4A
     * Add Layout.Detector, Layout.nstaves, Layout.npetals for barrel-endcap layout differences

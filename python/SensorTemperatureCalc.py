@@ -2,6 +2,7 @@
 # SensorTemperatureCalc
 #
 import GlobalSettings
+import Config
 import Temperatures
 import NominalPower
 import SensorLeakage
@@ -20,7 +21,7 @@ import math
 from array import array
 import os
 
-# Barrel I
+n_runaway_errors = [0]
 
 def CalculateSensorTemperature(options) :
 
@@ -31,6 +32,7 @@ def CalculateSensorTemperature(options) :
     thcc       = [] # HCC temperature
     tfeast     = [] # FEAST temperature
     teos       = [] # EOS temperature
+    peos       = [] # EOS power
     pmodule    = [] # Power per module (front-end + HV)
     pmtape     = [] # Power loss in tape per module
     pmhv       = [] # HV power per module (leakage + resistors)
@@ -72,6 +74,11 @@ def CalculateSensorTemperature(options) :
     # Not sure whether nstep+1 is required...
     for i in range(GlobalSettings.nstep) :
 
+        year = int((i+1)*GlobalSettings.step)
+        month = ((i+1)*GlobalSettings.step % 1.)*12.
+
+        thermal_runaway = False
+
         # Solve for Tsensor (ts)
         x_list = []
         y_list = []
@@ -92,6 +99,13 @@ def CalculateSensorTemperature(options) :
 
             y = rhs - lhs
             if len(y_list) and y < y_list[-1] :
+                if y < 0 :
+                    thermal_runaway = True
+                    if n_runaway_errors[0] <= 5 :
+                        print 'WARNING! Probably hit thermal runaway! Year %d Month %2.0f'%(year,month)
+                    if n_runaway_errors[0] == 5 :
+                        print '(Suppressing additional thermal runaway efficiency errors)'
+                    n_runaway_errors[0] += 1
                 break
             if (ts_i == 0) and y > 0 :
                 print 'Error! In year %2.1f, y starts greater than 0. Exiting.'%(i*GlobalSettings.step)
@@ -104,6 +118,12 @@ def CalculateSensorTemperature(options) :
 
         # interpolate using TGraph "Eval" function
         graph = ROOT.TGraph(len(x_list),array('d',y_list),array('d',x_list))
+        if thermal_runaway :
+            for i_list in [tsensor,tabc,thcc,tfeast,teos,peos,pmodule,pmtape,pmhv,isensor,pmhvr,pmhvmux,
+                           pstave,powertotal,phvtotal,itape,ptape,idig,efffeast] :
+                i_list.append(i_list[-1])
+            continue
+
         resultts = graph.Eval(0)
 
         # (solving step is done.)
@@ -188,6 +208,9 @@ def CalculateSensorTemperature(options) :
         if (i == 0) :
             teos.pop(0) # remove the initial value
 
+        # EOS Power
+        peos.append(NominalPower.eosP(teos[-1]))
+
         #
         # From here we can use actual temperatures
         #
@@ -238,6 +261,7 @@ def CalculateSensorTemperature(options) :
                       )
 
         # Total power for layer
+        # Extra factor of 2 is for 2 sides of the barrel, or 2 endcaps.
         powertotal.append( 2 * Layout.nstaves * (1 + SafetyFactors.safetylayout)
                            * NominalPower.Pstave(tabc[-1],
                                                  thcc[-1],
@@ -251,6 +275,8 @@ def CalculateSensorTemperature(options) :
                            )
 
         # Total HV power for layer
+        # One factor of 2 is for 2 sides of the barrel, or 2 endcaps.
+        # Antoher factor of 2 is for two sides of the module
         phvtotal.append( 2 * Layout.nstaves * (1 + SafetyFactors.safetylayout) * 2 * Layout.nmod * (pmhv[-1] + pmhvr[-1]) / 1000. )
 
         # Tape current per module
@@ -300,24 +326,31 @@ def CalculateSensorTemperature(options) :
     # dictionary of graphs
     gr = dict()
 
+    structure_name = Config.GetStr('Layout.Detector')
+    substructure_name = {'Barrel':'layer (both sides)',
+                         'Endcap':'ring (both endcaps)'}.get(structure_name)
+    layer_or_ring = {'Barrel':'layer',
+                     'Endcap':'-----'}.get(structure_name)
+
     gr['tsensor']    = MakeGraph('SensorTemperature'      ,'sensor temperature'                        ,xtitle,'T_{%s} [#circ^{}C]'%('sensor'),x,tsensor   )
     gr['tabc']       = MakeGraph('AbcTemperature'         ,'ABC temperature'                           ,xtitle,'T_{%s} [#circ^{}C]'%('ABC'   ),x,tabc      )
     gr['thcc']       = MakeGraph('HCCTemperature'         ,'HCC temperature'                           ,xtitle,'T_{%s} [#circ^{}C]'%('HCC'   ),x,thcc      )
     gr['tfeast']     = MakeGraph('FEASTTemperature'       ,'FEAST temperature'                         ,xtitle,'T_{%s} [#circ^{}C]'%('FEAST' ),x,tfeast    )
     gr['teos']       = MakeGraph('EOSTemperature'         ,'EOS temperature'                           ,xtitle,'T_{%s} [#circ^{}C]'%('EOS'   ),x,teos      )
+    gr['peos']       = MakeGraph('EOSPower'               ,'EOS power'                                 ,xtitle,'P_{%s} [W]'%('EOS'   )        ,x,peos      )
     gr['pmodule']    = MakeGraph('ModulePower'            ,'Module Power'                              ,xtitle,'P_{%s} [W]'%('module')        ,x,pmodule   )
     gr['pmtape']     = MakeGraph('TapePower'              ,'Tape Power Loss'                           ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,pmtape    )
     gr['pmhv']       = MakeGraph('HVPower'                ,'HV Power per module'                       ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,pmhv      )
     gr['isensor']    = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current'                  ,xtitle,'I_{%s} [A]'%('sensor')        ,x,isensor   )
     gr['pmhvr']      = MakeGraph('HVPowerSerialResistors' ,'HV Power serial resistors'                 ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,pmhvr     )
-    gr['powertotal'] = MakeGraph('SummaryTotalPower'      ,'Total Power in layer'                      ,xtitle,'P [kW]'                       ,x,powertotal)
-    gr['phvtotal']   = MakeGraph('SummaryTotalHVPower'    ,'Total HV Power (sensor+resistors) in layer',xtitle,'P_{%s} [kW]'%('HV')           ,x,phvtotal  )
+    gr['powertotal'] = MakeGraph('SummaryTotalPower'      ,'Total Power in %s'%(substructure_name)     ,xtitle,'P_{%s} [kW]'%('Total')        ,x,powertotal)
+    gr['phvtotal']   = MakeGraph('SummaryTotalHVPower'    ,'Total HV Power (sensor + resistors) in %s'%(substructure_name),xtitle,'P_{%s} [kW]'%('HV'),x,phvtotal)
     gr['pmhvmux']    = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'                ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,pmhvmux   )
     gr['itape']      = MakeGraph('TapeCurrent'            ,'Tape current per module'                   ,xtitle,'I_{%s} [A]'%('tape')          ,x,itape     )
     gr['idig']       = MakeGraph('DigitalCurrent'         ,'ABC and HCC digital current'               ,xtitle,'I_{%s} [A]'%('digital')       ,x,idig      )
     gr['efffeast']   = MakeGraph('FeastEfficiency'        ,'Feast efficiency'                          ,xtitle,'Efficiency [%]'               ,x,efffeast  )
-    gr['ptape']      = MakeGraph('TotalPowerLossTape'     ,'Power loss in complete tape in layer'      ,xtitle,'P_{%s} [W]'%('tape')          ,x,ptape     )
-    gr['pstave']     = MakeGraph('TotalStavePower'        ,'Stave Power in layer'                      ,xtitle,'P_{%s} [W]'%('stave')         ,x,pstave    )
+    gr['ptape']      = MakeGraph('TotalPowerLossTape'     ,'Power loss in complete tape in %s'%(layer_or_ring),xtitle,'P_{%s} [W]'%('tape')   ,x,ptape     )
+    gr['pstave']     = MakeGraph('TotalStavePower'        ,'Stave Power'                               ,xtitle,'P_{%s} [W]'%('stave')         ,x,pstave    )
 
     dosave = (not hasattr(options,'save') or options.save)
 
@@ -397,9 +430,13 @@ def CalculateSensorTemperature(options) :
               }
     leg = ROOT.TLegend(0.52,0.69,0.80,0.93)
     PlotUtils.SetStyleLegend(leg)
-    for i,key in enumerate(['tabc','thcc','tfeast','teos','tsensor','tcoolant']) :
+    tabc_clone = gr['tabc'].Clone()
+    tabc_clone.GetYaxis().SetTitle('T [#circ^{}C]')
+    tabc_clone.Draw('al')
+    leg.AddEntry(tabc_clone,tabc_clone.GetTitle(),'l')
+    for i,key in enumerate(['thcc','tfeast','teos','tsensor','tcoolant']) :
         gr[key].SetLineColor(colors.get(key))
-        gr[key].Draw('l' if i else 'al')
+        gr[key].Draw('l')
         leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
     leg.Draw()
     text.Draw()
