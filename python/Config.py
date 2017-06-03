@@ -30,6 +30,11 @@ def SetConfigFile(filepath,doprint=True) :
 
     return
 
+def Defined(key) :
+    if not internal_config.Defined(key) :
+        return False
+    return True
+
 def EnsureDefined(key) :
     if not internal_config.Defined(key) :
         print 'Error! \"%s\" is not defined in %s! Exiting.'%(key,internal_config.GetName())
@@ -48,7 +53,7 @@ def GetStr(key) :
     return internal_config.GetValue(key,'none')
 
 def SetValue(name,value) :
-    internal_config.SetValue(name,value)
+    internal_config.SetValue(name,str(value))
     return
 
 def Print() :

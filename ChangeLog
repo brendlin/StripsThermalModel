@@ -1,3 +1,7 @@
+2017-06-03 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Move coolant code to its own "CoolantTemperature.py" module
+    * Make necessary adjustments to RunModel and ExtendedRunModel
+
 2017-05-25 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Simplify some of the ExtendedRunModel.py code
     * Update StudyBlah.py to run with the new config-file scheme

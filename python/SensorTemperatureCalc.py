@@ -10,6 +10,7 @@ import SensorProperties
 import Layout
 import SafetyFactors
 import PoweringEfficiency
+import CoolantTemperature
 import PlotUtils
 from PlotUtils import MakeGraph
 
@@ -20,7 +21,7 @@ import os
 
 # Barrel I
 
-def CalculateSensorTemperature(tc,options) :
+def CalculateSensorTemperature(options) :
 
     # "Initialize lists"
     # Lists of quantities vs time
@@ -51,21 +52,21 @@ def CalculateSensorTemperature(tc,options) :
     # defTeos
     teos.append(Temperatures.Teos( NominalPower.eosP(nomT),
                                    NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0),
-                                   0, tc[0] ))
+                                   0, CoolantTemperature.GetTimeStepTc()[0] ))
     # defTabc
     tabc.append(Temperatures.Tabc( NominalPower.Pabc(nomT, 1, 0),
                                    NominalPower.eosP(nomT),
                                    NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0),
-                                   0, tc[0] ))
+                                   0, CoolantTemperature.GetTimeStepTc()[0] ))
     # defThcc
     thcc.append(Temperatures.Thcc( NominalPower.Phcc(nomT, 1, 0), NominalPower.eosP(nomT),
                                    NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0),
-                                   0, tc[0] ))
+                                   0, CoolantTemperature.GetTimeStepTc()[0] ))
     # defTfeast
     tfeast.append(Temperatures.Tfeast( NominalPower.Pfeast(nomT, nomT, nomT, 1, 0),
                                        NominalPower.eosP(nomT),
                                        NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0),
-                                       0, tc[0] ))
+                                       0, CoolantTemperature.GetTimeStepTc()[0] ))
 
     # Not sure whether nstep+1 is required...
     for i in range(GlobalSettings.nstep) :
@@ -84,7 +85,7 @@ def CalculateSensorTemperature(tc,options) :
                                                                       OperationalProfiles.tid_dose[i],
                                                                       Temperatures.unref(SensorLeakage.qref[i],ts)/float(SensorProperties.vbias)
                                                                       ),
-                                                    tc[i]
+                                                    CoolantTemperature.GetTimeStepTc()[i]
                                                     )
                                     )
 
@@ -124,7 +125,7 @@ def CalculateSensorTemperature(tc,options) :
                                                         Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias)
                                                         ),
                                       Temperatures.unref(SensorLeakage.qref[i],resultts),
-                                      tc[i]
+                                      CoolantTemperature.GetTimeStepTc()[i]
                                       )
                       )
         if (i == 0) :
@@ -143,7 +144,7 @@ def CalculateSensorTemperature(tc,options) :
                                                         Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias)
                                                         ),
                                       Temperatures.unref(SensorLeakage.qref[i],resultts),
-                                      tc[i]
+                                      CoolantTemperature.GetTimeStepTc()[i]
                                       )
                       )
         if (i == 0) :
@@ -164,7 +165,7 @@ def CalculateSensorTemperature(tc,options) :
                                                             Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias)
                                                             ),
                                           Temperatures.unref(SensorLeakage.qref[i],resultts),
-                                          tc[i]
+                                          CoolantTemperature.GetTimeStepTc()[i]
                                           )
                       )
         if (i == 0) :
@@ -180,7 +181,7 @@ def CalculateSensorTemperature(tc,options) :
                                                         Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias)
                                                         ),
                                       Temperatures.unref(SensorLeakage.qref[i],resultts),
-                                      tc[i]
+                                      CoolantTemperature.GetTimeStepTc()[i]
                                       )
                     )
         if (i == 0) :
@@ -376,7 +377,7 @@ def CalculateSensorTemperature(tc,options) :
     # Temperatures
     #
     c.Clear()
-    gr['tcoolant'] = MakeGraph('CoolantTemperature','coolant temperature',xtitle,'T_{%s} [#circ^{}C]',x,tc)
+    gr['tcoolant'] = MakeGraph('CoolantTemperature','coolant temperature',xtitle,'T_{%s} [#circ^{}C]',x,CoolantTemperature.GetTimeStepTc())
     colors = {'tabc'    :ROOT.kBlue+1,
               'thcc'    :ROOT.kRed+1,
               'tfeast'  :ROOT.kOrange+1,

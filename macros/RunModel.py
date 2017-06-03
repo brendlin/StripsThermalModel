@@ -26,6 +26,10 @@ def main(options,args):
     import python.Config as Config
     Config.SetConfigFile('%s/data/%s'%(the_path,options.config))
 
+    # If "cooling" is not defined in the config file, define it using the command-line argument
+    if not Config.Defined('cooling') :
+        Config.SetValue('cooling',options.cooling)
+
     print 'importing modules'
     import python.GlobalSettings      as GlobalSettings
     import python.SafetyFactors       as SafetyFactors
@@ -42,33 +46,11 @@ def main(options,args):
     import python.OperationalProfiles as OperationalProfiles
     import python.SensorLeakage       as SensorLeakage
     import python.SensorTemperatureCalc as SensorTemperatureCalc
+    import python.CoolantTemperature  as CoolantTemperature
     print 'importing modules done.'
-    
-    # Coolant temperature in Celsius in each year for 14 y of operation
-    if options.cooling == 'flat-25' :
-        print 'Setting cooling to \"flat-25\" (constant at -25 C)'
-        coolantT = [ -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25, -25 ]
-    elif options.cooling == 'flat-35' :
-        print 'Setting cooling to \"flat-35\" (constant at -35 C)'
-        coolantT = [ -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35, -35 ]
-    elif options.cooling == 'ramp-25' :
-        print 'Setting cooling to \"ramp-25\" (ramping down to -25 C)'
-        coolantT = [   0,  -5, -10, -15, -15, -20, -20, -25, -25, -25, -25, -25, -25, -25 ]
-    elif options.cooling == 'ramp-35' :
-        print 'Setting cooling to \"ramp-35\" (ramping down to -35 C)'
-        coolantT = [   0,  -5, -10, -15, -15, -20, -20, -25, -30, -35, -35, -35, -35, -35 ]
-    else :
-        print 'Error! Please set a cooling scheme: \"flat-25\",\"flat-35\",\"ramp-25\",\"ramp-35\".'
-        usage()
-
-    # time_step_list is a list of each step through the years
-    time_step_tc = []
-    for i in range(GlobalSettings.nstep) :
-        index = int( math.floor(i * GlobalSettings.step) )
-        time_step_tc.append( coolantT[ index ] )
 
     # The main calculations happen here:
-    SensorTemperatureCalc.CalculateSensorTemperature(time_step_tc,options)
+    SensorTemperatureCalc.CalculateSensorTemperature(options)
 
     print 'done'
     return
