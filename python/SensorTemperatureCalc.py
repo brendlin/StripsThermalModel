@@ -13,6 +13,7 @@ import PoweringEfficiency
 import CoolantTemperature
 import PlotUtils
 from PlotUtils import MakeGraph
+import TAxisFunctions as taxisfunc
 
 import ROOT
 import math
@@ -375,10 +376,10 @@ def CalculateSensorTemperature(options) :
     for i,key in enumerate(['pmodule','pmodule_noHV','pmodule_noHV_noTapeLoss']) :
         gr[key].SetLineColor(colors.get(key))
         gr[key].Draw('l' if i else 'al')
-        gr[key].GetHistogram().GetYaxis().SetRangeUser(0,15)
         leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
     leg.Draw()
     text.Draw()
+    taxisfunc.AutoFixYaxis(c,minzero=True)
     if dosave :
         c.Print('%s/%s_%s.eps'%(outputpath,'SummaryPowerPerModule',outputtag))
 
@@ -386,7 +387,7 @@ def CalculateSensorTemperature(options) :
     # Temperatures
     #
     c.Clear()
-    gr['tcoolant'] = MakeGraph('CoolantTemperature','coolant temperature',xtitle,'T_{%s} [#circ^{}C]',x,CoolantTemperature.GetTimeStepTc())
+    gr['tcoolant'] = MakeGraph('CoolantTemperature','coolant temperature',xtitle,'T_{%s} [#circ^{}C]'%('coolant'),x,CoolantTemperature.GetTimeStepTc())
     colors = {'tabc'    :ROOT.kBlue+1,
               'thcc'    :ROOT.kRed+1,
               'tfeast'  :ROOT.kOrange+1,
@@ -399,10 +400,10 @@ def CalculateSensorTemperature(options) :
     for i,key in enumerate(['tabc','thcc','tfeast','teos','tsensor','tcoolant']) :
         gr[key].SetLineColor(colors.get(key))
         gr[key].Draw('l' if i else 'al')
-        gr[key].GetHistogram().GetYaxis().SetRangeUser(-40,100)
         leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
     leg.Draw()
     text.Draw()
+    taxisfunc.AutoFixYaxis(c)
     if dosave :
         c.Print('%s/%s_%s.eps'%(outputpath,'SummaryTemperature',outputtag))
 
@@ -412,8 +413,8 @@ def CalculateSensorTemperature(options) :
     c.Clear()
     gr['pmodule'].SetTitle('Total HV power per module')
     hv_power_resistors = list(pmhvr[i] + pmhvmux[i] for i in range(len(pmhv)))
-    gr['hv_power_resistors'] = MakeGraph('HVPowerResistors','HV power contributions all resistors',xtitle,'P [W]',x,hv_power_resistors)
-    gr['pmhvmux'].SetTitle('HV power contribution parallel resistor')
+    gr['hv_power_resistors'] = MakeGraph('HVPowerResistors','Contribution from all resistors',xtitle,'P [W]',x,hv_power_resistors)
+    gr['pmhvmux'].SetTitle('Contribution from parallel resistor')
     colors = {'pmhv'              :ROOT.kBlue+1,
               'hv_power_resistors':ROOT.kGreen+1,
               'pmhvmux'           :ROOT.kRed+1,
@@ -423,10 +424,10 @@ def CalculateSensorTemperature(options) :
     for i,key in enumerate(['pmhv','hv_power_resistors','pmhvmux']) :
         gr[key].SetLineColor(colors.get(key))
         gr[key].Draw('l' if i else 'al')
-        gr[key].GetHistogram().GetYaxis().SetRangeUser(0,2)
         leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
     leg.Draw()
     text.Draw()
+    taxisfunc.AutoFixYaxis(c,minzero=True)
     if dosave :
         c.Print('%s/%s_%s.eps'%(outputpath,'SummaryHVPower',outputtag))
 
@@ -436,8 +437,7 @@ def CalculateSensorTemperature(options) :
 
     # Claire, put any extra plots here -- End.
 
-    return_items = dict()
-    return_items['powertotal'] = powertotal
-    return_items['pmodule'] = pmodule
+    # return all the graphs
+    return_items = gr
 
     return return_items

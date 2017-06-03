@@ -1,4 +1,6 @@
 2017-06-03 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add more plots to output of ExtendedModelSummaryPlots
+    * Add TAxisFunctions.py to help with auto-fixing y-axis ranges
     * Move frequently-made output plots outside of code repository, to remove plot clutter
     * Move coolant code to its own "CoolantTemperature.py" module
     * Make necessary adjustments to RunModel and ExtendedRunModel

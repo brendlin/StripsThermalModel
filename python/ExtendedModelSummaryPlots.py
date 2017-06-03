@@ -3,10 +3,47 @@ import os
 import ROOT
 import PlotUtils
 from PlotUtils import MakeGraph
+import TAxisFunctions as taxisfunc
 import GlobalSettings
 from array import array
 
-def ProcessSummaryPlots(result_dicts,names,options) :
+colors = {'B1':ROOT.kGreen,
+          'B2':ROOT.kBlue+1,
+          'B3':ROOT.kRed+1,
+          'B4':ROOT.kCyan+1,
+          'R0':ROOT.kGreen,
+          'R1':ROOT.kBlue+1,
+          'R2':ROOT.kRed+1,
+          'R3':ROOT.kCyan+1,
+          'R4':ROOT.kMagenta+1,
+          'R5':ROOT.kOrange+1,
+          }
+
+
+def SetEndcapLegendSpecial(leg,graphs) :
+    leg.Clear()
+    leg.SetNColumns(2)
+    leg.SetMargin(.5)
+
+    dummy_graphs = []
+    for i in range(6) :
+        # Rings
+        dummy_graphs.append(ROOT.TGraph(1,array('d',[1]),array('d',[1])))
+        dummy_graphs[-1].SetLineColor(colors['R%d'%(i)])
+        dummy_graphs[-1].SetLineWidth(2)
+        leg.AddEntry(dummy_graphs[-1],'Ring %d'%(i),'l')
+
+        # Disks
+        dummy_graphs.append(ROOT.TGraph(1,array('d',[1]),array('d',[1])))
+        dummy_graphs[-1].SetLineStyle([1,10,11,12,13,14][i])
+        dummy_graphs[-1].SetLineColor(ROOT.kGray+1)
+        dummy_graphs[-1].SetLineWidth(2)
+        leg.AddEntry(dummy_graphs[-1],'Disk %d'%(i),'l')
+
+    return dummy_graphs
+
+
+def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegend=False) :
     # result_dicts: a list of dictionaries with results that we saved from CalculateSensorTemperature
     # names: a list of the corresponding names for result_dicts
 
@@ -23,25 +60,18 @@ def ProcessSummaryPlots(result_dicts,names,options) :
     outputtag = PlotUtils.GetCoolingOutputTag(options.cooling)
     scenariolabel = PlotUtils.GetCoolingScenarioLabel(options.cooling)
 
-    barrel_endcap = 'Barrel' if options.barrel else 'Endcap'
+    barrel_endcap = ''
+    if hasattr(options,'barrel') :
+        barrel_endcap = 'Barrel_' if options.barrel else 'Endcap_'
+
+    if not hasattr(options,'endcap') :
+        options.endcap = False
     
     # Write plots
     c = ROOT.TCanvas('blah','blah',600,500)
 
     xtitle = 'Time [years]'
     x = GlobalSettings.time_step_list[1:]
-
-    colors = {'B1':ROOT.kGreen,
-              'B2':ROOT.kBlue+1,
-              'B3':ROOT.kRed+1,
-              'B4':ROOT.kCyan+1,
-              'R0':ROOT.kGreen,
-              'R1':ROOT.kBlue+1,
-              'R2':ROOT.kRed+1,
-              'R3':ROOT.kCyan+1,
-              'R4':ROOT.kMagenta+1,
-              'R5':ROOT.kOrange+1,
-              }
 
     styles = {'D0':1,
               'D1':10,
@@ -51,77 +81,73 @@ def ProcessSummaryPlots(result_dicts,names,options) :
               'D5':14
               }
 
-    #
-    # Power per module
-    #
-    gr = dict()
-    gr['pmodule'] = []
-    average = [0]*len(result_dicts[0]['pmodule'])
-    for i,name in enumerate(names) :
-        gr['pmodule'].append(MakeGraph('PowerPerModule_%s'%(name),name,xtitle,'P [W]',x,result_dicts[i]['pmodule']))
-        for j in range(len(result_dicts[i]['pmodule'])) :
-            average[j] += result_dicts[i]['pmodule'][j]
-        
-    average = list(average[i]/float(len(result_dicts)) for i in range(len(average)))
-    gr_average = MakeGraph('AveragePowerPerModule','average',xtitle,'P [W]',x,average)
-    gr_average.SetLineWidth(4)
+    list_of_plots = list(result_dicts[0].keys())
 
-    if options.barrel :
-        text = ROOT.TLegend(0.13,0.89,0.41,0.94)
-        PlotUtils.SetStyleLegend(text)
-        text.AddEntry(0,scenariolabel,'')
+    for plotname in list_of_plots :
 
-        leg = ROOT.TLegend(0.72,0.75,0.91,0.90)
-        PlotUtils.SetStyleLegend(leg)
-        for i,g in enumerate(gr['pmodule']) :
-            g.SetLineColor(colors.get(names[i]))
-            leg.AddEntry(g,g.GetTitle(),'l')
-            g.Draw('l' if i else 'al')
-            g.GetHistogram().GetYaxis().SetRangeUser(0,15)
-    
-    if options.endcap :
-        text1 = ROOT.TLegend(0.11,0.83,0.46,0.92)
-        PlotUtils.SetStyleLegend(text1)
-        text1.AddEntry(0,'Power per module','')
-        text1.AddEntry(0,scenariolabel,'')
+        # collect all the graphs
+        graphs = list(a[plotname] for a in result_dicts)
 
-        text = ROOT.TLegend(0.32,0.53,0.67,0.77)
-        PlotUtils.SetStyleLegend(text)
-        text.AddEntry(0,'DUMMY VALUES - NOT REAL NUMBERS','')
+        # For the average plot
+        average = [0]*result_dicts[0][plotname].GetN()
 
-        dummy_graphs = []
-        for i in range(6) :
-            dummy_graphs.append(ROOT.TGraph(1,array('d',[1]),array('d',[1])))
-            #dummy_graphs[-1].SetLineStyle([1,10,9,7,2,3][i])
-            dummy_graphs[-1].SetLineStyle([1,10,11,12,13,14][i])
-            dummy_graphs[-1].SetLineColor(ROOT.kGray+1)
-            dummy_graphs[-1].SetLineWidth(2)
+        for i,name in enumerate(names) :
+            for j in range(result_dicts[i][plotname].GetN()) :
+                average[j] += result_dicts[i][plotname].GetY()[j]
+
+        average = list(average[i]/float(len(result_dicts)) for i in range(len(average)))
+        gr_average = MakeGraph('Average_%s'%(plotname),'average',xtitle,'P [W]',x,average)
+        gr_average.SetLineWidth(4)
 
         leg = ROOT.TLegend(0.57,0.69,0.91,0.93)
         PlotUtils.SetStyleLegend(leg)
-        leg.SetMargin(.5)
-        leg.SetNColumns(2)
-        for i,g in enumerate(gr['pmodule']) :
-            g.SetLineColor(colors.get(names[i][:2]))
-            g.SetLineStyle(styles.get(names[i][2:]))
+        for i,g in enumerate(graphs) :
+            g.SetLineColor(colors.get(names[i][:2],PlotUtils.ColorPalette()[i]))
+            if options.endcap :
+                g.SetLineStyle(styles.get(names[i][2:],1))
             g.SetLineWidth(2)
             g.Draw('l' if i else 'al')
-            g.GetHistogram().GetYaxis().SetRangeUser(7,15)
-        
-        for i,nm in enumerate(['R0D0','R1D0','R2D0','R3D0','R4D0','R5D0']) :
-            leg.AddEntry(gr['pmodule'][names.index(nm)],nm[:2],'l')
-            leg.AddEntry(dummy_graphs[i],'Disk %d'%(i),'l')
-            
-        # gr_average.Draw('l')
-        # leg.AddEntry(gr_average,'Average','l')
+            leg.AddEntry(g,names[i],'l')
 
-        text1.Draw()
+        # special legend for endcap
+        if speciallegend :
+            # save dummy graphs so they do not go out of scope
+            dummy_graphs = SetEndcapLegendSpecial(leg,graphs)
 
-    leg.Draw()
-    text.Draw()
+        if plotaverage :
+            gr_average.Draw('l')
+            leg.AddEntry(gr_average,'Average','l')
 
-    if not os.path.exists(outputpath) :
-        os.makedirs(outputpath)
+        # make sure there are at least 5 entries in legend (spacing)
+        for i in range(5 - len(graphs) - plotaverage) :
+            leg.AddEntry(0,'','')
 
-    c.Print('%s/%s_%s_%s.eps'%(outputpath,barrel_endcap,'PowerPerModule',outputtag))
+        leg.Draw()
+
+        #
+        # Descriptive text
+        #
+        text = ROOT.TLegend(0.11,0.79,0.46,0.92)
+        PlotUtils.SetStyleLegend(text)
+        text.AddEntry(0,scenariolabel,'')
+        label = [graphs[0].GetTitle(),'']
+        while(len(label[0]) > 28) :
+            tmp = label[0].split(' ')
+            label[0] = ' '.join(tmp[:-1])
+            label[1] = ' '.join([tmp[-1],label[1]])
+        text.AddEntry(0,label[0],'')
+        text.AddEntry(0,label[1],'')
+
+        text.Draw()
+
+        if options.endcap :
+            text_endcap_warning = ROOT.TLegend(0.32,0.63,0.67,0.69)
+            PlotUtils.SetStyleLegend(text_endcap_warning)
+            text_endcap_warning.AddEntry(0,'DUMMY VALUES - NOT REAL NUMBERS','')
+            text_endcap_warning.Draw()
+
+        taxisfunc.AutoFixYaxis(c)
+
+        c.Print('%s/%s%s_%s.eps'%(outputpath,barrel_endcap,graphs[0].GetName(),outputtag))
+
     return

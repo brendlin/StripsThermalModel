@@ -105,3 +105,14 @@ def GetCoolingScenarioLabel(cooling_option) :
         'ramp-35':'Ramp #minus35#circ cooling scenario',
         }.get(cooling_option,'unknown cooling scenario')
     return scenariolabel
+
+def ColorPalette() :
+    from ROOT import kBlack,kRed,kBlue,kAzure,kGreen,kMagenta,kCyan,kOrange,kGray,kYellow
+    return [kBlack+0,kRed+1,kAzure-2,kGreen+1,kMagenta+1,kCyan+1,kOrange+1
+            ,kBlack+2,kRed+3,kBlue+3,kGreen+3,kMagenta+3,kCyan+3,kOrange+3
+            ,kGray,kRed-7,kBlue-7,kGreen-7,kMagenta-7,kCyan-7,kOrange-7
+            ,kYellow+2,kRed-5,kBlue-5,kGreen-5,kMagenta-5,kCyan-5,kOrange-5
+            ,21,22,23,24,25,26,27,28,29,30
+            ,21,22,23,24,25,26,27,28,29,30
+            ,21,22,23,24,25,26,27,28,29,30
+            ]

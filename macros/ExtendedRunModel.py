@@ -121,7 +121,7 @@ def main(options,args):
                 structure_names.append('R%dD%d'%(ring,disk))
 
     import python.ExtendedModelSummaryPlots as ExtendedModelSummaryPlots
-    ExtendedModelSummaryPlots.ProcessSummaryPlots(results,structure_names,options)
+    ExtendedModelSummaryPlots.ProcessSummaryPlots(results,structure_names,options,speciallegend=options.endcap)
 
     print 'done'
     return
