@@ -318,12 +318,21 @@ def CalculateSensorTemperature(options) :
     gr['ptape']      = MakeGraph('TotalPowerLossTape'     ,'Power loss in complete tape in layer'      ,xtitle,'P_{%s} [W]'%('tape')          ,x,ptape     )
     gr['pstave']     = MakeGraph('TotalStavePower'        ,'Stave Power in layer'                      ,xtitle,'P_{%s} [W]'%('stave')         ,x,pstave    )
 
-    outputpath = '%s/plots/SensorTemperatureCalc'%(('/').join(os.getcwd().split('/')[:-1]))
+    dosave = (not hasattr(options,'save') or options.save)
+
+    # Move output path outside code directory
+    outputpath = '%s/plots/SensorTemperatureCalc'%(os.getcwd().split('/StripsThermalModel')[0])
+    # If a different output name is specified
+    if hasattr(options,'outdir') :
+        outputpath = '%s/%s'%(outputpath,options.outdir)
+    if dosave :
+        print 'SensorTemperatureCalc output written to %s'%(outputpath)
+
+    if not os.path.exists(outputpath) :
+        os.makedirs(outputpath)
 
     outputtag = PlotUtils.GetCoolingOutputTag(options.cooling)
     scenariolabel = PlotUtils.GetCoolingScenarioLabel(options.cooling)
-
-    dosave = (not hasattr(options,'save') or options.save)
 
     # Write out to file
     if dosave :

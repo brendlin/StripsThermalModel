@@ -10,7 +10,12 @@ def ProcessSummaryPlots(result_dicts,names,options) :
     # result_dicts: a list of dictionaries with results that we saved from CalculateSensorTemperature
     # names: a list of the corresponding names for result_dicts
 
-    outputpath = '%s/plots/ExtendedModelSummaryPlots'%(('/').join(os.getcwd().split('/')[:-1]))
+    # Move output path outside code directory
+    outputpath = '%s/plots/SensorTemperatureCalc'%(os.getcwd().split('/StripsThermalModel')[0])
+    # If a different output name is specified
+    if hasattr(options,'outdir') :
+        outputpath = '%s/%s'%(outputpath,options.outdir)
+    print 'ExtendedModelSummaryPlots output written to %s'%(outputpath)
 
     outputtag = PlotUtils.GetCoolingOutputTag(options.cooling)
     scenariolabel = PlotUtils.GetCoolingScenarioLabel(options.cooling)
