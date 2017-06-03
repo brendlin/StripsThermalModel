@@ -11,11 +11,14 @@ def ProcessSummaryPlots(result_dicts,names,options) :
     # names: a list of the corresponding names for result_dicts
 
     # Move output path outside code directory
-    outputpath = '%s/plots/SensorTemperatureCalc'%(os.getcwd().split('/StripsThermalModel')[0])
+    outputpath = '%s/plots/ExtendedModelSummaryPlots'%(os.getcwd().split('/StripsThermalModel')[0])
     # If a different output name is specified
     if hasattr(options,'outdir') :
         outputpath = '%s/%s'%(outputpath,options.outdir)
     print 'ExtendedModelSummaryPlots output written to %s'%(outputpath)
+
+    if not os.path.exists(outputpath) :
+        os.makedirs(outputpath)
 
     outputtag = PlotUtils.GetCoolingOutputTag(options.cooling)
     scenariolabel = PlotUtils.GetCoolingScenarioLabel(options.cooling)
