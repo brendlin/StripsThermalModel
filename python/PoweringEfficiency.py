@@ -29,7 +29,16 @@ feast_fit_function_T60.SetParameters(*feastfitconstants)
 Vfeast = 10.5 # Feast input voltage
 DCDC2eff = 0.88 # DCDC2 efficiency
 
+n_errors = [0]
+
 def feasteff(tsensor,iload) :
+    if iload > 4 :
+        if n_errors[0] <= 5 :
+            print 'Warning! Load (%2.2f) is higher than existing data.'%(iload)
+        if n_errors[0] == 5 :
+            print '(Suppressing additional FEAST efficiency errors)'
+        n_errors[0] += 1
+        return feast_fit_function.Eval(4,tsensor)
     return feast_fit_function.Eval(iload,tsensor)
 
 # Scale factor for the current at a specific collected dose

@@ -38,6 +38,7 @@ nabc   = Config.GetInt('NominalPower.nabc')
 nhcc   = Config.GetInt('NominalPower.nhcc')
 nlpgbt = Config.GetInt('NominalPower.nlpgbt')
 ngbld  = Config.GetInt('NominalPower.ngbld')
+ngbtia = Config.GetInt('NominalPower.ngbtia')
 
 # Short strip module
 # module Short strip
@@ -75,7 +76,7 @@ def Pmod(Tabc,Thcc,Tfeast,d,D,Is) :
 # EOS power (including powering efficiency)
 
 eosI  = ( (nlpgbt * EOSComponents.lpgbtI + ngbld * EOSComponents.gbld12I) / float(PoweringEfficiency.DCDC2eff) ) * (EOSComponents.eosV12/float(EOSComponents.eosV25))
-eosI += EOSComponents.gbtiaI + ngbld * EOSComponents.gbld25I
+eosI += ngbtia * EOSComponents.gbtiaI + ngbld * EOSComponents.gbld25I
 
 def eosP(Teos) :
     return EOSComponents.eosV25 * eosI * 100 / float(PoweringEfficiency.feasteff(Teos, eosI))
@@ -89,6 +90,7 @@ def Pstavetape(Tabc,Thcc,Tfeast,d,D) :
     sum_n2_from_1_to_nmod = sum(n2_from_1_to_nmod)
     return (Ptape(Tabc, Thcc, Tfeast, d, D) / float(Layout.nmod)**2 ) * sum_n2_from_1_to_nmod
 
+# Factor of 2 is for two modules on each side of a stave
 def Pstave(Tabc,Thcc,Tfeast,Teos,d,D,Is) :
     return 2 * (Layout.nmod * (Pmod(Tabc,Thcc,Tfeast,d,D,Is) - Ptape(Tabc,Thcc,Tfeast,d,D) +
                                Is * SensorProperties.vbias) + Pstavetape(Tabc,Thcc,Tfeast,d,D) + eosP(Teos) )

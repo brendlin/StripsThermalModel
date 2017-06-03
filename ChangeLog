@@ -1,4 +1,8 @@
 2017-06-03 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Fill in some of the easy endcap configurables
+    * Add protection so that current FEAST efficiency parameterization does not go positive at I>4A
+    * Add Layout.Detector, Layout.nstaves, Layout.npetals for barrel-endcap layout differences
+    * Add NominalPower.ngbtia configurable to effectively turn off EOS
     * Remove unphysical plotting artifact due to doserate in OperationalProfiles
     * Add more plots to output of ExtendedModelSummaryPlots
     * Add TAxisFunctions.py to help with auto-fixing y-axis ranges
