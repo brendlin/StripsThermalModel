@@ -8,10 +8,10 @@ import GlobalSettings
 
 # Luminosity profile
 # Luminosity per year in fb^-1/y for 14 y of operation
-luminosity = [ 61, 163, 203, 203, 0, 305, 400, 400, 0, 440, 440, 440, 440, 440 ]
+luminosity =  [ 61, 163, 203, 203, 0.0203, 305, 400, 400, 0.0400, 440, 440, 440, 440, 440]
 
 # days per year of operation
-daysperyear = [ 80, 160, 160, 160, 1, 200, 200, 200, 1, 220, 220, 220, 220, 220]
+daysperyear = [ 80, 160, 160, 160, 0.0160, 200, 200, 200, 0.0200, 220, 220, 220, 220, 220]
 
 # Efficiency (?)
 eff = [ 0.294, 0.294, 0.294, 0.294, 0.294, 0.294,

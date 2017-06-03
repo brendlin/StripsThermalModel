@@ -221,11 +221,3 @@ def GetYaxisRanges(can,check_all=False) :
 
     # print 'GetYaxisRanges',ymin,ymax
     return ymin,ymax
-
-##
-## Fit all the data into the canvas (for the x-axis)
-##
-def FixXaxisRanges(can) :
-    (xmin,xmax) = GetXaxisRanges(can,check_all=True)
-    SetXaxisRanges(can,xmin,xmax)
-    return
