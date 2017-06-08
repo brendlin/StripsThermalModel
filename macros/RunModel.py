@@ -2,9 +2,12 @@
 
 import os,sys
 import math
+import ROOT
 the_path = ('/').join(os.getcwd().split('/')[:-1]) 
 print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
+
+#ROOT.gROOT.SetBatch(True)
 
 import python.PlotUtils as PlotUtils
 

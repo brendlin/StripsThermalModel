@@ -1,3 +1,9 @@
+2017-06-08 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add some output plots
+    * Add module power summary plot
+    * NominalPower.py: Capability to return the Pfeast from ABC and HCC alone (not AMAC)
+    * Some small changes
+
 2017-06-03 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Some labeling improvements
     * Add EOS power plot (for debugging)

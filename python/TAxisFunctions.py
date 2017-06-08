@@ -21,6 +21,8 @@ def AutoFixYaxis(can,ignorelegend=False,forcemin=None,minzero=False) :
             plots_exist = True
         if issubclass(type(i),ROOT.TGraph) :
             plots_exist = True
+        if issubclass(type(i),ROOT.THStack) :
+            plots_exist = True
         if (ignorelegend) and ('legend' in i.GetName()) :
             continue
         if type(i) == type(ROOT.TFrame()) :
@@ -136,7 +138,7 @@ def SetYaxisRanges(can,ymin,ymax) :
         if issubclass(type(i),THStack) :
             # print 'SetYaxisRanges',ymin,ymax
             i.SetMinimum(ymin)
-            i.SetMaximum(ymax)
+            i.SetMaximum(ymax/1.05)
             if not yaxis :
                 yaxis = i.GetHistogram().GetYaxis()
     if not yaxis :

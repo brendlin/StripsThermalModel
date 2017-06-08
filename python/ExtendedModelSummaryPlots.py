@@ -5,6 +5,7 @@ import PlotUtils
 from PlotUtils import MakeGraph
 import TAxisFunctions as taxisfunc
 import GlobalSettings
+import CoolantTemperature
 from array import array
 
 colors = {'B1':ROOT.kGreen,
@@ -57,8 +58,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     if not os.path.exists(outputpath) :
         os.makedirs(outputpath)
 
-    outputtag = PlotUtils.GetCoolingOutputTag(options.cooling)
-    scenariolabel = PlotUtils.GetCoolingScenarioLabel(options.cooling)
+    outputtag = PlotUtils.GetCoolingOutputTag(CoolantTemperature.cooling)
+    scenariolabel = PlotUtils.GetCoolingScenarioLabel(CoolantTemperature.cooling)
 
     barrel_endcap = ''
     if hasattr(options,'barrel') :

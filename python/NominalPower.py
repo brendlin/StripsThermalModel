@@ -58,8 +58,11 @@ def Phcc(Thcc,d,D) :
 def Ifeast(Tabc,Thcc,d,D) :
     return Iabc(Tabc, d, D) + Ihcc(Thcc, d, D)
 
+def Pfeast_ABC_HCC(Tabc,Thcc,Tfeast,d,D) :
+    return ( Pabc(Tabc,d,D) + Phcc(Thcc,d,D) ) * (100 / float( PoweringEfficiency.feasteff(Tfeast,Ifeast(Tabc,Thcc,d,D)) ) - 1)
+
 def Pfeast(Tabc,Thcc,Tfeast,d,D) :
-    return Pfamac + ( Pabc(Tabc,d,D) + Phcc(Thcc,d,D) ) * (100 / float( PoweringEfficiency.feasteff(Tfeast,Ifeast(Tabc,Thcc,d,D)) ) - 1)
+    return Pfamac + Pfeast_ABC_HCC(Tabc,Thcc,Tfeast,d,D)
 
 def Idig(Tabc,Thcc,d,D) :
     return nabc * AbcTidBump.tid_scale_combined_factor(Tabc,d,D) * FrontEndComponents.abcId + nhcc * AbcTidBump.tid_scale_combined_factor(Thcc,d,D) * FrontEndComponents.hccId
