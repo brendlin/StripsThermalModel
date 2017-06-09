@@ -1,3 +1,6 @@
+2017-06-09 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add cooling document for recording details of the model
+
 2017-06-08 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Add some output plots
     * Add module power summary plot

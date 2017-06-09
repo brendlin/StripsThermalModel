@@ -1,0 +1,33 @@
+\documentclass[10pt]{article}
+
+\usepackage{xspace}
+\usepackage{amsmath,amssymb}
+\usepackage{adjustbox}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{multirow}
+\usepackage{datetime}
+
+%% Use these lines for letter-sized paper
+\usepackage[paper=letterpaper,
+%%             nofoot, % Uncomment to put page number above margin
+%%             marginparwidth=1in,     % Length of section titles
+%%             marginparsep=.05in,       % Space between titles and text
+               margin=1in,               % 1 inch margins
+            left=1.0in,
+            right=1.0in,
+%%             includemp
+            ]{geometry}
+
+%% More layout: Get rid of indenting throughout entire document
+\setlength{\parindent}{0in}
+
+\begin{document}
+\thispagestyle{empty}
+
+\today, \currenttime
+
+\input{Sections/ThermalImpedances.tex}
+
+\end{document}
+
+

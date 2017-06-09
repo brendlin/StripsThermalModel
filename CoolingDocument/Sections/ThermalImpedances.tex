@@ -1,0 +1,280 @@
+
+\newcommand{\highlight}[1]{{\color{BrickRed}\textbf{#1}}}
+
+\section{Collecting Power Inputs for the Endcap Petal}
+
+Table~\ref{tab:power_numbers} details the current, voltage, and power specifications for each
+component. Most of these numbers come from Graham and Georg's thermal model. Most are similar to
+Sergio's numbers, with some differences highlighted in red.
+
+\def\tid{\ensuremath{^\text{TID}}\xspace}
+\def\eff{\ensuremath{\varepsilon}}
+\def\pfeast{\ensuremath{\frac{(1-\eff)}{\eff}(P_\text{ABC}+P_\text{HCC})}}
+%
+\let\arraystretcha\arraystretch
+\renewcommand\arraystretch{1.2} % 1.6
+\begin{table}[h]
+\begin{center}
+\adjustbox{max width=\textwidth}{ %% just before tabular
+\begin{tabular}{|l|c|c|c|c|c|c|} \hline
+\multirow{2}{*}{Description} & input voltage & \multicolumn{3}{c|}{Specifications for 1 component} & $n$ components & Total power \\
+              & [V]           & current [A]           & power [W]                   & eff   & per module (1 side) & (1 side) [W]    \\ \hline
+AMAC 1.5V     & 1.5           & 0.045                 & 0.0675                      &       & --                  &                 \\
+AMAC 3.0V     & 3.0           & 0.002                 & 0.006                       &       & --                  &                 \\
+Total AMAC    & --            & --                    & 0.0735                      &       & 1                   & 0.0735          \\ \hline
+ABC (digital) & 1.5           & 0.035                 & 0.0525                      &       & --                  &                 \\
+ABC (analog)  & 1.5           & 0.066                 & 0.099                       &       & --                  &                 \\
+Total ABC     & --            & 0.101                 & \highlight{0.1515}          &       & 21$^*$              & 3.1815$^*$\tid  \\ \hline
+HCC (digital) & 1.5           & 0.125                 & 0.1875                      &       & --                  &                 \\
+HCC (analog)  & 1.5           & 0.075                 & 0.1125                      &       & --                  &                 \\
+Total HCC     & --            & 0.200                 & \highlight{0.3}             &       & 2$^*$               & 0.6$^*$\tid     \\ \hline
+FEAST (ABC,HCC) & --          &                       & \pfeast                     & 75\%  & --                  & 1.2605$^*$\tid  \\
+``FEAST'' AMAC regulators & --&                       & see below                   &       & --                  & 0.415           \\
+Total FEAST   & --            &                       & see below                   &       & 1                   & 1.6755$^*$\tid  \\ \hline
+Total Module (R1)  & --       &                       &                             &       &                     & 5.53$^*$        \\ \hline
+\multicolumn{7}{|c|}{} \\[-2mm]
+\multicolumn{7}{|c|}{EOS} \\ \hline
+VTRx: lpGBTx  & 1.2           & 0.625                 & 0.750                       &       & --                  &                 \\
+VTRx: GBLD 1.2V & 1.2         & 0.0095                & 0.0114                      &       & --                  &                 \\
+VTRx: GBLD 2.5V & 2.5         & 0.018                 & 0.045                       &       & --                  &                 \\
+Total VTRx    &               &                       & 0.8064                      &       & 1                   & 0.8064          \\         
+GBTIA         & 2.5           & 0.053                 & 0.1325                      &       & 1                   & 0.1325          \\
+FEAST         &               &                       &                             &       & 0.5$^\dagger$       & 0.35$^\dagger$  \\
+DCDC2         &               &                       &                             & 88\%  & 0.5$^\dagger$       & 0.104$^\dagger$ \\ \hline
+Total EOS     &               &                       &                             &       &                     & \highlight{1.4} \\
+EOS both sides&               &                       &                             &       &                     & \highlight{2.8} \\
+\hline \end{tabular}
+} %% resizebox after tabular
+\end{center}
+\caption{Endcap module inputs. Starred ($^*$) values are representative and taken from Endcap R1. Values
+with \tid next to them are affected by the TID bump in one way or another. The 75\% FEAST efficiency 
+is representative only; in reality it is temperature- and current-dependent (also TID-dependent?).
+}
+\label{tab:power_numbers}
+\end{table}
+\let\arraystretch\arraystretcha
+
+Some notes on the numbers in the table:
+\begin{itemize}
+\item HCC and ABC power numbers correspond to unirradiated values.
+\item The ABC power numbers (from Georg/Graham) differ from Sergio's sheet by 1.7\%.
+\item \highlight{The HCC power numbers (from Georg/Graham) differ from Sergio's sheet by 38\%.}
+\item \tid The FEAST is affected by the TID bump insofar as its power is determined by the ABC and HCC.
+  In the above it is assumed to be 75\%, but it is temperature and current-dependent.
+\item The total power (before irradiation, before TID bump) of Module R1 represents
+all components excluding HV and tape losses, which are small in comparison.
+\item For the EOS, the total power for both sides is simply double the power of one side.
+\item $^\dagger$ The FEAST and DCDC2 exist on one side only, and power the EOS cards on both petal
+sides (hence ``0.5 per side''). If both EOSes are powered, then the power dissipatd by the FEAST and
+DCDC2 is twice the power listed above.
+\item For $n=1$ lpGBTx ASICs (corresponding to the barrel long strips and the endcaps),
+and assuming a FEAST efficiency $\varepsilon_\text{FEAST}=0.75$,
+the total power is 1.4~W per EOS side.
+\item For $n=2$ lpGBTx ASICs (corresponding to the barrel short strips),
+\highlight{the total power is 2.6~W per EOS side (differs from the TDR, which says 3~W)}.
+\end{itemize}
+
+%% \subsection{The End-of-Substructure (EOS)}
+%% \begin{itemize}
+%% \item DCDC2 converter: $P=0.208$~W (see calculation below)
+%% \item FEAST: $P=1.12$~W (see calculation below)
+%% \item VTRx
+%%   \begin{itemize}
+%%     \item GBTIA: $I=53$~mA; 2.5~V; $P=0.1325$~W
+%%     \item GBLD$_{2.5V}$: $I=18$~mA 2.5~V; $P=0.045$~W
+%%   \end{itemize}
+%% \item lpGBTx: $I=625$~mA; 1.2~V; $P=0.75$~W; powered by DCDC2
+%% \item GBLD$_{1.2V}$: $I=9.5$~mA; 1.2~V; $P=0.0114$~W; powered by DCDC2
+%% \end{itemize}
+
+The total power of the EOS (one side) is given by:
+\begin{equation}
+P_\text{EOS} = \frac{1}{\varepsilon_\text{FEAST}}\times
+  \left( \frac{1}{\varepsilon_\text{DCDC2}} (n P_\text{lpGBTx} + n P_\text{GBLD1.2}) + n P_\text{GBLD2.5} + P_\text{GBTIA} \right)
+\end{equation}
+% (((.750*2+0.0114*2)/0.88)+0.1325+0.045*2)/0.75 = 2.60
+% (((.750*1+0.0114*1)/0.88)+0.1325+0.045*1)/0.75 = 1.40
+
+As can probably be inferred from above, the power in the EOS FEAST is:
+\begin{equation}
+P^\text{EOS}_\text{FEAST} = \frac{(1-\varepsilon_\text{FEAST})}{\varepsilon_\text{FEAST}}\times
+  \left( \frac{1}{\varepsilon_\text{DCDC2}} (n P_\text{lpGBTx} + n P_\text{GBLD1.2}) + n P_\text{GBLD2.5} + P_\text{GBTIA} \right)
+\end{equation}
+
+The power in the EOS DCDC2 converter is:
+\begin{equation}
+P^\text{EOS}_\text{DCDC2} = \frac{(1-\varepsilon_\text{DCDC2})}{\varepsilon_\text{DCDC2}} \left(n P_\text{lpGBTx} + n P_\text{GBLD1.2}\right)
+\end{equation}
+
+
+The power dissipated by the AMAC regulators is given by the current in the AMAC components multiplied
+by the voltage drop in the regulators:
+\begin{equation}
+P_\text{regulator} = I^{1.5V}_\text{AMAC}\left(  10.5V - 1.5V \right)
+                   + I^{3.0V}_\text{AMAC}\left(  10.5V - 3.0V \right)
+\label{eq:amac_regulator}
+\end{equation}
+
+
+
+\section{ Extracting thermal impedances using FEA simulations}
+
+\subsection{Setup of the FEA Simulation to extract thermal impedances}
+
+Representative power numbers are used to power each component. In each simulation run, all instances
+of one type of component (e.g. the ABCs) are powered on in all six modules, keeping the rest off.
+Average temperatures are measured for the following components (see below): HCC, ABC, FEAST, sensor.
+
+\def\thcc{\ensuremath{\overline{T}_\text{nHCC}}}
+\def\tabc{\ensuremath{\overline{T}_\text{nABC}}}
+\def\tfeast{\ensuremath{\overline{T}_\text{FEAST}}}
+\def\tsensor{\ensuremath{T_\text{sensor}}}
+\def\Rm{\ensuremath{{\text{R}m}}}
+
+\begin{itemize}
+\item FEAST: a $3\times3$~mm $\times~350~\mu$m chip inside the shield box.
+  \begin{itemize}
+  \item The FEAST has an additional power term due to regulators for the AMAC -- see below.
+  \end{itemize}
+\item AMAC: a $3\times3$~mm $\times~350~\mu$m chip, roughly in the center of the power board
+  \begin{itemize}
+    \item The AMAC is powered using regulators located in the FEAST chip, with a power dissipation
+      of the regulators corresponding to the voltage drop in the regulator (0.415~W) -- see Eq.~\ref{eq:amac_regulator}.
+  \end{itemize}
+\item HVMUX: Ignore for now
+\item EOS (\highlight{3.20~W total, including both sides -- see Table~\ref{tab:power_numbers}.}) % (\highlight{3.03~W total, for both sides}):
+  \begin{itemize}
+  \item \highlight{Placement of these EOS power sources: ???}
+%%     \item 1 lpGBT per side (\highlight{0.750~W $\times$ 2 sides})
+%%     \item ``Rest'' (1 VTRX optical link per side?) (\highlight{.185~W $\times$ 2 sides}) ???
+%%     \item FEAST on a single side (\highlight{1.12~W})
+%%     \item DCDC2 converter on a single side (\highlight{0.21~W})
+  \end{itemize}
+\item Cooling: Constant 8000~W/m$^{2}$K, $-30$~C, no convection
+\end{itemize}
+
+
+
+
+\subsection{FEA Simulation Runs to extract thermal impedances}
+
+For the extraction of the thermal impedances, a simplified set of input power parameters are used,
+summarized in Table~\ref{tab:simulation_runs}.
+In the FEA, the power is distributed over all 6 surfaces (\highlight{different from barrel treatment}).
+
+\let\arraystretcha\arraystretch
+\renewcommand\arraystretch{1.4} % 1.6
+\begin{table}[h!]
+\footnotesize
+\begin{center}
+\adjustbox{max width=\textwidth}{ %% just before tabular
+\begin{tabular}{|l|l|l|l|} \hline
+Simulation \# & Description                        & Input parameters           \\ \hline
+1             & All HCCs powered on, rest off      & $P_\text{HCC}=0.413$~W     \\
+2             & All ABCs powered on, rest off      & $P_\text{ABC}=0.149$~W     \\
+3             & All FEASTs powered on, rest off    & $P_\text{FEAST}=1.5$~W$^*$ \\ \hline
+\multicolumn{3}{|c|}{Extended simulations} \\ \hline
+4             & Tape ``powered'' on, rest off      & skip for now \\
+5             & HVMUX powered on, rest off         & skip for now \\
+6             & R$_\text{HV}$ powered on, rest off & skip for now \\
+7             & EOS                                & skip for now \\ % $P_\text{EOS}=3.03$~W$^{**}$
+\hline \end{tabular}
+} %% resizebox after tabular
+\end{center}
+\caption{ Description of the 7 thermal simulations required to obtain the thermal impedances.
+}
+\label{tab:simulation_runs}
+\end{table}
+\let\arraystretch\arraystretcha
+
+$^*$ The actual nominal power of the FEAST varies for each module; however, for the simulation to extract
+the thermal impedances, the power is set to 1.5~W for all FEASTs in the petal.\\
+
+
+
+
+
+
+\subsection{Measurements performed in each run}
+
+%% For each component, the temperature measured is the average of the top surface nodes of all
+%% components of a given type, in a given module.
+
+The average, min and max temperatures are taken over the volume of the elements (\highlight{different from barrel treatment}).
+There are 45 measurements per simulation run in total.
+
+The average temperatures can be measured either \highlight{on one side of the petal, or as the average of components on both sides 
+of the petal}.
+
+\begin{itemize}
+\item $(\thcc)_\Rm$: The average HCC temperature of the $n$ HCCs in the module, for each module R$m$ (R0, R1, ... R5) (6~total)
+\item $(\tabc)_\Rm$: The average ABC temperature of the $n$ ABCs in the module, for each module R$m$ (6~total)
+\item $(\tfeast)_\Rm$: The temperature of the FEAST in the module, for each module R$n$ (6~total)
+\item \tsensor, taken for R0, R1, R2, R3\_left, R3\_right, R4\_left, R4\_right, R5\_left, R5\_right (9~total) (27~total measurements):
+\begin{itemize}
+  \item $\tsensor^\text{Avg}$: The average sensor temperature taken over the volume of the sensor
+  \item $\tsensor^\text{Max}$: The maximum sensor temperature in the module, for each module
+  \item $\tsensor^\text{Min}$: The minimum sensor temperature in the module, for each module
+\end{itemize}
+\end{itemize}
+
+
+
+
+\section{The Linear Model}
+
+\subsection{Additional parameters in the linear model}
+
+The number of ABCs, HCC, and the sensor area are below,
+as are the FEAST currents before irradiation (pre-TID bump).
+%
+\let\arraystretcha\arraystretch
+\renewcommand\arraystretch{1.1} % 1.6
+\begin{table}[h]
+\footnotesize
+\begin{center}
+\adjustbox{max width=\textwidth}{ %% just before tabular
+\begin{tabular}{|l|r|r|r|r|r|} \hline
+Module & nABC & nHCC & Sensor area (cm$^2$) & $I_\text{FEAST}$ [A] & $P_\text{FEAST}$ \\ \hline
+R0     &   17 &    2 &                 92.0 &              2.12 & 1.0585 \\
+R1     &   21 &    2 &                 91.0 &              2.52 & 1.2605 \\
+R2     &   12 &    2 &                 76.0 &              1.61 & 0.806  \\
+R3     &   28 &    4 &                164.0 &              3.63 & 1.814  \\
+R4     &   16 &    2 &                178.0 &              2.02 & 1.008  \\
+R5     &   18 &    2 &                186.0 &              2.22 & 1.109  \\
+\hline \end{tabular}
+} %% resizebox after tabular
+\end{center}
+\caption{Endcap module inputs. The FEAST current is calculated from the HCC and ABC values in
+Table~\ref{tab:power_numbers}, and given nABC and nHCC in each module. The FEAST power is calculated
+assuming a 75\% efficiency, and does not include the power due to the AMAC regulators.}
+\label{tab:spurious_signal_main}
+\end{table}
+\let\arraystretch\arraystretcha
+
+
+\subsection{Other assumed quantities}
+
+Assumed quantities are below:
+\begin{itemize}
+\item $R_\text{EOS}=15.0$~K/W (guessed by Georg/Graham)
+\item $R_\text{sensor}=0.02$~K/W (guessed by Georg/Graham)
+\item $R_\text{tape}=0.01$~K/W per module (i.e. there are 6 such resistors in the endcap) (worst-case number)
+%% \item EOS DCDC2 efficiency: 0.88
+%% \item $V_\text{hybrid}=1.5$~V
+%% \item $I^\text{digital}_\text{HCC}=0.125$~A (before TID damage; TID-dependent)
+%% \item $I^\text{analog}_\text{HCC}=0.075$~A
+%% \item $I^\text{digital}_\text{ABC}=0.035$~A (before TID damage; TID-dependent)
+%% \item $I^\text{analog}_\text{ABC}=0.066$~A
+\end{itemize}
+
+%% The AMAC:
+%% \begin{itemize}
+%% \item $V^{1.5V}_\text{AMAC} = 1.5$~V
+%% \item $I^{1.5V}_\text{AMAC} = 0.045$~A
+%% \item (Efficiency $\varepsilon^{1.5V}_\text{AMAC} = 0.65$\% -- not used in model)
+%% \item $V^{3.0V}_\text{AMAC} = 3.0$~V
+%% \item $I^{3.0V}_\text{AMAC}= 0.002$~A
+%% \item (Efficiency $\varepsilon^{3.0V}_\text{AMAC} = 0.65$\% -- not used in model)
+%% \end{itemize}
+
