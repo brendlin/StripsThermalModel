@@ -1,4 +1,6 @@
 2017-06-10 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add Yu-Heng's data
+    * Add ConvertEndcapThermalData.py a dirty script for reformatting Yu-Heng's numbers
     * Add StudyThermalImpedances.py for calculating thermal impedances
 
 2017-06-09 Kurt Brendlinger <kurt.brendlinger@cern.ch>
