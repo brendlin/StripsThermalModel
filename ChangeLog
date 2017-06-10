@@ -1,3 +1,6 @@
+2017-06-10 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add StudyThermalImpedances.py for calculating thermal impedances
+
 2017-06-09 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Add cooling document for recording details of the model
 
