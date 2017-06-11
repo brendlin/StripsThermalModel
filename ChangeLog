@@ -1,4 +1,5 @@
 2017-06-10 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Fix bug in parameterization of TID -- values were inverted vs ring.
     * Fix up output directory scheme for RunModel and ExtendedRunModel
     * Add --outdir option to label your output directory (RunModel and ExtendedRunModel)
 
