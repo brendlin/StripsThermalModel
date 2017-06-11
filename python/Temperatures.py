@@ -39,4 +39,4 @@ def Ts(Peos,Pmod,Ps,Tc) :
     return T0(Peos,Pmod,Tc) + Ps * ThermalImpedances.Rt
 
 def Qref(Ts,T0) :
-    return (Ts - T0)/ThermalImpedances.Rt * (GlobalSettings.kelvin(-15)/GlobalSettings.kelvin(Ts))**2 * exp(tA * (1./GlobalSettings.kelvin(Ts) - 1./GlobalSettings.kelvin(-15)))
+    return (Ts - T0)/ThermalImpedances.Rt * (GlobalSettings.kelvin(Tref)/GlobalSettings.kelvin(Ts))**2 * exp(tA * (1./GlobalSettings.kelvin(Ts) - 1./GlobalSettings.kelvin(Tref)))
