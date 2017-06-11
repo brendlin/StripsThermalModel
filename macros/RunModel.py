@@ -52,6 +52,11 @@ def main(options,args):
     import python.CoolantTemperature  as CoolantTemperature
     print 'importing modules done.'
 
+    # Add some output directory specifications
+    coolingtag = PlotUtils.GetCoolingOutputTag(CoolantTemperature.cooling)
+    configtag = options.config.replace('.config','')
+    options.outdir = '_'.join([configtag,options.outdir,coolingtag]).lstrip('_').replace('__','_')
+
     # The main calculations happen here:
     SensorTemperatureCalc.CalculateSensorTemperature(options)
 
@@ -69,6 +74,7 @@ if __name__ == '__main__':
     p = OptionParser()
     p.add_option('--cooling',type='string',default='',dest='cooling',help='Cooling scheme (\"-flat25\",\"-flat35\",\"ramp-25\",\"ramp-35\").')
     p.add_option('--config' ,type='string',default='Barrel_SS_B1.config',dest='config',help='Configuration file -- please make sure it is put in the data/ directory')
+    p.add_option('--outdir',type='string',default='',dest='outdir',help='Output directory')
 
     options,args = p.parse_args()
     

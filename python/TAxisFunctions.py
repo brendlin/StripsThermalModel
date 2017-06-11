@@ -120,10 +120,10 @@ def MinimumForLog(can) :
 def SetYaxisRanges(can,ymin,ymax) :
     if can.GetPrimitive('pad_top') :
         SetYaxisRanges(can.GetPrimitive('pad_top'),ymin,ymax)
-    from ROOT import TGraph,TH1,THStack
+    from ROOT import TGraph,TH1,THStack,TF1
     yaxis = 0
     for i in can.GetListOfPrimitives() :
-        if issubclass(type(i),TGraph) :
+        if issubclass(type(i),TGraph) or issubclass(type(i),TF1) :
             # print 'SetYaxisRanges',ymin,ymax
             i.SetMinimum(ymin)
             i.SetMaximum(ymax)

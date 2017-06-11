@@ -1,4 +1,8 @@
 2017-06-10 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Fix up output directory scheme for RunModel and ExtendedRunModel
+    * Add --outdir option to label your output directory (RunModel and ExtendedRunModel)
+
+2017-06-10 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Add Yu-Heng's data
     * Add ConvertEndcapThermalData.py a dirty script for reformatting Yu-Heng's numbers
     * Add StudyThermalImpedances.py for calculating thermal impedances

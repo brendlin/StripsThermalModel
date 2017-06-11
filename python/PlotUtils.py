@@ -69,18 +69,22 @@ def Set2DStyleTitles(tobject, title, xtitle, ytitle, ztitle) :
     
 def SetStyleLegend(leg) :
     
+    leg.SetName('legend')
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetTextSize(0.035)
     leg.SetTextFont(42)
     
-def MakeGraph(name,title,xtitle,ytitle,xlist,ylist) :
+def MakeGraph(name,title,xtitle,ytitle,xlist,ylist,xerrlist=None,yerrlist=None) :
     from array import array
 
     if (len(xlist) != len(ylist)) :
         print 'Error! List sizes are not correct for graph %s (%d vs %d)'%(name,len(xlist),len(ylist))
         import sys; sys.exit()
-    graph = ROOT.TGraph(len(xlist),array('d',xlist),array('d',ylist))
+    if not xerrlist and not yerrlist :
+        graph = ROOT.TGraph(len(xlist),array('d',xlist),array('d',ylist))
+    else :
+        graph = ROOT.TGraphErrors(len(xlist),array('d',xlist),array('d',ylist),array('d',xerrlist),array('d',yerrlist))
     graph.SetName(name)
     graph.SetTitle(title)
     graph.GetXaxis().SetTitle(xtitle)

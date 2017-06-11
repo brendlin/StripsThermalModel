@@ -413,19 +413,17 @@ def CalculateSensorTemperature(options) :
     outputpath = '%s/plots/SensorTemperatureCalc'%(os.getcwd().split('/StripsThermalModel')[0])
     # If a different output name is specified
     if hasattr(options,'outdir') :
-        outputpath = '%s/%s'%(outputpath,options.outdir)
+        outputpath = '%s/plots/%s'%(os.getcwd().split('/StripsThermalModel')[0],options.outdir)
     if dosave :
+        if not os.path.exists(outputpath) :
+            os.makedirs(outputpath)
         print 'SensorTemperatureCalc output written to %s'%(outputpath)
 
-    if not os.path.exists(outputpath) :
-        os.makedirs(outputpath)
-
-    outputtag = PlotUtils.GetCoolingOutputTag(CoolantTemperature.cooling)
     scenariolabel = PlotUtils.GetCoolingScenarioLabel(CoolantTemperature.cooling)
 
     # Write out to file
     if dosave :
-        outfilename = '%s/%s_%s.root'%(outputpath,'SensorTemperatureCalc',outputtag)
+        outfilename = '%s/%s.root'%(outputpath,'SensorTemperatureCalc')
         out = ROOT.TFile(outfilename,'recreate')
         for g in gr.keys() :
             gr[g].Write()
@@ -442,7 +440,7 @@ def CalculateSensorTemperature(options) :
         gr[g].Draw('al')
         text.Draw()
         if dosave :
-            c.Print('%s/%s_%s.eps'%(outputpath,gr[g].GetName(),outputtag))
+            c.Print('%s/%s.eps'%(outputpath,gr[g].GetName()))
 
     # Extra graphs that you may not want to save individually
     extr = dict()
@@ -478,7 +476,7 @@ def CalculateSensorTemperature(options) :
     text.Draw()
     taxisfunc.AutoFixYaxis(c,minzero=True)
     if dosave :
-        c.Print('%s/%s_%s.eps'%(outputpath,'SummaryPowerPerModule',outputtag))
+        c.Print('%s/%s.eps'%(outputpath,'SummaryPowerPerModule'))
 
     #
     # Temperatures
@@ -506,7 +504,7 @@ def CalculateSensorTemperature(options) :
     text.Draw()
     taxisfunc.AutoFixYaxis(c)
     if dosave :
-        c.Print('%s/%s_%s.eps'%(outputpath,'SummaryTemperature',outputtag))
+        c.Print('%s/%s.eps'%(outputpath,'SummaryTemperature'))
 
     #
     # HV power summary
@@ -529,7 +527,7 @@ def CalculateSensorTemperature(options) :
     text.Draw()
     taxisfunc.AutoFixYaxis(c,minzero=True)
     if dosave :
-        c.Print('%s/%s_%s.eps'%(outputpath,'SummaryHVPower',outputtag))
+        c.Print('%s/%s.eps'%(outputpath,'SummaryHVPower'))
 
     #
     # Total power plot
@@ -560,7 +558,7 @@ def CalculateSensorTemperature(options) :
     taxisfunc.AutoFixYaxis(c,ignorelegend=False,minzero=True)
     #taxisfunc.SetYaxisRanges(c,0,20)
     if dosave :
-        c.Print('%s/%s_%s.eps'%(outputpath,'PowerStackPlot',outputtag))
+        c.Print('%s/%s.eps'%(outputpath,'PowerStackPlot'))
 
 
     # Kurt, put any extra plots here -- End.

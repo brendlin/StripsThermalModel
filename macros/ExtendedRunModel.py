@@ -120,6 +120,11 @@ def main(options,args):
                 results.append(SensorTemperatureCalc.CalculateSensorTemperature(options))
                 structure_names.append('R%dD%d'%(ring,disk))
 
+    # Add some output directory specifications
+    barrel_endcap = 'ExtendedModelBarrel' if options.barrel else 'ExtendedModelEndcap'
+    coolingtag = PlotUtils.GetCoolingOutputTag(CoolantTemperature.cooling)
+    options.outdir = '_'.join([barrel_endcap,options.outdir,coolingtag]).lstrip('_').replace('__','_')
+
     import python.ExtendedModelSummaryPlots as ExtendedModelSummaryPlots
     ExtendedModelSummaryPlots.ProcessSummaryPlots(results,structure_names,options,speciallegend=options.endcap)
 
@@ -138,6 +143,7 @@ if __name__ == '__main__':
     p.add_option('--cooling',type='string',default='',dest='cooling',help='Cooling scheme (\"-flat25\",\"-flat35\",\"ramp-25\",\"ramp-35\").')
     p.add_option('--barrel',action='store_true',default=False,dest='barrel',help='Run the barrel')
     p.add_option('--endcap',action='store_true',default=False,dest='endcap',help='Run the barrel')
+    p.add_option('--outdir',type='string',default='',dest='outdir',help='Output directory')
 
     options,args = p.parse_args()
 

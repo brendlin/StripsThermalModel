@@ -52,13 +52,12 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     outputpath = '%s/plots/ExtendedModelSummaryPlots'%(os.getcwd().split('/StripsThermalModel')[0])
     # If a different output name is specified
     if hasattr(options,'outdir') :
-        outputpath = '%s/%s'%(outputpath,options.outdir)
+        outputpath = '%s/plots/%s'%(os.getcwd().split('/StripsThermalModel')[0],options.outdir)
     print 'ExtendedModelSummaryPlots output written to %s'%(outputpath)
 
     if not os.path.exists(outputpath) :
         os.makedirs(outputpath)
 
-    outputtag = PlotUtils.GetCoolingOutputTag(CoolantTemperature.cooling)
     scenariolabel = PlotUtils.GetCoolingScenarioLabel(CoolantTemperature.cooling)
 
     barrel_endcap = ''
@@ -149,6 +148,6 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
         taxisfunc.AutoFixYaxis(c)
 
-        c.Print('%s/%s%s_%s.eps'%(outputpath,barrel_endcap,graphs[0].GetName(),outputtag))
+        c.Print('%s/%s%s.eps'%(outputpath,barrel_endcap,graphs[0].GetName()))
 
     return
