@@ -127,16 +127,14 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         #
         # Descriptive text
         #
-        text = ROOT.TLegend(0.11,0.79,0.46,0.92)
+        text = ROOT.TLegend(0.11,0.70,0.46,0.92)
         PlotUtils.SetStyleLegend(text)
-        text.AddEntry(0,scenariolabel,'')
-        label = [graphs[0].GetTitle(),'']
-        while(len(label[0]) > 28) :
-            tmp = label[0].split(' ')
-            label[0] = ' '.join(tmp[:-1])
-            label[1] = ' '.join([tmp[-1],label[1]])
-        text.AddEntry(0,label[0],'')
-        text.AddEntry(0,label[1],'')
+        add_label = [graphs[0].GetTitle(),'']
+        while(len(add_label[0]) > 28) :
+            tmp = add_label[0].split(' ')
+            add_label[0] = ' '.join(tmp[:-1])
+            add_label[1] = ' '.join([tmp[-1],add_label[1]])
+        PlotUtils.AddRunParameterLabels(text,add_label)
 
         text.Draw()
 

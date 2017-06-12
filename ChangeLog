@@ -1,4 +1,9 @@
-2017-06-10 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+2017-06-12 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Write config file to output directory so you know what configuration was used to make the plots
+    * Fix a certain failure mode in thermal runaway scenario (SensorTemperatureCalc)
+    * AddRunParameterLabels function for plots, (like safety factor info)
+
+2017-06-11 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Fix bug in parameterization of TID -- values were inverted vs ring.
     * Fix up output directory scheme for RunModel and ExtendedRunModel
     * Add --outdir option to label your output directory (RunModel and ExtendedRunModel)

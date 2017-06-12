@@ -128,6 +128,10 @@ def main(options,args):
     import python.ExtendedModelSummaryPlots as ExtendedModelSummaryPlots
     ExtendedModelSummaryPlots.ProcessSummaryPlots(results,structure_names,options,speciallegend=options.endcap)
 
+    # Save config files in the output directory
+    for conf in config_files :
+        os.system('cp %s/data/%s %s/plots/%s/.'%(the_path,conf,os.getcwd().split('/StripsThermalModel')[0],options.outdir))
+
     print 'done'
     return
 

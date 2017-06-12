@@ -89,13 +89,13 @@ def CalculateSensorTemperature(options) :
                                        NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0),
                                        0, CoolantTemperature.GetTimeStepTc()[0] ))
 
+    thermal_runaway = False
+
     # Not sure whether nstep+1 is required...
     for i in range(GlobalSettings.nstep) :
 
         year = int((i+1)*GlobalSettings.step)
         month = ((i+1)*GlobalSettings.step % 1.)*12.
-
-        thermal_runaway = False
 
         # Solve for Tsensor (ts)
         x_list = []
@@ -134,14 +134,14 @@ def CalculateSensorTemperature(options) :
             x_list.append(ts)
             y_list.append(y)
 
-        # interpolate using TGraph "Eval" function
-        graph = ROOT.TGraph(len(x_list),array('d',y_list),array('d',x_list))
         if thermal_runaway :
             for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,pmtape,pmhv,isensor,pmhvr,
                            powertotal,phvtotal,pmhvmux,itape,idig,ifeast,efffeast,ptape,pstave] :
                 i_list.append(i_list[-1])
             continue
 
+        # interpolate using TGraph "Eval" function
+        graph = ROOT.TGraph(len(x_list),array('d',y_list),array('d',x_list))
         resultts = graph.Eval(0)
 
         # (solving step is done.)
@@ -419,8 +419,6 @@ def CalculateSensorTemperature(options) :
             os.makedirs(outputpath)
         print 'SensorTemperatureCalc output written to %s'%(outputpath)
 
-    scenariolabel = PlotUtils.GetCoolingScenarioLabel(CoolantTemperature.cooling)
-
     # Write out to file
     if dosave :
         outfilename = '%s/%s.root'%(outputpath,'SensorTemperatureCalc')
@@ -432,13 +430,14 @@ def CalculateSensorTemperature(options) :
 
     # Write plots
     c = ROOT.TCanvas('blah','blah',600,500)
-    text = ROOT.TLegend(0.13,0.89,0.41,0.94) # a more flexible way to draw text.
+    text = ROOT.TLegend(0.13,0.77,0.41,0.94) # a more flexible way to draw text.
     PlotUtils.SetStyleLegend(text)
-    text.AddEntry(0,scenariolabel,'')
+    PlotUtils.AddRunParameterLabels(text)
     for g in gr.keys() :
         c.Clear()
         gr[g].Draw('al')
         text.Draw()
+        taxisfunc.AutoFixYaxis(c)
         if dosave :
             c.Print('%s/%s.eps'%(outputpath,gr[g].GetName()))
 

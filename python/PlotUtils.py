@@ -110,6 +110,52 @@ def GetCoolingScenarioLabel(cooling_option) :
         }.get(cooling_option,'unknown cooling scenario')
     return scenariolabel
 
+def AddRunParameterLabels(legend,additionalinfo=[]) :
+    import SafetyFactors
+    import CoolantTemperature
+    layout,fluence,thermalimpedance,current,vbias = '','','','',''
+
+    if SafetyFactors.safetylayout :
+        layout = 'Layout=%2.1f;  '%(SafetyFactors.safetylayout + 1.0)
+    if SafetyFactors.safetyfluence :
+        fluence = 'Flux=%2.1f;  '%(SafetyFactors.safetyfluence + 1.0)
+    if SafetyFactors.safetythermalimpedance :
+        thermalimpedance = '_{}#font[52]{R_{thermal}}=%2.1f;  '%(SafetyFactors.safetythermalimpedance + 1.0)
+    if SafetyFactors.safetycurrent :
+        current = '#font[12]{I}=%2.1f;  '%(SafetyFactors.safetycurrent + 1.0)
+    if (SafetyFactors.vbiasscale - 1.) != 0 :
+        vbias = 'Impedance=%2.1f;  '%(SafetyFactors.vbiasscale + 1.0)
+
+    #text = ('%s%s%s%s%s'%(layout,fluence,thermalimpedance,current,vbias)).rstrip('; ')
+    sf1 = ('%s%s%s'    %(layout,fluence,thermalimpedance)).rstrip('; ')
+    sf2 = ('%s%s'      %(                                current,vbias)).rstrip('; ')
+    no_factors = ' none' if (not sf1 and not sf2) else ''
+
+    nlines = 0
+    if True :
+        legend.AddEntry(0,GetCoolingScenarioLabel(CoolantTemperature.cooling),'')
+        nlines += 1
+    if True :
+        legend.AddEntry(0,'Safety factors:%s'%(no_factors),'')
+        nlines += 1
+    if sf1 :
+        legend.AddEntry(0,sf1,'')
+        nlines += 1
+    if sf2 :
+        legend.AddEntry(0,sf2,'')
+        nlines += 1
+    for addinfo in additionalinfo :
+        if not addinfo :
+            continue
+        legend.AddEntry(0,addinfo,'')
+        nlines += 1
+
+    while nlines < 5 :
+        legend.AddEntry(0,'','')
+        nlines += 1
+
+    return
+
 def ColorPalette() :
     from ROOT import kBlack,kRed,kBlue,kAzure,kGreen,kMagenta,kCyan,kOrange,kGray,kYellow
     return [kBlack+0,kRed+1,kAzure-2,kGreen+1,kMagenta+1,kCyan+1,kOrange+1

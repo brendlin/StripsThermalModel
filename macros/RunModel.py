@@ -60,6 +60,9 @@ def main(options,args):
     # The main calculations happen here:
     SensorTemperatureCalc.CalculateSensorTemperature(options)
 
+    # Save config files in the output directory
+    os.system('cp %s/data/%s %s/plots/%s/.'%(the_path,options.config,os.getcwd().split('/StripsThermalModel')[0],options.outdir))
+
     print 'done'
     return
 
