@@ -40,6 +40,11 @@ nlpgbt = Config.GetInt('NominalPower.nlpgbt')
 ngbld  = Config.GetInt('NominalPower.ngbld')
 ngbtia = Config.GetInt('NominalPower.ngbtia')
 
+# nfeast in the module. To be used in determining the FEAST efficiency due to possible reduction in current
+nfeast = 1
+if Config.Defined('NominalPower.nfeast') :
+    nfeast = Config.GetInt('NominalPower.nfeast')
+
 # Short strip module
 # module Short strip
 
@@ -55,12 +60,15 @@ def Ihcc(Thcc,d,D) :
 def Phcc(Thcc,d,D) :
     return FrontEndComponents.hybridV * Ihcc(Thcc, d, D)
 
+# TOTAL feast efficiency given n feasts on the module
 def Ifeast(Tabc,Thcc,d,D) :
     return Iabc(Tabc, d, D) + Ihcc(Thcc, d, D)
 
+# TOTAL feast power (due to ABC,HCC) given n feasts on the module
 def Pfeast_ABC_HCC(Tabc,Thcc,Tfeast,d,D) :
-    return ( Pabc(Tabc,d,D) + Phcc(Thcc,d,D) ) * (100 / float( PoweringEfficiency.feasteff(Tfeast,Ifeast(Tabc,Thcc,d,D)) ) - 1)
+    return ( Pabc(Tabc,d,D) + Phcc(Thcc,d,D) ) * (100 / float( PoweringEfficiency.feasteff(Tfeast,Ifeast(Tabc,Thcc,d,D)/float(nfeast)) ) - 1)
 
+# TOTAL feast power given n feasts on the module
 def Pfeast(Tabc,Thcc,Tfeast,d,D) :
     return Pfamac + Pfeast_ABC_HCC(Tabc,Thcc,Tfeast,d,D)
 

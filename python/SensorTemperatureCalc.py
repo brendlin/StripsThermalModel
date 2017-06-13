@@ -351,12 +351,12 @@ def CalculateSensorTemperature(options) :
                                       )
                     )
 
-        # FEAST current
+        # FEAST current PER FEAST (in case there is more than one feast)
         ifeast.append(NominalPower.Ifeast(tabc[-1],
                                           thcc[-1],
                                           OperationalProfiles.doserate[i],
                                           OperationalProfiles.tid_dose[i]
-                                          )
+                                          ) / float(NominalPower.nfeast)
                       )
 
         # FEAST efficiency

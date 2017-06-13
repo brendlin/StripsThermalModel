@@ -1,4 +1,5 @@
 2017-06-13 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add capability to model a module with 2 feasts for the ABCs/HCCs instead of 1
     * Un-fix bug in parameterization of TID (2017-06-11) -- values were ok after all.
     * Add CompareScenarios.py macro
     * Make Safety Factors configurable
