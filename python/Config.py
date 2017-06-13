@@ -61,21 +61,37 @@ def Print() :
     return
 
 # For reloading python module, in case e.g. the config file changed.
-def ReloadPythonModule(module) :
-    import imp
-    imp.reload(module)
-    #print 'Reloaded %s'%(module.__name__)
+def ReloadPythonModule(name) :
+    import sys,imp
+    if name in sys.modules.keys() :
+        module = sys.modules[name]
+        imp.reload(module)
+        #print 'Reloaded %s'%(module.__name__)
+    else :
+        #print 'Skipping module %s because it does not exist.'%(name)
+        pass
+    return
 
 def ReloadAllPythonModules() :
-    import sys
-    for i in sys.modules.keys() :
-        if not sys.modules[i] :
-            continue
-        if hasattr(sys.modules[i],'__file__') and 'StripsThermalModel' in sys.modules[i].__file__ :
-            if '__init__' in sys.modules[i].__file__ :
-                continue
-            if 'Config.py' in sys.modules[i].__file__ :
-                continue
-            ReloadPythonModule(sys.modules[i])
+    #                   Module                               Dependencies
+    ReloadPythonModule('python.GlobalSettings'           ) # none
+    ReloadPythonModule('python.AbcTidBump'               ) # none
+    ReloadPythonModule('python.CableLosses'              ) # none
+    ReloadPythonModule('python.PoweringEfficiency'       ) # none
+    ReloadPythonModule('python.Layout'                   ) # Config
+    ReloadPythonModule('python.SafetyFactors'            ) # Config
+    ReloadPythonModule('python.CoolantTemperature'       ) # Config (GlobalSettings)
+    ReloadPythonModule('python.SensorProperties'         ) # Config SafetyFactors
+    ReloadPythonModule('python.ThermalImpedances'        ) # Config SafetyFactors
+    ReloadPythonModule('python.OperationalProfiles'      ) # Config SafetyFactors (GlobalSettings)
+    ReloadPythonModule('python.EOSComponents'            ) # SafetyFactors
+    ReloadPythonModule('python.FrontEndComponents'       ) # SafetyFactors
+    ReloadPythonModule('python.PlotUtils'                ) # SafetyFactors CoolantTemperature
+    ReloadPythonModule('python.Temperatures'             ) # ThermalImpedances (GlobalSettings)
+    ReloadPythonModule('python.ExtendedModelSummaryPlots') # CoolantTemperature PlotUtils (GlobalSettings)
+    ReloadPythonModule('python.SensorLeakage'            ) # SensorProperties OperationalProfiles (GlobalSettings)
+    ReloadPythonModule('python.NominalPower'             ) # SensorProperties Config SafetyFactors Layout FrontEndComponents EOSComponents (GlobalSettings PoweringEfficiency AbcTidBump CableLosses)
+    ReloadPythonModule('python.SensorTemperatureCalc'    ) # SensorProperties Config SafetyFactors Layout Temperatures NominalPower SensorLeakage OperationalProfiles CoolantTemperature PlotUtils (GlobalSettings PoweringEfficiency)
+    # do not need to reload TAxisFunctions, __init__, Config (maybe obviously)
 
     return
