@@ -1,4 +1,5 @@
 2017-06-13 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add CompareScenarios.py macro
     * Make Safety Factors configurable
     * Fix issue in reloading python modules (order matters)
     * Add thermal impedances calculated from Yu-Heng's numbers
