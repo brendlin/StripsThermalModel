@@ -1,3 +1,6 @@
+2017-06-13 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add thermal impedances calculated from Yu-Heng's numbers
+
 2017-06-12 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Write config file to output directory so you know what configuration was used to make the plots
     * Fix a certain failure mode in thermal runaway scenario (SensorTemperatureCalc)
