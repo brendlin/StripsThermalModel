@@ -25,7 +25,7 @@ def GetFlux(ring,disk) :
     return 2e14 + (1e15 - 2e14)*((5-ring) + disk)/10.
 
 def GetTID(ring,disk) :
-    return 3e3 + (3e4 - 3e3)*(ring)/5.
+    return 3e3 + (3e4 - 3e3)*(5-ring)/5.
 
 #-----------------------------------------------
 def main(options,args):
