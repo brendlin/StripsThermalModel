@@ -138,7 +138,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
         text.Draw()
 
-        if options.endcap :
+        if False :
             text_endcap_warning = ROOT.TLegend(0.32,0.63,0.67,0.69)
             PlotUtils.SetStyleLegend(text_endcap_warning)
             text_endcap_warning.AddEntry(0,'DUMMY VALUES - NOT REAL NUMBERS','')

@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# Usage:
+# for i in $(ls ../data/ | grep ThermalImpedances_R); do echo $i; python StudyThermalImpedances.py --data $i; done;
+#
+
 import ROOT
 import os,sys
 from array import array

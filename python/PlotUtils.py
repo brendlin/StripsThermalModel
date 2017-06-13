@@ -116,15 +116,15 @@ def AddRunParameterLabels(legend,additionalinfo=[]) :
     layout,fluence,thermalimpedance,current,vbias = '','','','',''
 
     if SafetyFactors.safetylayout :
-        layout = 'Layout=%2.1f;  '%(SafetyFactors.safetylayout + 1.0)
+        layout = 'SF{#font[52]{Layout}}=%2.1f;  '%(SafetyFactors.safetylayout + 1.0)
     if SafetyFactors.safetyfluence :
-        fluence = 'Flux=%2.1f;  '%(SafetyFactors.safetyfluence + 1.0)
+        fluence = 'SF_{#font[52]{flux}}=%2.1f;  '%(SafetyFactors.safetyfluence + 1.0)
     if SafetyFactors.safetythermalimpedance :
-        thermalimpedance = '_{}#font[52]{R_{thermal}}=%2.1f;  '%(SafetyFactors.safetythermalimpedance + 1.0)
+        thermalimpedance = 'SF_{#font[52]{RThermal}}=%2.1f;  '%(SafetyFactors.safetythermalimpedance + 1.0)
     if SafetyFactors.safetycurrent :
-        current = '#font[12]{I}=%2.1f;  '%(SafetyFactors.safetycurrent + 1.0)
+        current = 'SF_{#font[52]{current}}=%2.1f;  '%(SafetyFactors.safetycurrent + 1.0)
     if (SafetyFactors.vbiasscale - 1.) != 0 :
-        vbias = 'Impedance=%2.1f;  '%(SafetyFactors.vbiasscale + 1.0)
+        vbias = 'SF_{#font[52]{Impedance}}=%2.1f;  '%(SafetyFactors.vbiasscale)
 
     #text = ('%s%s%s%s%s'%(layout,fluence,thermalimpedance,current,vbias)).rstrip('; ')
     sf1 = ('%s%s%s'    %(layout,fluence,thermalimpedance)).rstrip('; ')

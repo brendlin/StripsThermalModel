@@ -1,5 +1,7 @@
 #
 # Usage: python ConvertEndcapThermalData.py R0
+# for i in {0..5}; do python ConvertEndcapThermalData.py R$i >& ThermalImpedances_R$i.txt; done
+# python ConvertEndcapThermalData.py EoS
 #
 
 import sys

@@ -126,7 +126,7 @@ def CalculateSensorTemperature(options) :
                     n_runaway_errors[0] += 1
                 break
             if (ts_i == 0) and y > 0 :
-                print 'Error! In year %2.1f, y starts greater than 0. Exiting.'%(i*GlobalSettings.step)
+                print 'Error! In year %2.1f, y starts greater than 0 (%2.2f). Exiting.'%(i*GlobalSettings.step,y)
                 import sys; sys.exit()
             if y < -5 :
                 continue

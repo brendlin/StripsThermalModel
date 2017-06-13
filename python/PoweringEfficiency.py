@@ -40,7 +40,7 @@ def feasteff(tsensor,iload) :
         if n_errors[0] == 5 :
             print '(Suppressing additional FEAST efficiency errors)'
         n_errors[0] += 1
-        return feast_fit_function.Eval(4,tsensor)
-    return feast_fit_function.Eval(iload,tsensor)
+        return max(feast_fit_function.Eval(4,tsensor),30)
+    return max(feast_fit_function.Eval(iload,tsensor),30)
 
 # Scale factor for the current at a specific collected dose

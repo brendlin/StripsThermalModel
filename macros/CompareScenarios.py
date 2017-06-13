@@ -24,10 +24,18 @@ def FindAutoLabel(config,nom) :
         if not nom.Defined(tenvrec.GetName()) or env_config.GetValue(nm,'') != nom.GetValue(nm,'') :
             if name :
                 name += '; '
-            name += '%s=%s'%({'SafetyFactors.safetycurrent':'SF_{#font[12]{I}}',
-                              'NominalPower.nabc'          :'nabc',
-                              }.get(tenvrec.GetName(),tenvrec.GetName()),
-                             tenvrec.GetValue())
+            variable = {'SafetyFactors.safetyfluence'         :'SF_{#font[52]{flux}}',
+                        'SafetyFactors.safetythermalimpedance':'SF_{#font[52]{RThermal}}',
+                        'SafetyFactors.safetycurrent'         :'SF_{#font[52]{current}}',
+                        'NominalPower.nabc'                   :'nabc',
+                        }.get(tenvrec.GetName(),tenvrec.GetName())
+            value = tenvrec.GetValue()
+            if tenvrec.GetName() in ['SafetyFactors.safetyfluence',
+                                     'SafetyFactors.safetythermalimpedance',
+                                     'SafetyFactors.safetycurrent'
+                                     ] :
+                value = str(float(value) + 1.0)
+            name += '%s^{ }=^{ }%s'%(variable,value)
 
     return name
 
@@ -75,7 +83,7 @@ def main(options,args):
                 name = 'nominal'
             else :
                 name = FindAutoLabel(conf,nominal_config)
-        else :
+        if len(options.labels.split(',')) > i and options.labels.split(',')[i] :
             name = options.labels.split(',')[i]
 
         Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
