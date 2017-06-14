@@ -365,7 +365,7 @@ def CalculateSensorTemperature(options) :
                                                                         thcc[-1],
                                                                         OperationalProfiles.doserate[i],
                                                                         OperationalProfiles.tid_dose[i]
-                                                                        )
+                                                                        )/float(NominalPower.nfeast)
                                                     )
                         )
 
