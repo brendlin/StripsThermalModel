@@ -12,6 +12,7 @@ Tref = -15
 
 # In the nb file, these are =: (set delay), which correspond to functions in python.
 
+# Returns a Q value, given a temperature Ts
 def unref(qref,Ts) :
     return qref * (GlobalSettings.kelvin(Ts)/GlobalSettings.kelvin(Tref))**2 * exp(tA * (1./GlobalSettings.kelvin(Tref) - 1./GlobalSettings.kelvin(Ts)))
 

@@ -1,3 +1,7 @@
+2017-06-22 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Fix bug in SensorTemperatureCalc related to solving for Qsensor (Qref)
+    * Add thermal balance illustration plots
+
 2017-06-14 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Fix bug in FEAST efficiency plot, affecting the 2-FEAST R3 scenario.
 

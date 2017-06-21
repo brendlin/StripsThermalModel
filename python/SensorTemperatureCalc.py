@@ -12,6 +12,7 @@ import Layout
 import SafetyFactors
 import PoweringEfficiency
 import CoolantTemperature
+import ThermalImpedances
 import PlotUtils
 from PlotUtils import MakeGraph
 import TAxisFunctions as taxisfunc
@@ -90,6 +91,13 @@ def CalculateSensorTemperature(options) :
                                        0, CoolantTemperature.GetTimeStepTc()[0] ))
 
     thermal_runaway = False
+    thermal_runaway_index = 0
+
+    ts_sweep_list = []          # Ts sweep lists as a companion to the lists below
+    ts_vs_qref = []             # Qref vs sensor temperature in microW/mm^2
+    static_qref = []            # corresponds to "lhs"
+    ts_vs_q = []                # Q(Ts) vs sensor temperature
+    ts_vs_q_thermalbalance = [] # Thermal balance Q vs sensor temperature
 
     # Not sure whether nstep+1 is required...
     for i in range(GlobalSettings.nstep) :
@@ -97,10 +105,21 @@ def CalculateSensorTemperature(options) :
         year = int((i+1)*GlobalSettings.step)
         month = ((i+1)*GlobalSettings.step % 1.)*12.
 
+        # sensor temperature vs sensor leakage power stuff
+        ts_sweep_list.append([])
+        ts_vs_qref.append([])
+        static_qref.append([])
+        ts_vs_q.append([])
+        ts_vs_q_thermalbalance.append([])
+
         # Solve for Tsensor (ts)
-        x_list = []
-        y_list = []
-        for ts_i,ts in enumerate(range(-35,100)) :
+        tmp_ts_list = []
+        qref_rootsolve_list = []
+
+        y_gets_over_zero = False
+
+        for ts_i,ts in enumerate(range(2*(-35),10*2)) :
+            ts = ts/2.
             lhs = SensorLeakage.qref[i]
             rhs = Temperatures.Qref(ts,
                                     Temperatures.T0(NominalPower.eosP(teos[-1]),
@@ -109,30 +128,59 @@ def CalculateSensorTemperature(options) :
                                                                       tfeast[-1],
                                                                       OperationalProfiles.doserate[i],
                                                                       OperationalProfiles.tid_dose[i],
-                                                                      Temperatures.unref(SensorLeakage.qref[i],ts)/float(SensorProperties.vbias)
+                                                                      0 # Temperatures.unref(SensorLeakage.qref[i],ts)/float(SensorProperties.vbias)
                                                                       ),
                                                     CoolantTemperature.GetTimeStepTc()[i]
                                                     )
                                     )
 
+            t0_noLeakage = Temperatures.T0(NominalPower.eosP(teos[-1]),
+                                           NominalPower.Pmod(tabc[-1],
+                                                             thcc[-1],
+                                                             tfeast[-1],
+                                                             OperationalProfiles.doserate[i],
+                                                             OperationalProfiles.tid_dose[i],
+                                                             0), # (assumed 0 HV current here)
+                                           CoolantTemperature.GetTimeStepTc()[i]
+                                           )
+
+            # sensor temperature vs sensor leakage power stuff
+            ts_sweep_list[-1].append(ts)
+            ts_vs_qref[-1].append(rhs*1000./SensorProperties.area) # Qref vs sensor temperature in microW/mm^2
+            static_qref[-1].append(lhs*1000./SensorProperties.area) # sensor leakage modeling
+            ts_vs_q[-1].append(Temperatures.unref(SensorLeakage.qref[i],ts)) # Q(Ts) vs sensor temperature
+            ts_vs_q_thermalbalance[-1].append(max(0,(ts-t0_noLeakage)/float(ThermalImpedances.Rt))) # Thermal balance Q vs sensor temperature
+
             y = rhs - lhs
-            if len(y_list) and y < y_list[-1] :
-                if y < 0 :
-                    thermal_runaway = True
-                    if n_runaway_errors[0] <= 5 :
-                        print 'WARNING! Probably hit thermal runaway! Year %d Month %2.0f'%(year,month)
-                    if n_runaway_errors[0] == 5 :
-                        print '(Suppressing additional thermal runaway efficiency errors)'
-                    n_runaway_errors[0] += 1
-                break
+
+            if y > 0 :
+                y_gets_over_zero = True
+
+            # thermal runaway
+            if len(qref_rootsolve_list) and y < qref_rootsolve_list[-1] and (not y_gets_over_zero) :
+                if thermal_runaway == False :
+                    thermal_runaway_index = i
+                thermal_runaway = True
+                if n_runaway_errors[0] <= 5 :
+                    print 'WARNING! Probably hit thermal runaway! Year %d Month %2.0f'%(year,month)
+                if n_runaway_errors[0] == 5 :
+                    print '(Suppressing additional thermal runaway efficiency errors)'
+                n_runaway_errors[0] += 1
+                continue
+
+            # bad starting point
             if (ts_i == 0) and y > 0 :
                 print 'Error! In year %2.1f, y starts greater than 0 (%2.2f). Exiting.'%(i*GlobalSettings.step,y)
                 import sys; sys.exit()
+
+            # unimportant region
             if y < -5 :
                 continue
 
-            x_list.append(ts)
-            y_list.append(y)
+            # only fill solving lists if y is increasing
+            if (not len(qref_rootsolve_list)) or (y > qref_rootsolve_list[-1]) :
+                tmp_ts_list.append(ts)
+                qref_rootsolve_list.append(y)
 
         if thermal_runaway :
             for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,pmtape,pmhv,isensor,pmhvr,
@@ -141,7 +189,7 @@ def CalculateSensorTemperature(options) :
             continue
 
         # interpolate using TGraph "Eval" function
-        graph = ROOT.TGraph(len(x_list),array('d',y_list),array('d',x_list))
+        graph = ROOT.TGraph(len(tmp_ts_list),array('d',qref_rootsolve_list),array('d',tmp_ts_list))
         resultts = graph.Eval(0)
 
         # (solving step is done.)
@@ -376,6 +424,7 @@ def CalculateSensorTemperature(options) :
 
     x = GlobalSettings.time_step_list[1:]
     xtitle = 'Time [years]'
+    tid_max_index = idig.index(max(idig))
 
     # dictionary of graphs
     gr = dict()
@@ -559,6 +608,113 @@ def CalculateSensorTemperature(options) :
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'PowerStackPlot'))
 
+    #
+    # Thermal balance curve
+    #
+    def PlotQGraph(can,legend,index,color,leg_label) :
+        xlist = ts_sweep_list[index]
+        ylist = ts_vs_q_thermalbalance[index]
+        tmp_gr = MakeGraph('blah','blah','T_{S} [#circ^{}C]','Q [W]',xlist,ylist)
+
+        ylist_1 = ts_vs_q[index]
+        index_stop = len(ylist_1)
+        too_high = list(ylist_1[i] > ylist[-1] for i in range(len(ylist_1)))
+        if True in too_high :
+            index_stop = too_high.index(True)
+        tmp_gr_1 = MakeGraph('Q(thermal balance)','Q(thermal balance)','T_{S} [#circ^{}C]','Q [W]',xlist[:index_stop],ylist_1[:index_stop])
+
+        tmp_gr  .SetLineColor(color)
+        tmp_gr_1.SetLineColor(color)
+
+        can.cd()
+        drawopt = 'l' if (True in list(issubclass(type(a),ROOT.TGraph) for a in can.GetListOfPrimitives())) else 'al'
+        tmp_gr.Draw(drawopt)
+        tmp_gr_1.Draw('l')
+
+        legend.AddEntry(tmp_gr,leg_label,'l')
+
+        return tmp_gr,tmp_gr_1
+
+    c.Clear()
+    leg = ROOT.TLegend(0.61,0.80,0.93,0.93)
+    PlotUtils.SetStyleLegend(leg)
+    year1_index = int(1./float(GlobalSettings.step))
+    print year1_index
+
+    collection = []
+    collection.append(PlotQGraph(c,leg,year1_index,PlotUtils.ColorPalette()[0],'t = 1 year'  ))
+    collection.append(PlotQGraph(c,leg,tid_max_index,PlotUtils.ColorPalette()[1],'t = tid bump'))
+    if thermal_runaway_index :
+        collection.append(PlotQGraph(c,leg,thermal_runaway_index,PlotUtils.ColorPalette()[3],'t = thermal runaway'))
+    else :
+        collection.append(PlotQGraph(c,leg,-1           ,PlotUtils.ColorPalette()[2],'t = 0 years' ))
+    leg.Draw()
+
+    taxisfunc.AutoFixYaxis(c)
+
+    if dosave :
+        c.Print('%s/%s.eps'%(outputpath,'QVersusTs'))
+
+    #
+    # Sensor temperature vs sensor leakage power
+    #
+    def PlotQRefGraph(can,legend,index,color,leg_label) :
+        xlist = ts_vs_qref[index]
+        ylist = ts_sweep_list[index]
+
+        x_max_i = xlist.index(max(xlist))
+
+        # Trim top
+        tmp_y = ylist
+        while xlist[-1] < 0 :
+            xlist.pop(-1)
+            tmp_y.pop(-1)
+
+        tmp_gr   = MakeGraph('blah','blah','q^{}_{ref} at  #minus15#circ^{}C [#mu^{}W/mm^{2}]','T_{S} [#circ^{}C]',xlist[:x_max_i],tmp_y[:x_max_i])
+        tmp_gr_1 = MakeGraph('blah','blah','q^{}_{ref} at  #minus15#circ^{}C [#mu^{}W/mm^{2}]','T_{S} [#circ^{}C]',xlist[x_max_i-1:],tmp_y[x_max_i-1:])
+
+        tmp_gr  .SetLineColor(color)
+        tmp_gr_1.SetLineColor(color)
+        tmp_gr_1.SetLineStyle(7)
+
+         # Set 0 point
+        tmp_gr.SetPoint(0,0,tmp_gr.Eval(0))
+        while tmp_gr.GetX()[1] < 0 :
+            tmp_gr.RemovePoint(1)
+
+        can.cd()
+        drawopt = 'l' if (True in list(issubclass(type(a),ROOT.TGraph) for a in can.GetListOfPrimitives())) else 'al'
+        tmp_gr.Draw(drawopt)
+        tmp_gr_1.Draw('l')
+
+        static_qref_ts = ylist[xlist.index(max(xlist))]
+        if static_qref[index][0] < max(xlist) :
+            static_qref_ts = tmp_gr.Eval(static_qref[index][0])
+        tmp_gr_2 = MakeGraph('blah','blah','','',[static_qref[index][0]],[static_qref_ts])
+        tmp_gr_2.SetMarkerColor(color)
+        tmp_gr_2.Draw('p')
+
+        legend.AddEntry(tmp_gr,leg_label,'l')
+        tmp_gr.GetXaxis().SetTitle('q^{}_{ref} at  #minus15#circ^{}C [#mu^{}W/mm^{2}]')
+        tmp_gr.GetYaxis().SetTitle('T_{S} [#circ^{}C]')
+        return tmp_gr,tmp_gr_1,tmp_gr_2
+
+    c.Clear()
+    leg = ROOT.TLegend(0.61,0.80,0.93,0.93)
+    PlotUtils.SetStyleLegend(leg)
+    collection = []
+    collection.append(PlotQRefGraph(c,leg,year1_index  ,PlotUtils.ColorPalette()[0],'t = 1 year'))
+    collection.append(PlotQRefGraph(c,leg,tid_max_index,PlotUtils.ColorPalette()[1],'t = tid bump'))
+    if thermal_runaway_index :
+        collection.append(PlotQRefGraph(c,leg,thermal_runaway_index-1,PlotUtils.ColorPalette()[3],'t = thermal runaway'))
+    else :
+        collection.append(PlotQRefGraph(c,leg,-1           ,PlotUtils.ColorPalette()[2],'t = 14 years'))
+    leg.Draw()
+
+    taxisfunc.AutoFixYaxis(c)
+
+    if dosave :
+        c.Print('%s/%s.eps'%(outputpath,'QrefVersusTs'))
 
     # Kurt, put any extra plots here -- End.
 
