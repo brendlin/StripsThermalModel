@@ -1,4 +1,5 @@
 2017-06-22 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add Qsensor and TCoolant headroom plots
     * Fix bug in SensorTemperatureCalc related to solving for Qsensor (Qref)
     * Add thermal balance illustration plots
 

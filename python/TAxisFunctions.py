@@ -223,3 +223,63 @@ def GetYaxisRanges(can,check_all=False) :
 
     # print 'GetYaxisRanges',ymin,ymax
     return ymin,ymax
+
+##
+## Set the x-axis ranges of a canvas
+##
+def SetXaxisRanges(can,xmin,xmax) :
+    if can.GetPrimitive('pad_top') :
+        SetXaxisRanges(can.GetPrimitive('pad_top'),xmin,xmax)
+        SetXaxisRanges(can.GetPrimitive('pad_bot'),xmin,xmax)
+        return
+    from ROOT import TGraph,TH1,THStack
+    xaxis = 0
+    for i in can.GetListOfPrimitives() :
+        if issubclass(type(i),TGraph) :
+            xaxis = i.GetXaxis()
+            xaxis.SetLimits(xmin,xmax)
+        if issubclass(type(i),TH1) :
+            xaxis = i.GetXaxis()
+            xaxis.SetRangeUser(xmin,xmax)
+        if issubclass(type(i),THStack) :
+            xaxis = i.GetXaxis()
+            xaxis.SetRangeUser(xmin,xmax)
+
+    if not xaxis :
+        print 'Warning: SetXaxisRange had no effect. Check that your canvas has plots in it.'
+        return
+
+    can.Modified()
+    #can.Update()
+    return
+
+##
+## Returns the x-range of the first plotted histogram.
+## If you specify "check_all=True", returns the maximal x-range of all the plots in the canvas
+##
+def GetXaxisRanges(can,check_all=False) :
+    from ROOT import TGraph,TH1
+    xmin = 999999999
+    xmax = -999999999
+    for i in can.GetListOfPrimitives() :
+        if issubclass(type(i),TGraph) :
+            xaxis = i.GetHistogram().GetXaxis()
+            if not check_all :
+                return xaxis.GetXmin(),xaxis.GetXmax()
+            xmin = min(xmin,xaxis.GetXmin())
+            xmax = max(xmax,xaxis.GetXmax())
+        if issubclass(type(i),TH1) :
+            xaxis = i.GetXaxis()
+            if not check_all :
+                return xaxis.GetXmin(),xaxis.GetXmax()
+            xmin = min(xmin,xaxis.GetXmin())
+            xmax = max(xmax,xaxis.GetXmax())
+    return xmin,xmax
+
+##
+## Fit all the data into the canvas (for the x-axis)
+##
+def FixXaxisRanges(can) :
+    (xmin,xmax) = GetXaxisRanges(can,check_all=True)
+    SetXaxisRanges(can,xmin,xmax)
+    return
