@@ -50,6 +50,8 @@ def AutoFixYaxis(can,ignorelegend=False,forcemin=None,minzero=False) :
     if can.GetLogy() :
         # special treatment for log plots
         miny = 0.85*MinimumForLog(can)
+        if forcemin :
+            miny = forcemin
         # some orders of magnitude *above* miny, making room for text
         orderofmagnitude_span = math.log(maxy/miny)/math.log(10)
         orderofmagnitude_span = 1.1*orderofmagnitude_span*tframe_height/maxy_frac
@@ -57,14 +59,16 @@ def AutoFixYaxis(can,ignorelegend=False,forcemin=None,minzero=False) :
     else :
         # scale to make space for text
         maxy_frac = maxy_frac-.02
+        if minzero == True :
+            miny = 0
+        if forcemin :
+            miny = forcemin
         maxy = tframe_height*(maxy-miny)/float(maxy_frac)+miny
         # round y axis to nice round numbers
         (miny,maxy) = NearestNiceNumber(miny,maxy)
     # print 'AutoFixAxes',miny,maxy
 #     if symmetrize :
 #         (miny,maxy) = -max(math.fabs(miny),math.fabs(maxy)),max(math.fabs(miny),math.fabs(maxy))
-    if minzero == True :
-        miny = 0
     if forcemin :
         miny = forcemin
     SetYaxisRanges(can,miny,maxy)

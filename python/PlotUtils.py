@@ -173,3 +173,11 @@ def AddToStack(stack,leg,h) :
     h.SetDrawOption('l')
     stack.Add(h)
     leg.AddEntry(h,h.GetTitle().replace('power ','').replace('power',''),'f')
+
+def MakePlotMinimumZero(plotname) :
+    return plotname in ['tc_headroom','idig','ifeast',
+                        'pmhv','pmhvr','pmhvmux','hv_power_resistors','pmodule_noHV',
+                        'pmodule','powertotal','itape','pmtape','ptape','pstave']
+
+def GetPlotForcedMinimum(plotname) :
+    return {'qsensor_headroom': 0.09}.get(plotname,None)

@@ -1,4 +1,5 @@
 2017-06-23 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Fix up plot ranges
     * Clean up SensorTemperatureCalc.py
 
 2017-06-22 Kurt Brendlinger <kurt.brendlinger@cern.ch>

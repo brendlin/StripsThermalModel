@@ -144,8 +144,17 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             text_endcap_warning.AddEntry(0,'DUMMY VALUES - NOT REAL NUMBERS','')
             text_endcap_warning.Draw()
 
-        taxisfunc.AutoFixYaxis(c)
+        minzero = PlotUtils.MakePlotMinimumZero(plotname)
+        forcemin = PlotUtils.GetPlotForcedMinimum(plotname)
+
+        if plotname in ['qsensor_headroom'] :
+            c.SetLogy(True)
+
+        taxisfunc.AutoFixYaxis(c,minzero=minzero,forcemin=forcemin)
 
         c.Print('%s/%s%s.eps'%(outputpath,barrel_endcap,graphs[0].GetName()))
+
+        if plotname in ['qsensor_headroom'] :
+            c.SetLogy(False)
 
     return
