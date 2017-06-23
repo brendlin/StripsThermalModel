@@ -121,17 +121,18 @@ def CalculateSensorTemperature(options) :
 
         y_gets_over_zero = False
 
+        doserate_i = OperationalProfiles.doserate[i]
+        tid_dose_i = OperationalProfiles.tid_dose[i]
+        Tcoolant_i = CoolantTemperature.GetTimeStepTc()[i]
+
         t0_noLeakage = Temperatures.T0(NominalPower.eosP(teos[-1]),
-                                       NominalPower.Pmod(tabc[-1],
-                                                         thcc[-1],
-                                                         tfeast[-1],
-                                                         OperationalProfiles.doserate[i],
-                                                         OperationalProfiles.tid_dose[i],
+                                       NominalPower.Pmod(tabc[-1],thcc[-1],tfeast[-1],
+                                                         doserate_i,tid_dose_i,
                                                          0), # (assumed 0 HV current here)
-                                       CoolantTemperature.GetTimeStepTc()[i]
+                                       Tcoolant_i
                                        )
 
-        RcQh = t0_noLeakage - CoolantTemperature.GetTimeStepTc()[i]
+        RcQh = t0_noLeakage - Tcoolant_i
 
         lhs = SensorLeakage.qref[i]
         static_qref.append(lhs*1000./SensorProperties.area) # sensor leakage modeling
@@ -184,14 +185,18 @@ def CalculateSensorTemperature(options) :
                            powertotal,phvtotal,pmhvmux,itape,idig,ifeast,efffeast,ptape,pstave] :
                 i_list.append(i_list[-1])
             qsensor_headroom.append(0.1)
-            tc_crit.append(CoolantTemperature.GetTimeStepTc()[i])
+            tc_crit.append(Tcoolant_i)
             continue
 
         # interpolate using TGraph "Eval" function
         graph = ROOT.TGraph(len(tmp_ts_list),array('d',qref_rootsolve_list),array('d',tmp_ts_list))
         resultts = graph.Eval(0)
+        resultqsensor = Temperatures.unref(SensorLeakage.qref[i],resultts)
 
         # (solving step is done.)
+
+        # Leakage current per module
+        isensor.append( resultqsensor /float(SensorProperties.vbias) )
 
         # Calculate temperatures in the system based on sensor temperature
 
@@ -211,223 +216,107 @@ def CalculateSensorTemperature(options) :
         if len(qsensor_headroom) == 2 :
             qsensor_headroom[0] = qsensor_headroom[1]
 
+        # Stuff that is useful for later on
+
+        # module power: no leakage power, but power from hvmux and rhv is included here.
+        pmodule_noLeakagePow_lastStep = NominalPower.Pmod(tabc[i-1],thcc[i-1],tfeast[i-1],
+                                                          doserate_i,tid_dose_i,isensor[i])
+
         # Temperature of ABC
-        tabc.append(Temperatures.Tabc(NominalPower.Pabc(tabc[-1],
-                                                        OperationalProfiles.doserate[i],
-                                                        OperationalProfiles.tid_dose[i]),
-                                      NominalPower.eosP(teos[-1]),
-                                      NominalPower.Pmod(tabc[-1],
-                                                        thcc[-1],
-                                                        tfeast[-1],
-                                                        OperationalProfiles.doserate[i],
-                                                        OperationalProfiles.tid_dose[i],
-                                                        Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias)
-                                                        ),
-                                      Temperatures.unref(SensorLeakage.qref[i],resultts),
-                                      CoolantTemperature.GetTimeStepTc()[i]
-                                      )
-                      )
+        tabc.append(Temperatures.Tabc(NominalPower.Pabc(tabc[i-1],doserate_i,tid_dose_i),
+                                      NominalPower.eosP(teos[i-1]),
+                                      pmodule_noLeakagePow_lastStep,resultqsensor,Tcoolant_i)
+                    )
         if (i == 0) :
             tabc.pop(0) # remove the initial value
 
         # Temperature of HCC
-        thcc.append(Temperatures.Thcc(NominalPower.Phcc(thcc[-1],
-                                                        OperationalProfiles.doserate[i],
-                                                        OperationalProfiles.tid_dose[i]),
-                                      NominalPower.eosP(teos[-1]),
-                                      NominalPower.Pmod(tabc[-1],
-                                                        thcc[-1],
-                                                        tfeast[-1],
-                                                        OperationalProfiles.doserate[i],
-                                                        OperationalProfiles.tid_dose[i],
-                                                        Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias)
-                                                        ),
-                                      Temperatures.unref(SensorLeakage.qref[i],resultts),
-                                      CoolantTemperature.GetTimeStepTc()[i]
-                                      )
+        thcc.append(Temperatures.Thcc(NominalPower.Phcc(thcc[i-1],doserate_i,tid_dose_i),
+                                      NominalPower.eosP(teos[i-1]),
+                                      pmodule_noLeakagePow_lastStep,resultqsensor,Tcoolant_i)
                       )
         if (i == 0) :
             thcc.pop(0) # remove the initial value
 
         # Temperature of FEAST
-        tfeast.append(Temperatures.Tfeast(NominalPower.Pfeast(tabc[-1],
-                                                              thcc[-1],
-                                                              tfeast[-1],
-                                                              OperationalProfiles.doserate[i],
-                                                              OperationalProfiles.tid_dose[i]),
-                                          NominalPower.eosP(teos[-1]),
-                                          NominalPower.Pmod(tabc[-1],
-                                                            thcc[-1],
-                                                            tfeast[-1],
-                                                            OperationalProfiles.doserate[i],
-                                                            OperationalProfiles.tid_dose[i],
-                                                            Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias)
-                                                            ),
-                                          Temperatures.unref(SensorLeakage.qref[i],resultts),
-                                          CoolantTemperature.GetTimeStepTc()[i]
-                                          )
+        tfeast.append(Temperatures.Tfeast(NominalPower.Pfeast(tabc[i],thcc[i],tfeast[i-1],
+                                                              doserate_i,tid_dose_i),
+                                          NominalPower.eosP(teos[i-1]),
+                                          pmodule_noLeakagePow_lastStep,resultqsensor,Tcoolant_i)
                       )
         if (i == 0) :
             tfeast.pop(0) # remove the initial value
 
         # Temperature of EOS
-        teos.append(Temperatures.Teos(NominalPower.eosP(teos[-1]),
-                                      NominalPower.Pmod(tabc[-1],
-                                                        thcc[-1],
-                                                        tfeast[-1],
-                                                        OperationalProfiles.doserate[i],
-                                                        OperationalProfiles.tid_dose[i],
-                                                        Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias)
-                                                        ),
-                                      Temperatures.unref(SensorLeakage.qref[i],resultts),
-                                      CoolantTemperature.GetTimeStepTc()[i]
-                                      )
+        teos.append(Temperatures.Teos(NominalPower.eosP(teos[i-1]),
+                                      pmodule_noLeakagePow_lastStep,resultqsensor,Tcoolant_i)
                     )
         if (i == 0) :
             teos.pop(0) # remove the initial value
-
-        # ABC Power (all n ABCs)
-        pabc.append(NominalPower.Pabc(tabc[-1],
-                                      OperationalProfiles.doserate[i],
-                                      OperationalProfiles.tid_dose[i])
-                    )
-
-        # HCC power (all n HCCs)
-        phcc.append(NominalPower.Phcc(thcc[-1],
-                                      OperationalProfiles.doserate[i],
-                                      OperationalProfiles.tid_dose[i])
-                    )
-
-        # EOS Power
-        peos.append(NominalPower.eosP(teos[-1]))
-
-        # FEAST power
-        pfeast.append(NominalPower.Pfeast(tabc[-1],
-                                          thcc[-1],
-                                          tfeast[-1],
-                                          OperationalProfiles.doserate[i],
-                                          OperationalProfiles.tid_dose[i])
-                      )
-
-        # FEAST power from ABC and HCC only
-        pfeast_abchcc.append(NominalPower.Pfeast_ABC_HCC(tabc[-1],
-                                                         thcc[-1],
-                                                         tfeast[-1],
-                                                         OperationalProfiles.doserate[i],
-                                                         OperationalProfiles.tid_dose[i])
-                             )
 
         #
         # From here we can use actual temperatures
         #
 
+        pmodule_noLeakagePow_thisStep = NominalPower.Pmod(tabc[i],thcc[i],tfeast[i],
+                                                          doserate_i,tid_dose_i,isensor[i])
+
+        # ABC Power (all n ABCs)
+        pabc.append(NominalPower.Pabc(tabc[i],doserate_i,tid_dose_i))
+
+        # HCC power (all n HCCs)
+        phcc.append(NominalPower.Phcc(thcc[i],doserate_i,tid_dose_i))
+
+        # EOS Power
+        peos.append(NominalPower.eosP(teos[i]))
+
+        # FEAST power
+        pfeast.append(NominalPower.Pfeast(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
+
+        # FEAST power from ABC and HCC only
+        pfeast_abchcc.append(NominalPower.Pfeast_ABC_HCC(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
+
         # Power per module (front-end + HV)
-        pmodule.append(NominalPower.Pmod(tabc[-1],
-                                         thcc[-1],
-                                         tfeast[-1],
-                                         OperationalProfiles.doserate[i],
-                                         OperationalProfiles.tid_dose[i],
-                                         Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias)
-                                         )
-                       + Temperatures.unref(SensorLeakage.qref[i],resultts)
-                       )
+        pmodule.append(pmodule_noLeakagePow_thisStep + resultqsensor)
 
         # Power loss in tape per module
-        pmtape.append(NominalPower.Ptape(tabc[-1],
-                                         thcc[-1],
-                                         tfeast[-1],
-                                         OperationalProfiles.doserate[i],
-                                         OperationalProfiles.tid_dose[i]
-                                         )
-                      )
+        pmtape.append(NominalPower.Ptape(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
 
         # HV power per module (leakage + resistors)
-        pmhv.append(Temperatures.unref(SensorLeakage.qref[i],resultts)
-                    + NominalPower.Phv( Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias) )
-                    )
-
-        # Leakage current per module
-        isensor.append( Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias) )
+        pmhv.append(resultqsensor + NominalPower.Phv( isensor[i] ) )
 
         # HV power per module due to serial resistors
-        pmhvr.append( NominalPower.Prhv( Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias) ) )
+        pmhvr.append( NominalPower.Prhv( isensor[i] ) )
 
         # HV per module due to parallel resistor
         pmhvmux.append(NominalPower.Phvmux)
 
         # Stave power B1
-        pstave.append(NominalPower.Pstave(tabc[-1],
-                                          thcc[-1],
-                                          tfeast[-1],
-                                          teos[-1],
-                                          OperationalProfiles.doserate[i],
-                                          OperationalProfiles.tid_dose[i],
-                                          Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias)
-                                          )
-                      )
+        pstave.append(NominalPower.Pstave(tabc[i],thcc[i],tfeast[i],teos[i],doserate_i,tid_dose_i,isensor[i]))
 
         # Total power for layer
         # Extra factor of 2 is for 2 sides of the barrel, or 2 endcaps.
-        powertotal.append( 2 * Layout.nstaves * (1 + SafetyFactors.safetylayout)
-                           * NominalPower.Pstave(tabc[-1],
-                                                 thcc[-1],
-                                                 tfeast[-1],
-                                                 teos[-1],
-                                                 OperationalProfiles.doserate[i],
-                                                 OperationalProfiles.tid_dose[i],
-                                                 Temperatures.unref(SensorLeakage.qref[i],resultts)/float(SensorProperties.vbias)
-                                                 )
-                           / 1000.
-                           )
+        powertotal.append( 2 * Layout.nstaves * (1 + SafetyFactors.safetylayout) * pstave[i] / 1000.)
 
         # Total HV power for layer
         # One factor of 2 is for 2 sides of the barrel, or 2 endcaps.
         # Antoher factor of 2 is for two sides of the module
-        phvtotal.append( 2 * Layout.nstaves * (1 + SafetyFactors.safetylayout) * 2 * Layout.nmod * (pmhv[-1] + pmhvr[-1]) / 1000. )
+        phvtotal.append( 2 * Layout.nstaves * (1 + SafetyFactors.safetylayout) * 2 * Layout.nmod * (pmhv[i] + pmhvr[i]) / 1000. )
 
         # Tape current per module
-        itape.append(NominalPower.Itape(tabc[-1],
-                                        thcc[-1],
-                                        tfeast[-1],
-                                        OperationalProfiles.doserate[i],
-                                        OperationalProfiles.tid_dose[i]
-                                        )
-                     )
+        itape.append(NominalPower.Itape(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
 
         # Tape power for one tape (half a stave)
-        ptape.append(NominalPower.Pstavetape(tabc[-1],
-                                             thcc[-1],
-                                             tfeast[-1],
-                                             OperationalProfiles.doserate[i],
-                                             OperationalProfiles.tid_dose[i]
-                                             )
-                     )
+        ptape.append(NominalPower.Pstavetape(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
 
         # Digital current per module
-        idig.append(NominalPower.Idig(tabc[-1],
-                                      thcc[-1],
-                                      OperationalProfiles.doserate[i],
-                                      OperationalProfiles.tid_dose[i]
-                                      )
-                    )
+        idig.append(NominalPower.Idig(tabc[i],thcc[i],doserate_i,tid_dose_i))
 
         # FEAST current PER FEAST (in case there is more than one feast)
-        ifeast.append(NominalPower.Ifeast(tabc[-1],
-                                          thcc[-1],
-                                          OperationalProfiles.doserate[i],
-                                          OperationalProfiles.tid_dose[i]
-                                          ) / float(NominalPower.nfeast)
-                      )
+        ifeast.append(NominalPower.Ifeast(tabc[i],thcc[i],doserate_i,tid_dose_i) / float(NominalPower.nfeast))
 
         # FEAST efficiency
-        efffeast.append(PoweringEfficiency.feasteff(tfeast[-1],
-                                                    NominalPower.Ifeast(tabc[-1],
-                                                                        thcc[-1],
-                                                                        OperationalProfiles.doserate[i],
-                                                                        OperationalProfiles.tid_dose[i]
-                                                                        )/float(NominalPower.nfeast)
-                                                    )
-                        )
+        efffeast.append(PoweringEfficiency.feasteff(tfeast[i],ifeast[i]))
 
         # if i and math.fabs(((i+1)*GlobalSettings.step) % 1.) < 0.000001 :
         #     print 'Calculated year %.0f'%( int((i+1)*GlobalSettings.step) )
