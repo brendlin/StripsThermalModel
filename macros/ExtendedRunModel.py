@@ -10,6 +10,7 @@ sys.path.append(the_path)
 ROOT.gROOT.SetBatch(True)
 
 import python.PlotUtils as PlotUtils
+import python.FluxAndTidParameterization as FluxAndTidParameterization
 
 def usage() :
     print "Usage:\n"
@@ -20,12 +21,6 @@ def usage() :
     print 'Example: '
     print 'python %s --cooling flat-25 --endcap'%(sys.argv[0])
     sys.exit()
-    
-def GetFlux(ring,disk) :
-    return 2e14 + (1e15 - 2e14)*((5-ring) + disk)/10.
-
-def GetTID(ring,disk) :
-    return 3e3 + (3e4 - 3e3)*(5-ring)/5.
 
 #-----------------------------------------------
 def main(options,args):
@@ -59,8 +54,8 @@ def main(options,args):
         Config.SetValue('cooling',options.cooling)
 
     if options.endcap :
-        Config.SetValue('OperationalProfiles.totalflux',GetFlux(0,0))
-        Config.SetValue('OperationalProfiles.tid_in_3000fb',GetTID(0,0))
+        Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetFlux(0,0))
+        Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetTID(0,0))
 
     print 'importing modules'
     import python.GlobalSettings      as GlobalSettings
@@ -109,8 +104,8 @@ def main(options,args):
 
             # Loop over the disks
             for disk in range(6) :
-                Config.SetValue('OperationalProfiles.totalflux',GetFlux(ring,disk))
-                Config.SetValue('OperationalProfiles.tid_in_3000fb',GetTID(ring,disk))
+                Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetFlux(ring,disk))
+                Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetTID(ring,disk))
                 if not Config.Defined('cooling') :
                     Config.SetValue('cooling',options.cooling)
                 print 'CALCULATING Ring %d Disk %d (%s):'%(ring,disk,Config.GetName())
@@ -126,7 +121,7 @@ def main(options,args):
     options.outdir = '_'.join([barrel_endcap,options.outdir,coolingtag]).lstrip('_').replace('__','_')
 
     import python.ExtendedModelSummaryPlots as ExtendedModelSummaryPlots
-    ExtendedModelSummaryPlots.ProcessSummaryPlots(results,structure_names,options,speciallegend=options.endcap)
+    ExtendedModelSummaryPlots.ProcessSummaryPlots(results,structure_names,options,speciallegend=options.endcap,plotaverage=False)
 
     # Save config files in the output directory
     for conf in config_files :
