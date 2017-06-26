@@ -10,6 +10,7 @@ sys.path.append(the_path)
 ROOT.gROOT.SetBatch(True)
 
 import python.PlotUtils as PlotUtils
+import python.FluxAndTidParameterization as FluxAndTidParameterization
     
 #-----------------------------------------------
 def FindAutoLabel(config,nom) :
@@ -27,6 +28,8 @@ def FindAutoLabel(config,nom) :
             variable = {'SafetyFactors.safetyfluence'         :'SF_{#font[52]{flux}}',
                         'SafetyFactors.safetythermalimpedance':'SF_{#font[52]{RThermal}}',
                         'SafetyFactors.safetycurrent'         :'SF_{#font[52]{current}}',
+                        'ThermalImpedances.rfeast'            :'R_{FEAST}',
+                        'NominalPower.nfeast'                 :'_{}n_{FEAST}',
                         'NominalPower.nabc'                   :'nabc',
                         }.get(tenvrec.GetName(),tenvrec.GetName())
             value = tenvrec.GetValue()
@@ -53,7 +56,13 @@ def main(options,args):
     # If "cooling" is not defined in the config file, define it using the command-line argument
     if not Config.Defined('cooling') :
         Config.SetValue('cooling',options.cooling)
-    
+
+    if not Config.Defined('OperationalProfiles.totalflux') :
+        Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(options.configs.split(',')[0]))
+
+    if not Config.Defined('OperationalProfiles.tid_in_3000fb') :
+        Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(options.configs.split(',')[0]))
+
     print 'importing modules'
     import python.GlobalSettings      as GlobalSettings
     import python.SafetyFactors       as SafetyFactors
@@ -90,6 +99,10 @@ def main(options,args):
         print 'CALCULATING scenario \"%s\" (%s):'%(name,Config.GetName())
         if not Config.Defined('cooling') :
             Config.SetValue('cooling',options.cooling)
+        if not Config.Defined('OperationalProfiles.totalflux') :
+            Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(conf))
+        if not Config.Defined('OperationalProfiles.tid_in_3000fb') :
+            Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(conf))
 
         Config.Print()
         Config.ReloadAllPythonModules()
@@ -100,6 +113,12 @@ def main(options,args):
     # reload nominal conf file - for labeing purposes
     Config.SetConfigFile('%s/data/%s'%(the_path,nominal_config),doprint=False)
     if not Config.Defined('cooling') : Config.SetValue('cooling',options.cooling)
+    if not Config.Defined('OperationalProfiles.totalflux') :
+        Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(options.configs.split(',')[0]))
+
+    if not Config.Defined('OperationalProfiles.tid_in_3000fb') :
+        Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(options.configs.split(',')[0]))
+
     Config.ReloadAllPythonModules()
 
     # Add some output directory specifications

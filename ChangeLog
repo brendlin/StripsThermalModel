@@ -1,3 +1,7 @@
+2017-06-26 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Fix up some plots; add propaganda plots
+    * Add operational profile plots for endcaps
+
 2017-06-25 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Add new TID and Flux parameterization
     * (See https://twiki.cern.ch/twiki/bin/view/Atlas/RadiationBackgroundSimulationsFullyInclinedAt4)

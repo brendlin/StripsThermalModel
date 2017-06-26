@@ -10,6 +10,8 @@ sys.path.append(the_path)
 
 import python.GlobalSettings as GlobalSettings
 import python.PlotUtils as PlotUtils
+import python.FluxAndTidParameterization as FluxAndTidParameterization
+import python.TAxisFunctions as taxisfunc
 
 #-----------------------------------------------
 def main(options,args) :
@@ -24,9 +26,26 @@ def main(options,args) :
                         ]
         structure_names = ['B1','B2','B3','B4']
 
+    if options.endcap :
+        config_files = ['Endcap_R0.config',
+                        'Endcap_R1.config',
+                        'Endcap_R2.config',
+                        'Endcap_R3.config',
+                        'Endcap_R4.config',
+                        'Endcap_R5.config',
+                        ]
+        structure_names = ['R0','R1','R2','R3','R4','R5']
+
     # Config must be loaded before loading any other module.
     import python.Config as Config
     Config.SetConfigFile('%s/data/%s'%(the_path,config_files[0]),doprint=False)
+
+    if not Config.Defined('OperationalProfiles.totalflux') :
+        Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(config_files[0]))
+
+    if not Config.Defined('OperationalProfiles.tid_in_3000fb') :
+        Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(config_files[0]))
+
     import python.OperationalProfiles as OperationalProfiles
 
     gr = dict()
@@ -40,6 +59,7 @@ def main(options,args) :
     
     c = ROOT.TCanvas('blah','blah',600,500)
     gr['intLumi'].Draw('al')
+    barrel_endcap = '_Barrel' if options.barrel else '_Endcap'
     c.Print('%s/plots/OperationalProfiles/IntegratedLuminosity.eps'%(the_path))
 
 
@@ -79,6 +99,10 @@ def main(options,args) :
 
     for i,conf in enumerate(config_files) :
         Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
+        if not Config.Defined('OperationalProfiles.totalflux') :
+            Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(conf))
+        if not Config.Defined('OperationalProfiles.tid_in_3000fb') :
+            Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(conf))
         Config.ReloadAllPythonModules()
 
         # accumulated total ionizing dose
@@ -100,6 +124,12 @@ def main(options,args) :
               'B2':ROOT.kBlue,
               'B3':ROOT.kRed+1,
               'B4':ROOT.kOrange+1,
+              'R0':ROOT.kRed+1,
+              'R1':ROOT.kBlue+1,
+              'R2':ROOT.kGreen+1,
+              'R3':ROOT.kOrange+1,
+              'R4':ROOT.kMagenta+1,
+              'R5':ROOT.kCyan+1,
               }
 
     c.Clear()
@@ -109,10 +139,11 @@ def main(options,args) :
         leg.AddEntry(gr[nm],gr[nm].GetTitle(),'l')
         gr[nm].Draw('l' if i else 'al')
     leg.Draw()
-    c.Print('%s/plots/OperationalProfiles/TotalIonizingDoseBarrel.eps'%(the_path))
+    taxisfunc.AutoFixYaxis(c,ignorelegend=True)
+    c.Print('%s/plots/OperationalProfiles/TotalIonizingDose%s.eps'%(the_path,barrel_endcap))
 
     # dose rates -- plot
-    leg = ROOT.TLegend(0.72,0.61,0.93,0.78)
+    leg = ROOT.TLegend(0.72,0.66,0.93,0.83)
     PlotUtils.SetStyleLegend(leg)
 
     c.Clear()
@@ -122,7 +153,8 @@ def main(options,args) :
         leg.AddEntry(gr[nm],gr[nm].GetTitle(),'l')
         gr[nm].Draw('l' if i else 'al')
     leg.Draw()
-    c.Print('%s/plots/OperationalProfiles/DoseRateBarrel.eps'%(the_path))
+    taxisfunc.AutoFixYaxis(c,ignorelegend=True,minzero=True)
+    c.Print('%s/plots/OperationalProfiles/DoseRate%s.eps'%(the_path,barrel_endcap))
 
     return
 
@@ -130,8 +162,13 @@ def main(options,args) :
 if __name__ == '__main__':
     from optparse import OptionParser
     p = OptionParser()
-    p.add_option('--barrel',action='store_true',default=True,dest='barrel',help='Run the barrel')
+    p.add_option('--barrel',action='store_true',default=False,dest='barrel',help='Run the barrel')
+    p.add_option('--endcap',action='store_true',default=False,dest='endcap',help='Run the barrel')
     
     options,args = p.parse_args()
-    
+
+    if options.barrel == options.endcap :
+        print 'Error! Please specify either --barrel or --endcap (not both).'
+        sys.exit()
+
     main(options,args)

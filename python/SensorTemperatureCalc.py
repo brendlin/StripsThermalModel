@@ -65,6 +65,7 @@ def CalculateSensorTemperature(options) :
     efffeast   = [] # FEAST efficiency
     ptape      = [] # Power loss in complete tape layer
     pstave     = [] # Stave Power in layer
+    qsensor    = [] # sensor Q
     qsensor_headroom = [] # Sensor Qleakage headroom factor
     tc_crit = [] # Critical coolant temperature
 
@@ -99,6 +100,7 @@ def CalculateSensorTemperature(options) :
     ts_vs_qref = []             # Qref vs sensor temperature in microW/mm^2
     static_qref = []            # corresponds to "lhs"
     ts_vs_q = []                # Q(Ts) vs sensor temperature
+    ts_vs_q_at_crit = []        # Propaganda plot
     ts_vs_q_thermalbalance = [] # Thermal balance Q vs sensor temperature
     q_minus_qthermalbalance = [] # Needed for Tcoolant headroom
 
@@ -112,6 +114,7 @@ def CalculateSensorTemperature(options) :
         ts_sweep_list.append([])
         ts_vs_qref.append([])
         ts_vs_q.append([])
+        ts_vs_q_at_crit.append([])
         ts_vs_q_thermalbalance.append([])
         q_minus_qthermalbalance.append([])
 
@@ -125,29 +128,36 @@ def CalculateSensorTemperature(options) :
         tid_dose_i = OperationalProfiles.tid_dose[i]
         Tcoolant_i = CoolantTemperature.GetTimeStepTc()[i]
 
-        t0_noLeakage = Temperatures.T0(NominalPower.eosP(teos[-1]),
-                                       NominalPower.Pmod(tabc[-1],thcc[-1],tfeast[-1],
-                                                         doserate_i,tid_dose_i,
-                                                         0), # (assumed 0 HV current here)
-                                       Tcoolant_i
-                                       )
-
-        RcQh = t0_noLeakage - Tcoolant_i
-
         lhs = SensorLeakage.qref[i]
         static_qref.append(lhs*1000./SensorProperties.area) # sensor leakage modeling
 
-        ts_step = 10 # steps per degree
-        for ts_i,ts in enumerate(range(ts_step*(-35),100*ts_step)) :
+        ts_step = 5 # steps per degree
+        for ts_i,ts in enumerate(range(ts_step*(-35),60*ts_step)) :
             ts = ts/float(ts_step)
-            rhs = Temperatures.Qref(ts,t0_noLeakage)
+
+            # sensor current at this temperature ts
+            isensor_i = Temperatures.unref(SensorLeakage.qref[i],ts)/float(SensorProperties.vbias)
+
+            # T0 temperature, which depends (via HV resistors) on ts at a given step.
+            t0_noLeakage_ts_i = Temperatures.T0(NominalPower.eosP(teos[-1]),
+                                                NominalPower.Pmod(tabc[-1],thcc[-1],tfeast[-1],
+                                                                  doserate_i,tid_dose_i,
+                                                                  isensor_i), # You need the current here to get the heat from the HV resistors
+                                                Tcoolant_i
+                                                )
+
+            # Module temperature, excluding the sensor power
+            RcQh = t0_noLeakage_ts_i - Tcoolant_i
+
+            rhs = Temperatures.Qref(ts,t0_noLeakage_ts_i)
 
             # sensor temperature vs sensor leakage power stuff
             ts_sweep_list[-1].append(ts)
             ts_vs_qref[-1].append(rhs*1000./SensorProperties.area) # Qref vs sensor temperature in microW/mm^2
             ts_vs_q[-1].append(Temperatures.unref(SensorLeakage.qref[i],ts)) # Q(Ts) vs sensor temperature
-            ts_vs_q_thermalbalance[-1].append(max(0,(ts-t0_noLeakage)/float(ThermalImpedances.Rt))) # Thermal balance Q vs sensor temperature
-            q_minus_qthermalbalance[-1].append(ts_vs_q[-1][-1] - (ts-t0_noLeakage)/float(ThermalImpedances.Rt))
+            ts_vs_q_thermalbalance[-1].append(max(0,(ts-t0_noLeakage_ts_i)/float(ThermalImpedances.Rt))) # Thermal balance Q vs sensor temperature
+            if (len(ts_vs_q_thermalbalance[-1]) > 2) and ts_vs_q_thermalbalance[-1][-1] < ts_vs_q_thermalbalance[-1][-2] :
+                ts_vs_q_thermalbalance[-1].pop(-1)
 
             y = rhs - lhs
 
@@ -182,7 +192,7 @@ def CalculateSensorTemperature(options) :
 
         if thermal_runaway :
             for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,pmtape,pmhv,isensor,pmhvr,
-                           powertotal,phvtotal,pmhvmux,itape,idig,ifeast,efffeast,ptape,pstave] :
+                           powertotal,phvtotal,pmhvmux,itape,idig,ifeast,efffeast,ptape,pstave,qsensor] :
                 i_list.append(i_list[-1])
             qsensor_headroom.append(0.1)
             tc_crit.append(Tcoolant_i)
@@ -195,6 +205,8 @@ def CalculateSensorTemperature(options) :
 
         # (solving step is done.)
 
+        qsensor.append(resultqsensor)
+
         # Leakage current per module
         isensor.append( resultqsensor /float(SensorProperties.vbias) )
 
@@ -204,17 +216,29 @@ def CalculateSensorTemperature(options) :
         tsensor.append(resultts)
 
         # Critical Temperature Coolant calculation
-        index_min_q_minus_qthermalbalance = q_minus_qthermalbalance[-1].index(min(q_minus_qthermalbalance[-1]))
-        ts_crit_atTccrit = ts_sweep_list[-1][index_min_q_minus_qthermalbalance]
-        qcrit_at_Tccrit = ts_vs_q[-1][index_min_q_minus_qthermalbalance]
-        tmp_tc_crit = ts_crit_atTccrit - qcrit_at_Tccrit*ThermalImpedances.Rt - RcQh
-        tc_crit.append(tmp_tc_crit)
+        tmp_graph = ROOT.TGraph(len(ts_vs_q_thermalbalance[-1]),array('d',ts_vs_q_thermalbalance[-1]),array('d',ts_sweep_list[-1][:len(ts_vs_q_thermalbalance[-1])]))
+        tmp_headroom_list = [-1]
+        for x in range(len(ts_vs_q[-1])) :
+            if ts_vs_q[-1][x] > ts_vs_q_thermalbalance[-1][-1] :
+                continue
+            if ts_vs_q[-1][x] == 0 :
+                continue
+            tmp_headroom_list.append( ts_sweep_list[-1][x] - tmp_graph.Eval(ts_vs_q[-1][x]) )
+
+        tc_crit.append( Tcoolant_i + max(tmp_headroom_list) )
+        if len(tc_crit) == 2 :
+            tc_crit[0] = tc_crit[1]
 
         # Sensor Qleakage headroom factor
         qref_crit = max(ts_vs_qref[-1]) # Critical qref -- maximum of qref list
         qsensor_headroom.append( 1 if (not static_qref[-1]) else qref_crit/float(static_qref[-1]))
         if len(qsensor_headroom) == 2 :
             qsensor_headroom[0] = qsensor_headroom[1]
+
+        # propaganda: Ts vs Q at critical point (multiplied by headroom factor)
+        for ts_i,ts in enumerate(range(ts_step*(-35),60*ts_step)) :
+            ts = ts/float(ts_step)
+            ts_vs_q_at_crit[-1].append(Temperatures.unref(SensorLeakage.qref[i]*qsensor_headroom[-1],ts))
 
         # Stuff that is useful for later on
 
@@ -356,7 +380,7 @@ def CalculateSensorTemperature(options) :
     gr['efffeast']   = MakeGraph('FeastEfficiency'        ,'Feast efficiency'                          ,xtitle,'Efficiency [%]'               ,x,efffeast  )
     gr['ptape']      = MakeGraph('TotalPowerLossTape'     ,'Power loss in complete tape in %s'%(layer_or_ring),xtitle,'P_{%s} [W]'%('tape')   ,x,ptape     )
     gr['pstave']     = MakeGraph('TotalStavePower'        ,'Stave Power'                               ,xtitle,'P_{%s} [W]'%('stave')         ,x,pstave    )
-    gr['qsensor_headroom'] = MakeGraph('SensorQHeadroom'  ,'Sensor Q Headroom factor'                  ,xtitle,'_{}Q_{S,crit}/Q_{S}'          ,x,qsensor_headroom)
+    gr['qsensor_headroom'] = MakeGraph('SensorQHeadroom'  ,'Sensor Q Headroom factor'                  ,xtitle,'Power headroom factor, _{}Q_{S,crit}/Q_{S}',x,qsensor_headroom)
     gr['tcoolant']   = MakeGraph('CoolantTemperature'     ,'coolant temperature'                       ,xtitle,'T_{%s} [#circ^{}C]'%('coolant'),x,CoolantTemperature.GetTimeStepTc())
 
     dosave = (not hasattr(options,'save') or options.save)
@@ -389,9 +413,11 @@ def CalculateSensorTemperature(options) :
         c.Clear()
         gr[g].Draw('al')
         text.Draw()
+        minzero = PlotUtils.MakePlotMinimumZero(g)
+        forcemin = PlotUtils.GetPlotForcedMinimum(g)
         if g == 'qsensor_headroom' :
             c.SetLogy(True)
-        taxisfunc.AutoFixYaxis(c)
+        taxisfunc.AutoFixYaxis(c,minzero=minzero,forcemin=forcemin)
         if dosave :
             c.Print('%s/%s.eps'%(outputpath,gr[g].GetName()))
         if g == 'qsensor_headroom' :
@@ -416,17 +442,20 @@ def CalculateSensorTemperature(options) :
     pmodule_noHV  = list(pmodule[i] - (pmhv[i] + pmhvr[i]) for i in range(len(pmodule)))
     gr['pmodule_noHV'] = MakeGraph('ModulePower_noHV','Power without HV',xtitle,'P [W]',x,pmodule_noHV)
     pmodule_noHV_noTapeLoss = list(pmodule[i] - (pmhv[i] + pmhvr[i]) - pmtape[i] for i in range(len(pmodule)))
-    gr['pmodule_noHV_noTapeLoss'] = MakeGraph('ModulePower_noHV_NoTapeLoss','Power w/o HV and w/o tape loss',xtitle,'P [W]',x,pmodule_noHV_noTapeLoss)
+    gr_pmodule_noHV_noTapeLoss = MakeGraph('ModulePower_noHV_NoTapeLoss','Power w/o HV and w/o tape loss',xtitle,'P [W]',x,pmodule_noHV_noTapeLoss)
     colors = {'pmodule'                :ROOT.kGreen+1,
               'pmodule_noHV'           :ROOT.kBlue+1,
               'pmodule_noHV_noTapeLoss':ROOT.kRed+1
               }
     leg = ROOT.TLegend(0.50,0.81,0.78,0.94)
     PlotUtils.SetStyleLegend(leg)
-    for i,key in enumerate(['pmodule','pmodule_noHV','pmodule_noHV_noTapeLoss']) :
+    for i,key in enumerate(['pmodule','pmodule_noHV']) :
         gr[key].SetLineColor(colors.get(key))
         gr[key].Draw('l' if i else 'al')
         leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
+    gr_pmodule_noHV_noTapeLoss.SetLineColor(colors.get('pmodule_noHV_noTapeLoss'))
+    gr_pmodule_noHV_noTapeLoss.Draw('l')
+    leg.AddEntry(gr_pmodule_noHV_noTapeLoss,gr_pmodule_noHV_noTapeLoss.GetTitle(),'l')
     leg.Draw()
     text.Draw()
     taxisfunc.AutoFixYaxis(c,minzero=True)
@@ -441,7 +470,7 @@ def CalculateSensorTemperature(options) :
               'thcc'    :ROOT.kRed+1,
               'tfeast'  :ROOT.kOrange+1,
               'teos'    :ROOT.kCyan+1,
-              'tsensor' :ROOT.kGreen,
+              'tsensor' :ROOT.kGreen+1,
               'tcoolant':ROOT.kMagenta+1,
               }
     leg = ROOT.TLegend(0.52,0.69,0.80,0.93)
@@ -467,13 +496,15 @@ def CalculateSensorTemperature(options) :
     leg = ROOT.TLegend(0.57,0.86,0.80,0.93)
     PlotUtils.SetStyleLegend(leg)
     gr_tc_crit = MakeGraph('TcCrit','Critical Tc',xtitle,'T_{coolant} [C]',x,tc_crit)
+    tc_headroom = list(tc_crit[a] - CoolantTemperature.GetTimeStepTc()[a] for a in range(len(tc_crit)))
+    gr['tc_headroom'] = MakeGraph('CoolantTemperatureHeadroom','Coolant Headroom',xtitle,'Headroom T_{C} [C]',x,tc_headroom)
     gr['tcoolant'].Draw('al')
     gr_tc_crit.Draw('l')
     leg.AddEntry(gr['tcoolant'],gr['tcoolant'].GetTitle(),'l')
     leg.AddEntry(gr_tc_crit,gr_tc_crit.GetTitle(),'l')
     leg.Draw()
     text.Draw()
-    taxisfunc.AutoFixYaxis(c,ignorelegend=True)
+    taxisfunc.AutoFixYaxis(c,ignorelegend=False)
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'TemperatureHeadroom'))
 
@@ -510,17 +541,26 @@ def CalculateSensorTemperature(options) :
     leg = ROOT.TLegend(0.61,0.63,0.86,0.93)
     leg.SetName('legend')
     PlotUtils.SetStyleLegend(leg)
-    PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pamac']))
-    PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pabc']))
-    PlotUtils.AddToStack(stack,leg,GraphToHist(extr['phcc']))
-    PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pfeast_abchcc']))
-    PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pfamac']))
-    PlotUtils.AddToStack(stack,leg,GraphToHist(gr['pmtape'])) # fix!!!
-    PlotUtils.AddToStack(stack,leg,GraphToHist(gr['pmhv'])) # HV including the sensor leakage
+    hists = []
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pamac'])))
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pabc'])))
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['phcc'])))
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pfeast_abchcc'])))
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pfamac'])))
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr['pmtape']))) # fix!!!
+    phvresistors  = list(pmhvmux[i] + pmhvr[i] for i in range(len(pmhvmux)))
+    gr_phvresistors = MakeGraph('ModulePower_HVResistors','Power of HV resistors',xtitle,'P [W]',x,phvresistors)
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr_phvresistors))) # HV resistors
+    gr_qsensor = MakeGraph('Qsensor','Sensor Q',xtitle,'P [W]',x,qsensor)
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr_qsensor))) # qsensor
     if max(peos) > 0 :
-        PlotUtils.AddToStack(stack,leg,GraphToHist(gr['peos']))
-    else :
+        hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr['peos'])))
+
+    for h in hists :
+        leg.AddEntry(h,h.GetTitle().replace('power ','').replace('power',''),'f')
+    if max(peos) == 0 :
         leg.AddEntry(0,'','')
+
     stack.Draw('l')
     leg.Draw()
     text.Draw()
@@ -542,28 +582,41 @@ def CalculateSensorTemperature(options) :
         xlist = xlist[:xlist.index(max_coolantT + 45.)]
         ylist = ylist[:len(xlist)]
 
-        tmp_gr = MakeGraph('blah','blah','T_{S} [#circ^{}C]','Q [W]',xlist,ylist)
+        xlist_2 = xlist[:len(ylist)]
+        tmp_gr = MakeGraph('blah','blah','T_{S} [#circ^{}C]','Q [W]',xlist_2,ylist)
 
+        # Now do the ts vs q plot
         ylist_1 = ts_vs_q[index]
         ylist_1 = ylist_1[:len(xlist)]
 
         index_stop = len(ylist_1)
-        too_high = list(ylist_1[i] > ylist[-1] for i in range(len(ylist_1)))
+        #too_high = list(ylist_1[i] > ylist[-1] for i in range(len(ylist_1)))
+        too_high = list(ylist_1[i] > 40 for i in range(len(ylist_1)))
         if True in too_high :
             index_stop = too_high.index(True)
         tmp_gr_1 = MakeGraph('Q(thermal balance)','Q(thermal balance)','T_{S} [#circ^{}C]','Q [W]',xlist[:index_stop],ylist_1[:index_stop])
 
         tmp_gr  .SetLineColor(color)
         tmp_gr_1.SetLineColor(color)
+        tmp_gr_1.SetLineStyle(7)
 
         can.cd()
         drawopt = 'l' if (True in list(issubclass(type(a),ROOT.TGraph) for a in can.GetListOfPrimitives())) else 'al'
         tmp_gr.Draw(drawopt)
         tmp_gr_1.Draw('l')
 
+#         ylist_2 = ts_vs_q_at_crit[index]
+#         index_stop = len(ylist_2)
+#         too_high = list(ylist_2[i] > 40 for i in range(len(ylist_2)))
+#         if True in too_high :
+#             index_stop = too_high.index(True)
+#         tmp_gr_2 = MakeGraph('q_crit','q crit','T_{S} [#circ^{}C]','Q [W]',xlist[:index_stop],ylist_2[:index_stop])
+#         tmp_gr_2.SetLineColor(color)
+#         tmp_gr_2.Draw('l')
+
         legend.AddEntry(tmp_gr,leg_label,'l')
 
-        return tmp_gr,tmp_gr_1
+        return tmp_gr,tmp_gr_1#,tmp_gr_2
 
     c.Clear()
     leg = ROOT.TLegend(0.61,0.80,0.93,0.93)
@@ -576,7 +629,7 @@ def CalculateSensorTemperature(options) :
     if thermal_runaway_index :
         collection.append(PlotQGraph(c,leg,thermal_runaway_index,PlotUtils.ColorPalette()[3],'t = thermal runaway'))
     else :
-        collection.append(PlotQGraph(c,leg,-1           ,PlotUtils.ColorPalette()[2],'t = 0 years' ))
+        collection.append(PlotQGraph(c,leg,-1           ,PlotUtils.ColorPalette()[2],'t = 14 years' ))
     leg.Draw()
 
     taxisfunc.AutoFixYaxis(c)
