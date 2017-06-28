@@ -1,3 +1,6 @@
+2017-06-28 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add TID characterization plots vs time
+
 2017-06-26 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Fix up some plots; add propaganda plots
     * Add operational profile plots for endcaps

@@ -13,6 +13,7 @@ import SafetyFactors
 import PoweringEfficiency
 import CoolantTemperature
 import ThermalImpedances
+import AbcTidBump
 import PlotUtils
 from PlotUtils import MakeGraph
 import TAxisFunctions as taxisfunc
@@ -68,6 +69,12 @@ def CalculateSensorTemperature(options) :
     qsensor    = [] # sensor Q
     qsensor_headroom = [] # Sensor Qleakage headroom factor
     tc_crit = [] # Critical coolant temperature
+    tid_sf_abc = [] # scale factor vs time (ABC)
+    tid_sf_hcc = [] # scale factor vs time (HCC)
+    tid_bump_abc = [] # TID bump vs time (ABC)
+    tid_bump_hcc = [] # TID bump vs time (HCC)
+    tid_shape = [] # TID shape vs time (ABC)
+    # if you add a list here, then be sure to add it to the "if thermal_runaway" list
 
     # "Initialize temperatures"
 
@@ -192,7 +199,8 @@ def CalculateSensorTemperature(options) :
 
         if thermal_runaway :
             for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,pmtape,pmhv,isensor,pmhvr,
-                           powertotal,phvtotal,pmhvmux,itape,idig,ifeast,efffeast,ptape,pstave,qsensor] :
+                           powertotal,phvtotal,pmhvmux,itape,idig,ifeast,efffeast,ptape,pstave,qsensor,
+                           tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
             qsensor_headroom.append(0.1)
             tc_crit.append(Tcoolant_i)
@@ -287,9 +295,14 @@ def CalculateSensorTemperature(options) :
 
         # ABC Power (all n ABCs)
         pabc.append(NominalPower.Pabc(tabc[i],doserate_i,tid_dose_i))
+        tid_sf_abc.append(AbcTidBump.tid_scale_overall_fit_function.Eval(tabc[i],doserate_i))
+        tid_bump_abc.append(AbcTidBump.tid_scale_combined_factor(tabc[i],doserate_i,tid_dose_i))
+        tid_shape.append(1+AbcTidBump.tid_scale_shape(tid_dose_i)*0.45)
 
         # HCC power (all n HCCs)
         phcc.append(NominalPower.Phcc(thcc[i],doserate_i,tid_dose_i))
+        tid_sf_hcc.append(AbcTidBump.tid_scale_overall_fit_function.Eval(thcc[i],doserate_i))
+        tid_bump_hcc.append(AbcTidBump.tid_scale_combined_factor(thcc[i],doserate_i,tid_dose_i))
 
         # EOS Power
         peos.append(NominalPower.eosP(teos[i]))
@@ -382,6 +395,10 @@ def CalculateSensorTemperature(options) :
     gr['pstave']     = MakeGraph('TotalStavePower'        ,'Stave Power'                               ,xtitle,'P_{%s} [W]'%('stave')         ,x,pstave    )
     gr['qsensor_headroom'] = MakeGraph('SensorQHeadroom'  ,'Sensor Q Headroom factor'                  ,xtitle,'Power headroom factor, _{}Q_{S,crit}/Q_{S}',x,qsensor_headroom)
     gr['tcoolant']   = MakeGraph('CoolantTemperature'     ,'coolant temperature'                       ,xtitle,'T_{%s} [#circ^{}C]'%('coolant'),x,CoolantTemperature.GetTimeStepTc())
+    gr['tid_sf_abc'] = MakeGraph('ABCTidBumpScaleFactor'  ,'ABC TID bump scale factor'                 ,xtitle,'scale factor'                 ,x,tid_sf_abc)
+    gr['tid_sf_hcc'] = MakeGraph('HCCTidBumpScaleFactor'  ,'HCC TID bump scale factor'                 ,xtitle,'scale factor'                 ,x,tid_sf_hcc)
+    gr['tid_bump_abc'] = MakeGraph('ABCTidBump'           ,'ABC TID bump'                              ,xtitle,'scale factor #times shape'    ,x,tid_bump_abc)
+    gr['tid_bump_hcc'] = MakeGraph('HCCTidBump'           ,'HCC TID bump'                              ,xtitle,'scale factor #times shape'    ,x,tid_bump_hcc)
 
     dosave = (not hasattr(options,'save') or options.save)
 
@@ -431,6 +448,7 @@ def CalculateSensorTemperature(options) :
     extr['pfeast']        = MakeGraph('FeastPower'             ,'FEAST power'                               ,xtitle,'P_{%s} [W]'%('FEAST' )        ,x,pfeast    )
     extr['pfeast_abchcc'] = MakeGraph('FeastPower_ABC_HCC'     ,'FEAST power (HCC,ABC)'                     ,xtitle,'P_{%s} [W]'%('FEAST' )        ,x,pfeast_abchcc)
     extr['pfamac']        = MakeGraph('FeastPower_AMAC'        ,'FEAST power (AMAC)'                        ,xtitle,'P_{%s} [W]'%('FEAST' )        ,x,pfamac    )
+    extr['tid_shape']     = MakeGraph('TID_Shape'              ,'TID shape #times 1.45'                     ,xtitle,'shape'                        ,x,tid_shape )
 
     # Kurt, put any extra plots here
 
@@ -702,6 +720,54 @@ def CalculateSensorTemperature(options) :
 
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'QrefVersusTs'))
+
+    #
+    # TID Characterization vs time
+    #
+    c.Clear()
+    leg = ROOT.TLegend(0.52,0.76,0.84,0.93)
+    PlotUtils.SetStyleLegend(leg)
+    extr['tid_shape'].Draw('al')
+    leg.AddEntry(extr['tid_shape'],extr['tid_shape'].GetTitle(),'l')
+    for i,g in enumerate(['tid_bump_abc','tid_bump_hcc','tid_sf_abc','tid_sf_hcc']) :
+        gr[g].SetLineColor(PlotUtils.ColorPalette()[i%2+1])
+        if i > 1 :
+            gr[g].SetLineStyle(7)
+        gr[g].Draw('l')
+        leg.AddEntry(gr[g],gr[g].GetTitle(),'l')
+    leg.Draw()
+    text.Draw()
+    taxisfunc.AutoFixYaxis(c)
+    if dosave :
+        c.Print('%s/%s.eps'%(outputpath,'TIDBumpCharacterization'))
+
+    #
+    # TID Characterization vs dose
+    #
+    c.Clear()
+    leg = ROOT.TLegend(0.52,0.76,0.84,0.93)
+    PlotUtils.SetStyleLegend(leg)
+    gr_vdose = dict()
+    xtitle_dose = 'Integrated dose [MRad]'
+    x_dose = list(a/1000. for a in OperationalProfiles.tid_dose[1:])
+    gr_vdose['tid_shape']    = MakeGraph('TID_ShapeVsDose'            ,'TID shape #times 1.45'    ,xtitle_dose,'shape',x_dose,tid_shape)
+    gr_vdose['tid_sf_abc']   = MakeGraph('ABCTidBumpScaleFactorVsDose','ABC TID bump scale factor',xtitle_dose,'shape',x_dose,tid_sf_abc)
+    gr_vdose['tid_sf_hcc']   = MakeGraph('HCCTidBumpScaleFactorVsDose','HCC TID bump scale factor',xtitle_dose,'shape',x_dose,tid_sf_hcc)
+    gr_vdose['tid_bump_abc'] = MakeGraph('ABCTidBumpVsDose'           ,'ABC TID bump'             ,xtitle_dose,'shape',x_dose,tid_bump_abc)
+    gr_vdose['tid_bump_hcc'] = MakeGraph('HCCTidBumpVsDose'           ,'HCC TID bump'             ,xtitle_dose,'shape',x_dose,tid_bump_hcc)
+    gr_vdose['tid_shape'].Draw('al')
+    leg.AddEntry(extr['tid_shape'],extr['tid_shape'].GetTitle(),'l')
+    for i,g in enumerate(['tid_bump_abc','tid_bump_hcc','tid_sf_abc','tid_sf_hcc']) :
+        gr_vdose[g].SetLineColor(PlotUtils.ColorPalette()[i%2+1])
+        if i > 1 :
+            gr_vdose[g].SetLineStyle(7)
+        gr_vdose[g].Draw('l')
+        leg.AddEntry(gr_vdose[g],gr_vdose[g].GetTitle(),'l')
+    leg.Draw()
+    text.Draw()
+    taxisfunc.AutoFixYaxis(c)
+    if dosave :
+        c.Print('%s/%s.eps'%(outputpath,'TIDBumpCharacterizationVsDose'))
 
     # Kurt, put any extra plots here -- End.
 
