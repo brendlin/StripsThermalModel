@@ -1,29 +1,29 @@
 #
 # FrontEndComponents (before irradiation)
 #
-
+import Config
 import SafetyFactors
 
 # ABC and Hybrid Controller chips fabricated in 130 nm process
 # known to suffer from increase in digital current due to ionizing radiation
-hybridV = 1.5
+hybridV = Config.GetDouble('FrontEndComponents.hybridV',1.5,unit='V')
 
 # HCC digital
-hccId = 0.125 * (1 + SafetyFactors.safetycurrent)
+hccId = Config.GetDouble('FrontEndComponents.hccId',0.125,unit='A') * (1 + SafetyFactors.safetycurrent)
 
 # HCC analog
-hccIa = 0.075 * (1 + SafetyFactors.safetycurrent)
+hccIa = Config.GetDouble('FrontEndComponents.hccIa',0.075,unit='A') * (1 + SafetyFactors.safetycurrent)
 
 # ABC digital
-abcId = 0.035 * (1 + SafetyFactors.safetycurrent)
+abcId = Config.GetDouble('FrontEndComponents.abcId',0.035,unit='A') * (1 + SafetyFactors.safetycurrent)
 
 # ABC analog
-abcIa = 0.066 * (1 + SafetyFactors.safetycurrent)
+abcIa = Config.GetDouble('FrontEndComponents.abcIa',0.066,unit='A') * (1 + SafetyFactors.safetycurrent)
 
 # AMACII chip
 amac15V     = 1.5
-amac15I     = 0.045 * (1 + SafetyFactors.safetycurrent)
+amac15I     = Config.GetDouble('FrontEndComponents.amac15I',0.045,unit='A') * (1 + SafetyFactors.safetycurrent)
 #amac15eff   = 0.65
 amac3V      = 3.0
-amac3I      = 0.002 * (1 + SafetyFactors.safetycurrent)
+amac3I      = Config.GetDouble('FrontEndComponents.amac3I',0.002,unit='A') * (1 + SafetyFactors.safetycurrent)
 #amac3eff    = 0.65

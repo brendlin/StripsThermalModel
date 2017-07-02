@@ -40,8 +40,6 @@ def main(options,args):
     if not Config.Defined('OperationalProfiles.tid_in_3000fb') :
         Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(options.config))
 
-    Config.Print()
-
     print 'importing modules'
     import python.GlobalSettings      as GlobalSettings
     import python.SafetyFactors       as SafetyFactors
@@ -60,6 +58,8 @@ def main(options,args):
     import python.SensorTemperatureCalc as SensorTemperatureCalc
     import python.CoolantTemperature  as CoolantTemperature
     print 'importing modules done.'
+
+    Config.Print()
 
     # Add some output directory specifications
     coolingtag = PlotUtils.GetCoolingOutputTag(CoolantTemperature.cooling)

@@ -93,18 +93,19 @@ def MakeGraph(name,title,xtitle,ytitle,xlist,ylist,xerrlist=None,yerrlist=None) 
     return graph
 
 def GetCoolingOutputTag(cooling_option) :
+    if 'flat' in cooling_option :
+        return cooling_option.replace('flat','flat_').replace('-','m')
     outputtag = {
-        'flat-25':'flat_m25',
-        'flat-35':'flat_m35',
         'ramp-25':'ramp_m25',
         'ramp-35':'ramp_m35'
         }.get(cooling_option,'unknownScenario')
     return outputtag
 
 def GetCoolingScenarioLabel(cooling_option) :
+    if 'flat' in cooling_option :
+        temp = int(cooling_option.replace('flat',''))
+        return ('Flat %s#circ cooling scenario'%(temp)).replace('-','#minus')
     scenariolabel = {
-        'flat-25':'Flat #minus25#circ cooling scenario',
-        'flat-35':'Flat #minus35#circ cooling scenario',
         'ramp-25':'Ramp #minus25#circ cooling scenario',
         'ramp-35':'Ramp #minus35#circ cooling scenario',
         }.get(cooling_option,'unknown cooling scenario')

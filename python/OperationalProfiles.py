@@ -27,14 +27,16 @@ for i in range(GlobalSettings.nstep) :
 
 # Accumulated flux at end of each year for each barrel
 # in neq/cm2 for the four barrels for 3000 fb-1, calculated by Paul Miyagawa for layout 5.01
-totalflux = Config.GetDouble('OperationalProfiles.totalflux') * (1 + SafetyFactors.safetyfluence)
+flux_description = 'Total flux in 3000 fb$^{-1}$ of collected data'
+totalflux = Config.GetDouble('OperationalProfiles.totalflux',unit='$n_\text{eq}/$cm$^2$',description=flux_description) * (1 + SafetyFactors.safetyfluence)
 
 # Flux
 flux_list = list( (totalflux/3000.) * a for a in lumiramp )
 
 # Total dose rates at representative strip system locations
 # From ref. xxx total TID in kRad for an integrated luminosity of 3000fb^-1 for the four barrels, calculated by Paul Miyagawa for layout 5.01
-tid_in_3000fb = Config.GetDouble('OperationalProfiles.tid_in_3000fb') * (1 + SafetyFactors.safetyfluence)
+tid_description = 'TID in 3000 fb$^{-1}$ of collected data'
+tid_in_3000fb = Config.GetDouble('OperationalProfiles.tid_in_3000fb',unit='Rad',description=tid_description) * (1 + SafetyFactors.safetyfluence)
 
 tid_dose = list( (tid_in_3000fb/3000.) * a for a in lumiramp )
 

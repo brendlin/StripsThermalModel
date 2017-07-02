@@ -102,6 +102,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         leg = ROOT.TLegend(0.57,0.69,0.91,0.93)
         PlotUtils.SetStyleLegend(leg)
         for i,g in enumerate(graphs) :
+            if i :
+                g.SetName('%s_%d'%(g.GetName(),i))
             g.SetLineColor(colors.get(names[i][:2],PlotUtils.ColorPalette()[i]))
             if options.endcap :
                 g.SetLineStyle(styles.get(names[i][2:],1))

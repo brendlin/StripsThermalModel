@@ -85,10 +85,11 @@ def main(options,args):
 
         # Loop over the layers:
         for conf in config_files :
-            Config.SetConfigFile('%s/data/%s'%(the_path,conf))
+            Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
             if not Config.Defined('cooling') :
                 Config.SetValue('cooling',options.cooling)
             Config.ReloadAllPythonModules()
+            Config.Print()
 
             results.append(SensorTemperatureCalc.CalculateSensorTemperature(options))
 
@@ -109,8 +110,8 @@ def main(options,args):
                 if not Config.Defined('cooling') :
                     Config.SetValue('cooling',options.cooling)
                 print 'CALCULATING Ring %d Disk %d (%s):'%(ring,disk,Config.GetName())
-                Config.Print()
                 Config.ReloadAllPythonModules()
+                Config.Print()
 
                 results.append(SensorTemperatureCalc.CalculateSensorTemperature(options))
                 structure_names.append('R%dD%d'%(ring,disk))

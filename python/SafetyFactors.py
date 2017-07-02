@@ -3,22 +3,22 @@
 #
 import Config
 
-safetylayout = 0.0           # Safety factor on layout (number of channels,layers etc.)
-if Config.Defined('SafetyFactors.safetylayout') :
-    safetylayout = Config.GetDouble('SafetyFactors.safetylayout')
+# Safety factor on layout (number of channels,layers etc.)
+safetylayout_descr = 'For barrel only -- not used anymore'
+safetylayout = Config.GetDouble('SafetyFactors.safetylayout',0.0,description=safetylayout_descr)
 
-safetyfluence = 0.5          # safety factor on fluence (calculations, machine predictions etc.)
-if Config.Defined('SafetyFactors.safetyfluence') :
-    safetyfluence = Config.GetDouble('SafetyFactors.safetyfluence')
+# safety factor on fluence (calculations, machine predictions etc.)
+safetyfluence_descr = 'Fractional safety factor increase over 3935 fb$^{-1}$'
+safetyfluence = Config.GetDouble('SafetyFactors.safetyfluence',0.0,description=safetyfluence_descr)
 
-safetythermalimpedance = 0.2 # Safety factor on thermal impedance of local support
-if Config.Defined('SafetyFactors.safetythermalimpedance') :
-    safetythermalimpedance = Config.GetDouble('SafetyFactors.safetythermalimpedance')
+# Safety factor on thermal impedance of local support
+safetythermal_descr = 'Fractional thermal impedance safety factor increase'
+safetythermalimpedance = Config.GetDouble('SafetyFactors.safetythermalimpedance',0.0,description=safetythermal_descr)
 
-safetycurrent = 0.2          # Safety factor on electrical power estimates
-if Config.Defined('SafetyFactors.safetycurrent') :
-    safetycurrent = Config.GetDouble('SafetyFactors.safetycurrent')
+# Safety factor on electrical power estimates
+safetycurrent_descr = 'Fractional current safety factor increase'
+safetycurrent = Config.GetDouble('SafetyFactors.safetycurrent',0.0,description=safetycurrent_descr)
 
-vbiasscale = 1.              # Scale factor for bias voltage (default is 500V)
-if Config.Defined('SafetyFactors.vbiasscale') :
-    vbiasscale = Config.GetDouble('SafetyFactors.vbiasscale')
+# Scale factor for bias voltage (default is 500V)
+vbiasscale_descr = 'HV safety factor -- multiply 500V by this number'
+vbiasscale = Config.GetDouble('SafetyFactors.vbiasscale',1.,description=vbiasscale_descr)

@@ -20,7 +20,7 @@ def GetTimeStepTc() :
 
 # Coolant temperature in Celsius in each year for 14 y of operation
 # Must be defined before loading the module.
-cooling = Config.GetStr('cooling')
+cooling = Config.GetStr('cooling','flat-35',unit='$^{\circ}$C')
 
 if 'flat' in cooling :
     temp = float(cooling.replace('flat',''))
@@ -34,6 +34,10 @@ elif cooling == 'ramp-25' :
 elif cooling == 'ramp-35' :
     print 'Setting cooling to \"ramp-35\" (ramping down to -35 C)'
     internal_coolantT[0] = [   0,  -5, -10, -15, -15, -20, -20, -25, -30, -35, -35, -35, -35, -35 ]
+
+elif cooling == 'special' :
+    print 'Setting cooling to \"special\" (see CoolantTemperature.py)'
+    internal_coolantT[0] = [   0,   0, -20, -20, -20, -35, -35, -35, -35, -35, -35, -35, -35, -35 ]
 
 else :
     print 'Error! cooling is set incorrectly in Config file ("cooling") or by command line (--cooling).'

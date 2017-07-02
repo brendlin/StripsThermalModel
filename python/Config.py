@@ -1,8 +1,12 @@
 
 import ROOT
+import TableUtils
 
 internal_config = ROOT.TEnv()
 confname = ['None']
+units = dict()
+descriptions = dict()
+is_default = dict()
 
 def GetName() :
     return confname[0]
@@ -40,15 +44,28 @@ def EnsureDefined(key) :
         print 'Error! \"%s\" is not defined in %s! Exiting.'%(key,internal_config.GetName())
         import sys; sys.exit()
 
-def GetDouble(key) :
+def ProcessExtraDetails(key,ValueIfNotInConfig=None,unit=None,description=None) :
+    if description != None :
+        descriptions[key] = description
+    if unit != None :
+        units[key] = unit
+    if (ValueIfNotInConfig != None) and (not Defined(key)) :
+        SetValue(key,ValueIfNotInConfig)
+        is_default[key] = True
+    return
+
+def GetDouble(key,ValueIfNotInConfig=None,unit=None,description=None) :
+    ProcessExtraDetails(key,ValueIfNotInConfig=ValueIfNotInConfig,unit=unit,description=description)
     EnsureDefined(key)
     return internal_config.GetValue(key,-99.9)
 
-def GetInt(key) :
+def GetInt(key,ValueIfNotInConfig=None,unit=None,description=None) :
+    ProcessExtraDetails(key,ValueIfNotInConfig=ValueIfNotInConfig,unit=unit,description=description)
     EnsureDefined(key)
     return internal_config.GetValue(key,1)
 
-def GetStr(key) :
+def GetStr(key,ValueIfNotInConfig=None,unit=None,description=None) :
+    ProcessExtraDetails(key,ValueIfNotInConfig=ValueIfNotInConfig,unit=unit,description=description)
     EnsureDefined(key)
     return internal_config.GetValue(key,'none')
 
@@ -57,7 +74,29 @@ def SetValue(name,value) :
     return
 
 def Print() :
-    internal_config.Print()
+    #internal_config.Print()
+    the_lists = []
+    the_lists.append(['Configurable Item','Description','Value','Unit'])
+
+    the_configs_default = []
+    the_configs_set = []
+    for i in range(internal_config.GetTable().GetSize()) :
+        tenvrec = internal_config.GetTable().At(i)
+        nm = tenvrec.GetName()
+        if nm in is_default.keys() and is_default[nm] :
+            the_configs_default.append(nm)
+        else :
+            the_configs_set.append(nm)
+
+    for nm in sorted(the_configs_set) + sorted(the_configs_default) :
+        the_lists.append([])
+        value = internal_config.GetValue(nm,'')
+        the_lists[-1].append(nm)
+        the_lists[-1].append(descriptions.get(nm,'--'))
+        the_lists[-1].append(value)
+        the_lists[-1].append(units.get(nm,'--'))
+
+    print TableUtils.PrintLatexTable(the_lists,justs='llrl')
     return
 
 # For reloading python module, in case e.g. the config file changed.

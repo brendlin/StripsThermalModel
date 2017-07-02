@@ -104,8 +104,8 @@ def main(options,args):
         if not Config.Defined('OperationalProfiles.tid_in_3000fb') :
             Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(conf))
 
-        Config.Print()
         Config.ReloadAllPythonModules()
+        Config.Print()
 
         results.append(SensorTemperatureCalc.CalculateSensorTemperature(options))
         structure_names.append(name)

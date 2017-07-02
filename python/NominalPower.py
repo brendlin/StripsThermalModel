@@ -19,7 +19,8 @@ import AbcTidBump
 # Module power (including powering efficiency)
 # General parameters
 
-Rtape = 0.01 # tape resistance is 0.01 Ohm per module worst case
+Rtape_descr = 'tape resistance is 0.01 $\Omega$ per module worst case'
+Rtape = Config.GetDouble('NominalPower.Rtape',0.01,unit='$\Omega$',description=Rtape_descr)
 Pamac = (FrontEndComponents.amac15V * FrontEndComponents.amac15I + FrontEndComponents.amac3V * FrontEndComponents.amac3I) * (1 + SafetyFactors.safetycurrent)
 
 # Power in the FEAST chip due to AMAC supply
@@ -41,9 +42,7 @@ ngbld  = Config.GetInt('NominalPower.ngbld')
 ngbtia = Config.GetInt('NominalPower.ngbtia')
 
 # nfeast in the module. To be used in determining the FEAST efficiency due to possible reduction in current
-nfeast = 1
-if Config.Defined('NominalPower.nfeast') :
-    nfeast = Config.GetInt('NominalPower.nfeast')
+nfeast = Config.GetInt('NominalPower.nfeast',1)
 
 # Short strip module
 # module Short strip
