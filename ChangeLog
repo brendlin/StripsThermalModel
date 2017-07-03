@@ -2,6 +2,7 @@
     * Add output tables for endcap ExtendRunModel
     * Some other small changes
     * Consolidate "configuration by command-line" treatment
+    * Add SafetyFactor command-line
 
 2017-07-02 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Make most values configurable

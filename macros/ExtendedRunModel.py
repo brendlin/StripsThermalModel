@@ -11,6 +11,7 @@ ROOT.gROOT.SetBatch(True)
 
 import python.PlotUtils as PlotUtils
 import python.FluxAndTidParameterization as FluxAndTidParameterization
+import python.Config as Config
 
 def usage() :
     print "Usage:\n"
@@ -46,7 +47,6 @@ def main(options,args):
         structure_names = []
 
     # Config must be loaded before loading any other module.
-    import python.Config as Config
     Config.SetConfigFile('%s/data/%s'%(the_path,config_files[0]),doprint=False)
     Config.SetMissingConfigsUsingCommandLine(options,config_files[0])
 
@@ -134,10 +134,10 @@ if __name__ == '__main__':
 
     from optparse import OptionParser
     p = OptionParser()
-    p.add_option('--cooling',type='string',default='',dest='cooling',help='Cooling scheme (\"-flat25\",\"-flat35\",\"ramp-25\",\"ramp-35\").')
     p.add_option('--barrel',action='store_true',default=False,dest='barrel',help='Run the barrel')
     p.add_option('--endcap',action='store_true',default=False,dest='endcap',help='Run the barrel')
     p.add_option('--outdir',type='string',default='',dest='outdir',help='Output directory')
+    Config.AddConfigurationOptions(p)
 
     options,args = p.parse_args()
 

@@ -11,6 +11,7 @@ ROOT.gROOT.SetBatch(True)
 
 import python.PlotUtils as PlotUtils
 import python.FluxAndTidParameterization as FluxAndTidParameterization
+import python.Config as Config
 
 def usage() :
     print "Usage:\n"
@@ -27,7 +28,6 @@ def main(options,args):
     PlotUtils.ApplyGlobalStyle()
 
     # Config must be loaded before loading any other module.
-    import python.Config as Config
     Config.SetConfigFile('%s/data/%s'%(the_path,options.config),doprint=False)
     Config.SetMissingConfigsUsingCommandLine(options)
 
@@ -75,9 +75,9 @@ if __name__ == '__main__':
 
     from optparse import OptionParser
     p = OptionParser()
-    p.add_option('--cooling',type='string',default='',dest='cooling',help='Cooling scheme (\"-flat25\",\"-flat35\",\"ramp-25\",\"ramp-35\").')
     p.add_option('--config' ,type='string',default='Barrel_SS_B1.config',dest='config',help='Configuration file -- please make sure it is put in the data/ directory')
     p.add_option('--outdir',type='string',default='',dest='outdir',help='Output directory')
+    Config.AddConfigurationOptions(p)
 
     options,args = p.parse_args()
     

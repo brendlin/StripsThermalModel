@@ -11,6 +11,7 @@ ROOT.gROOT.SetBatch(True)
 
 import python.PlotUtils as PlotUtils
 import python.FluxAndTidParameterization as FluxAndTidParameterization
+import python.Config as Config
     
 #-----------------------------------------------
 def FindAutoLabel(config,nom) :
@@ -52,7 +53,6 @@ def main(options,args):
     nominal_config = options.configs.split(',')[0]
 
     # Config must be loaded before loading any other module.
-    import python.Config as Config
     Config.SetConfigFile('%s/data/%s'%(the_path,nominal_config),doprint=False)
     Config.SetMissingConfigsUsingCommandLine(options,nominal_config)
 
@@ -122,11 +122,11 @@ if __name__ == '__main__':
 
     from optparse import OptionParser
     p = OptionParser()
-    p.add_option('--cooling',type='string',default='flat-35',dest='cooling',help='Cooling scheme (\"-flat25\",\"-flat35\",\"ramp-25\",\"ramp-35\").')
     p.add_option('--configs',type='string',default='Endcap_R3.config',dest='configs',help='Configuration files (comma-separated) -- please make sure they are in the data/ directory')
     p.add_option('--labels',type='string',default='',dest='labels',help='Configuration labels (comma-separated)')
     p.add_option('--outdir',type='string',default='Comparison',dest='outdir',help='Output directory')
     p.add_option('--autolabel',action='store_true',default=False,dest='autolabel',help='Auto-labeling')
+    Config.AddConfigurationOptions(p)
 
     options,args = p.parse_args()
 

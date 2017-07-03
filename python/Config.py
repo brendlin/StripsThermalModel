@@ -135,20 +135,31 @@ def ReloadAllPythonModules() :
     # do not need to reload TAxisFunctions, __init__, Config (maybe obviously)
 
     return
+# --------------------------------
+def AddConfigurationOptions(opt_parser) :
+    opt_parser.add_option('--cooling',type='string',default=None,dest='cooling',help='Cooling scheme (\"-flat25\",\"-flat35\",\"ramp-25\",\"ramp-35\").')
+    opt_parser.add_option('--safetyi',type='float' ,default=None,dest='safetyi',help='Current safety factor (default is 0.0)')
+    opt_parser.add_option('--safetyr',type='float' ,default=None,dest='safetyr',help='Thermal resistance safety factor (default is 0.0)')
+    opt_parser.add_option('--safetyf',type='float' ,default=None,dest='safetyf',help='Flux safety factor (default is 0.0)')
+    return
 
+# --------------------------------
 def SetMissingConfigsUsingCommandLine(options,config='') :
 
     if not config and  options.config :
         config = options.config
 
-    # If "cooling" is not defined in the config file, define it using the command-line argument
-    if not Defined('cooling') :
-        SetValue('cooling',options.cooling)
+    # If "key" is not defined in the config file, define it using the command-line argument
+    value_to_set = {'cooling'                          : options.cooling,
+                    'OperationalProfiles.totalflux'    : FluxAndTidParameterization.GetMaxFlux(config),
+                    'OperationalProfiles.tid_in_3000fb': FluxAndTidParameterization.GetMaxTID(config),
+                    'SafetyFactors.safetycurrent'          : options.safetyi,
+                    'SafetyFactors.safetythermalimpedance' : options.safetyr,
+                    'SafetyFactors.safetyfluence'          : options.safetyf,
+                    }
 
-    if not Defined('OperationalProfiles.totalflux') :
-        SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(config))
-
-    if not Defined('OperationalProfiles.tid_in_3000fb') :
-        SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(config))
+    for k in value_to_set.keys() :
+        if not Defined(k) and (value_to_set[k] != None) :
+            SetValue(k,value_to_set[k])
 
     return
