@@ -138,9 +138,8 @@ def CalculateSensorTemperature(options) :
         lhs = SensorLeakage.qref[i]
         static_qref.append(lhs*1000./SensorProperties.area) # sensor leakage modeling
 
-        ts_step = 5 # steps per degree
-        for ts_i,ts in enumerate(range(ts_step*(-35),60*ts_step)) :
-            ts = ts/float(ts_step)
+        for ts_i,ts in enumerate(range(GlobalSettings.ts_step*(-35),GlobalSettings.ts_step*60)) :
+            ts = ts/float(GlobalSettings.ts_step)
 
             # sensor current at this temperature ts
             isensor_i = Temperatures.unref(SensorLeakage.qref[i],ts)/float(SensorProperties.vbias)
@@ -244,8 +243,8 @@ def CalculateSensorTemperature(options) :
             qsensor_headroom[0] = qsensor_headroom[1]
 
         # propaganda: Ts vs Q at critical point (multiplied by headroom factor)
-        for ts_i,ts in enumerate(range(ts_step*(-35),60*ts_step)) :
-            ts = ts/float(ts_step)
+        for ts_i,ts in enumerate(range(GlobalSettings.ts_step*(-35),GlobalSettings.ts_step*60)) :
+            ts = ts/float(GlobalSettings.ts_step)
             ts_vs_q_at_crit[-1].append(Temperatures.unref(SensorLeakage.qref[i]*qsensor_headroom[-1],ts))
 
         # Stuff that is useful for later on
@@ -382,7 +381,7 @@ def CalculateSensorTemperature(options) :
     gr['pmodule']    = MakeGraph('ModulePower'            ,'Module Power'                              ,xtitle,'P_{%s} [W]'%('module')        ,x,pmodule   )
     gr['pmtape']     = MakeGraph('TapePower'              ,'Tape power loss'                           ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,pmtape    )
     gr['pmhv']       = MakeGraph('HVPower'                ,'Total HV power'                            ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,pmhv      )
-    gr['isensor']    = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current'                  ,xtitle,'I_{%s} [A]'%('sensor')        ,x,isensor   )
+    gr['isensor']    = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current'                  ,xtitle,'I_{%s} [mA]'%('sensor')       ,x,list(isensor[a]*1000. for a in range(len(isensor))))
     gr['pmhvr']      = MakeGraph('HVPowerSerialResistors' ,'HV Power serial resistors'                 ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,pmhvr     )
     gr['powertotal'] = MakeGraph('SummaryTotalPower'      ,'Total Power in %s'%(substructure_name)     ,xtitle,'P_{%s} [kW]'%('Total')        ,x,powertotal)
     gr['phvtotal']   = MakeGraph('SummaryTotalHVPower'    ,'Total HV Power (sensor + resistors) in %s'%(substructure_name),xtitle,'P_{%s} [kW]'%('HV'),x,phvtotal)

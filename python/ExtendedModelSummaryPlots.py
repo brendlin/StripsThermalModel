@@ -6,6 +6,7 @@ from PlotUtils import MakeGraph
 import TAxisFunctions as taxisfunc
 import GlobalSettings
 import CoolantTemperature
+import TableUtils
 from array import array
 
 colors = {'B1':ROOT.kGreen,
@@ -158,5 +159,46 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
         if plotname in ['qsensor_headroom'] :
             c.SetLogy(False)
+
+    return
+
+#--------------------------------------------
+def ProcessSummaryTables_Endcap(result_dicts,names,options) :
+
+    for name in ['tsensor','isensor'] :
+        header = '\multicolumn{8}{|c|}{%s at year 14 (%s)}\\\\ \hline'%(result_dicts[0][name].GetTitle(),result_dicts[0][name].GetYaxis().GetTitle())
+        disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}'
+        the_lists = []
+        the_lists.append(['','','0','1','2','3','4','5'])
+
+        nsigfig = 0
+        for ring in range(5,-1,-1) :
+            the_lists.append([])
+            the_lists[-1].append('')
+            the_lists[-1].append('%d'%(ring))
+            for disk in range(6) :
+                index = names.index('R%dD%d'%(ring,disk))
+                gr_tsensor = result_dicts[index][name]
+                n_tsensor = gr_tsensor.GetN()
+                eol_tsensor = gr_tsensor.GetY()[n_tsensor-1]
+                result = '%.5g'%(eol_tsensor)
+                the_lists[-1].append(result)
+                if '.' not in result :
+                    nsigfig = max(0,nsigfig)
+                else :
+                    nsigfig = max(len(result.split('.')[-1]),nsigfig)
+
+        for i in range(1,len(the_lists)) :
+            for j in range(2,len(the_lists[i])) :
+                try :
+                    num = float(the_lists[i][j])
+                    the_lists[i][j] = '%.*f'%(nsigfig-2,num)
+                except :
+                    pass
+
+        table = TableUtils.PrintLatexTable(the_lists)
+        table = table[:table.index('\n')+1] + disk_ring_labels + table[table.index('\n'):]
+        table = table[:table.index('\n')+1] + header + table[table.index('\n'):]
+        print table
 
     return
