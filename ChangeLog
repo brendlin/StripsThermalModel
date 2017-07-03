@@ -1,6 +1,7 @@
 2017-07-03 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Add output tables for endcap ExtendRunModel
     * Some other small changes
+    * Consolidate "configuration by command-line" treatment
 
 2017-07-02 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Make most values configurable

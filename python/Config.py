@@ -1,5 +1,6 @@
 
 import ROOT
+import FluxAndTidParameterization
 import TableUtils
 
 internal_config = ROOT.TEnv()
@@ -132,5 +133,22 @@ def ReloadAllPythonModules() :
     ReloadPythonModule('python.NominalPower'             ) # SensorProperties Config SafetyFactors Layout FrontEndComponents EOSComponents (GlobalSettings PoweringEfficiency AbcTidBump CableLosses)
     ReloadPythonModule('python.SensorTemperatureCalc'    ) # SensorProperties Config SafetyFactors Layout Temperatures NominalPower SensorLeakage OperationalProfiles CoolantTemperature PlotUtils (GlobalSettings PoweringEfficiency AbcTidBump)
     # do not need to reload TAxisFunctions, __init__, Config (maybe obviously)
+
+    return
+
+def SetMissingConfigsUsingCommandLine(options,config='') :
+
+    if not config and  options.config :
+        config = options.config
+
+    # If "cooling" is not defined in the config file, define it using the command-line argument
+    if not Defined('cooling') :
+        SetValue('cooling',options.cooling)
+
+    if not Defined('OperationalProfiles.totalflux') :
+        SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(config))
+
+    if not Defined('OperationalProfiles.tid_in_3000fb') :
+        SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(config))
 
     return

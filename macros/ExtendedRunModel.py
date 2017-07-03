@@ -48,14 +48,7 @@ def main(options,args):
     # Config must be loaded before loading any other module.
     import python.Config as Config
     Config.SetConfigFile('%s/data/%s'%(the_path,config_files[0]),doprint=False)
-
-    # If "cooling" is not defined in the config file, define it using the command-line argument
-    if not Config.Defined('cooling') :
-        Config.SetValue('cooling',options.cooling)
-
-    if options.endcap :
-        Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetFlux(0,0))
-        Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetTID(0,0))
+    Config.SetMissingConfigsUsingCommandLine(options,config_files[0])
 
     print 'importing modules'
     import python.GlobalSettings      as GlobalSettings
@@ -86,8 +79,7 @@ def main(options,args):
         # Loop over the layers:
         for conf in config_files :
             Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
-            if not Config.Defined('cooling') :
-                Config.SetValue('cooling',options.cooling)
+            Config.SetMissingConfigsUsingCommandLine(options,conf)
             Config.ReloadAllPythonModules()
             Config.Print()
 
@@ -107,8 +99,7 @@ def main(options,args):
             for disk in range(6) :
                 Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetFlux(ring,disk))
                 Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetTID(ring,disk))
-                if not Config.Defined('cooling') :
-                    Config.SetValue('cooling',options.cooling)
+                Config.SetMissingConfigsUsingCommandLine(options,conf)
                 print 'CALCULATING Ring %d Disk %d (%s):'%(ring,disk,Config.GetName())
                 Config.ReloadAllPythonModules()
                 Config.Print()

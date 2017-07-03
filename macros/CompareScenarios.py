@@ -49,19 +49,12 @@ def main(options,args):
 
     structure_names = []
 
+    nominal_config = options.configs.split(',')[0]
+
     # Config must be loaded before loading any other module.
     import python.Config as Config
-    Config.SetConfigFile('%s/data/%s'%(the_path,options.configs.split(',')[0]),doprint=False)
-
-    # If "cooling" is not defined in the config file, define it using the command-line argument
-    if not Config.Defined('cooling') :
-        Config.SetValue('cooling',options.cooling)
-
-    if not Config.Defined('OperationalProfiles.totalflux') :
-        Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(options.configs.split(',')[0]))
-
-    if not Config.Defined('OperationalProfiles.tid_in_3000fb') :
-        Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(options.configs.split(',')[0]))
+    Config.SetConfigFile('%s/data/%s'%(the_path,nominal_config),doprint=False)
+    Config.SetMissingConfigsUsingCommandLine(options,nominal_config)
 
     print 'importing modules'
     import python.GlobalSettings      as GlobalSettings
@@ -84,7 +77,6 @@ def main(options,args):
 
     results = []
     
-    nominal_config = options.configs.split(',')[0]
 
     for i,conf in enumerate(options.configs.split(',')) :
         if options.autolabel :
@@ -96,13 +88,8 @@ def main(options,args):
             name = options.labels.split(',')[i]
 
         Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
+        Config.SetMissingConfigsUsingCommandLine(options,conf)
         print 'CALCULATING scenario \"%s\" (%s):'%(name,Config.GetName())
-        if not Config.Defined('cooling') :
-            Config.SetValue('cooling',options.cooling)
-        if not Config.Defined('OperationalProfiles.totalflux') :
-            Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(conf))
-        if not Config.Defined('OperationalProfiles.tid_in_3000fb') :
-            Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(conf))
 
         Config.ReloadAllPythonModules()
         Config.Print()
@@ -112,13 +99,7 @@ def main(options,args):
 
     # reload nominal conf file - for labeing purposes
     Config.SetConfigFile('%s/data/%s'%(the_path,nominal_config),doprint=False)
-    if not Config.Defined('cooling') : Config.SetValue('cooling',options.cooling)
-    if not Config.Defined('OperationalProfiles.totalflux') :
-        Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(options.configs.split(',')[0]))
-
-    if not Config.Defined('OperationalProfiles.tid_in_3000fb') :
-        Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(options.configs.split(',')[0]))
-
+    Config.SetMissingConfigsUsingCommandLine(options,nominal_config)
     Config.ReloadAllPythonModules()
 
     # Add some output directory specifications

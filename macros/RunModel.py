@@ -7,7 +7,7 @@ the_path = ('/').join(os.getcwd().split('/')[:-1])
 print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
 
-#ROOT.gROOT.SetBatch(True)
+ROOT.gROOT.SetBatch(True)
 
 import python.PlotUtils as PlotUtils
 import python.FluxAndTidParameterization as FluxAndTidParameterization
@@ -29,16 +29,7 @@ def main(options,args):
     # Config must be loaded before loading any other module.
     import python.Config as Config
     Config.SetConfigFile('%s/data/%s'%(the_path,options.config),doprint=False)
-
-    # If "cooling" is not defined in the config file, define it using the command-line argument
-    if not Config.Defined('cooling') :
-        Config.SetValue('cooling',options.cooling)
-
-    if not Config.Defined('OperationalProfiles.totalflux') :
-        Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(options.config))
-
-    if not Config.Defined('OperationalProfiles.tid_in_3000fb') :
-        Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(options.config))
+    Config.SetMissingConfigsUsingCommandLine(options)
 
     print 'importing modules'
     import python.GlobalSettings      as GlobalSettings
