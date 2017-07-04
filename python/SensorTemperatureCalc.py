@@ -401,18 +401,9 @@ def CalculateSensorTemperature(options) :
 
     dosave = (not hasattr(options,'save') or options.save)
 
-    # Move output path outside code directory
-    outputpath = '%s/plots/SensorTemperatureCalc'%(os.getcwd().split('/StripsThermalModel')[0])
-    # If a different output name is specified
-    if hasattr(options,'outdir') :
-        outputpath = '%s/plots/%s'%(os.getcwd().split('/StripsThermalModel')[0],options.outdir)
-    if dosave :
-        if not os.path.exists(outputpath) :
-            os.makedirs(outputpath)
-        print 'SensorTemperatureCalc output written to %s'%(outputpath)
-
     # Write out to file
     if dosave :
+        outputpath = PlotUtils.GetOutputPath('SensorTemperatureCalc',options)
         outfilename = '%s/%s.root'%(outputpath,'SensorTemperatureCalc')
         out = ROOT.TFile(outfilename,'recreate')
         for g in gr.keys() :

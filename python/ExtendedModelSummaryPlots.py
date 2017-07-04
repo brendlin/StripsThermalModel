@@ -49,12 +49,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     # result_dicts: a list of dictionaries with results that we saved from CalculateSensorTemperature
     # names: a list of the corresponding names for result_dicts
 
-    # Move output path outside code directory
-    outputpath = '%s/plots/ExtendedModelSummaryPlots'%(os.getcwd().split('/StripsThermalModel')[0])
-    # If a different output name is specified
-    if hasattr(options,'outdir') :
-        outputpath = '%s/plots/%s'%(os.getcwd().split('/StripsThermalModel')[0],options.outdir)
-    print 'ExtendedModelSummaryPlots output written to %s'%(outputpath)
+    outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
 
     if not os.path.exists(outputpath) :
         os.makedirs(outputpath)
@@ -165,6 +160,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 #--------------------------------------------
 def ProcessSummaryTables_Endcap(result_dicts,names,options) :
 
+    outtext = ''
+
     for name in ['tsensor','isensor'] :
         header = '\multicolumn{8}{|c|}{%s at year 14 (%s)}\\\\ \hline'%(result_dicts[0][name].GetTitle(),result_dicts[0][name].GetYaxis().GetTitle())
         disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}'
@@ -200,5 +197,12 @@ def ProcessSummaryTables_Endcap(result_dicts,names,options) :
         table = table[:table.index('\n')+1] + disk_ring_labels + table[table.index('\n'):]
         table = table[:table.index('\n')+1] + header + table[table.index('\n'):]
         print table
+        outtext += table
+        outtext += '\n'
+
+    outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
+    f = open('%s/SummaryTables.txt'%(outputpath),'w')
+    f.write(outtext)
+    f.close()
 
     return

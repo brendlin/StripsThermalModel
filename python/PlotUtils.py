@@ -183,3 +183,20 @@ def MakePlotMinimumZero(plotname) :
 
 def GetPlotForcedMinimum(plotname) :
     return {'qsensor_headroom': 0.09}.get(plotname,None)
+
+def GetOutputPath(modulename,options) :
+    just_outside_git_repository = os.getcwd().split('/StripsThermalModel')[0]
+
+    # Move output path outside code directory
+    outputpath = '%s/plots/%s'%(just_outside_git_repository,modulename)
+
+    # If a different output name is specified
+    if hasattr(options,'outdir') :
+        outputpath = '%s/plots/%s'%(just_outside_git_repository,options.outdir)
+
+    if not os.path.exists(outputpath) :
+        os.makedirs(outputpath)
+
+    print '%s output written to %s'%(modulename,outputpath)
+
+    return outputpath
