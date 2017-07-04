@@ -150,7 +150,7 @@ def SetMissingConfigsUsingCommandLine(options,config='') :
         config = options.config
 
     # If "key" is not defined in the config file, define it using the command-line argument
-    value_to_set = {'cooling'                          : options.cooling,
+    value_to_set = {'cooling'                              : options.cooling,
                     'SafetyFactors.safetycurrent'          : options.safetyi,
                     'SafetyFactors.safetythermalimpedance' : options.safetyr,
                     'SafetyFactors.safetyfluence'          : options.safetyf,

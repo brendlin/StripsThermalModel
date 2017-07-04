@@ -117,9 +117,7 @@ def main(options,args):
 
     import python.ExtendedModelSummaryPlots as ExtendedModelSummaryPlots
     ExtendedModelSummaryPlots.ProcessSummaryPlots(results,structure_names,options,speciallegend=options.endcap,plotaverage=False)
-
-    if options.endcap :
-        ExtendedModelSummaryPlots.ProcessSummaryTables_Endcap(results,structure_names,options)
+    ExtendedModelSummaryPlots.ProcessSummaryTables(results,structure_names,options)
 
     # Save config files in the output directory
     for conf in config_files :
