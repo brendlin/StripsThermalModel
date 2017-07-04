@@ -97,8 +97,8 @@ def Print() :
         the_lists[-1].append(value)
         the_lists[-1].append(units.get(nm,'--'))
 
-    print TableUtils.PrintLatexTable(the_lists,justs='llrl')
-    return
+    table = TableUtils.PrintLatexTable(the_lists,justs='llrl')
+    return table
 
 # For reloading python module, in case e.g. the config file changed.
 def ReloadPythonModule(name) :
@@ -151,8 +151,6 @@ def SetMissingConfigsUsingCommandLine(options,config='') :
 
     # If "key" is not defined in the config file, define it using the command-line argument
     value_to_set = {'cooling'                          : options.cooling,
-                    'OperationalProfiles.totalflux'    : FluxAndTidParameterization.GetMaxFlux(config),
-                    'OperationalProfiles.tid_in_3000fb': FluxAndTidParameterization.GetMaxTID(config),
                     'SafetyFactors.safetycurrent'          : options.safetyi,
                     'SafetyFactors.safetythermalimpedance' : options.safetyr,
                     'SafetyFactors.safetyfluence'          : options.safetyf,
@@ -161,5 +159,11 @@ def SetMissingConfigsUsingCommandLine(options,config='') :
     for k in value_to_set.keys() :
         if not Defined(k) and (value_to_set[k] != None) :
             SetValue(k,value_to_set[k])
+
+    if not Defined('OperationalProfiles.totalflux') :
+        SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(config))
+
+    if not Defined('OperationalProfiles.tid_in_3000fb') :
+        SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(config))
 
     return

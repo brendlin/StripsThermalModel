@@ -412,7 +412,11 @@ def CalculateSensorTemperature(options) :
         print 'Wrote file %s'%(outfilename)
 
     # Write plots
-    c = ROOT.TCanvas('blah','blah',600,500)
+    c = ROOT.gROOT.FindObject('SensorTemperatureCalcCanvas')
+    if not c :
+        c = ROOT.TCanvas('SensorTemperatureCalcCanvas','blah',600,500)
+    c.Clear()
+
     text = ROOT.TLegend(0.13,0.77,0.41,0.94) # a more flexible way to draw text.
     PlotUtils.SetStyleLegend(text)
     PlotUtils.AddRunParameterLabels(text)

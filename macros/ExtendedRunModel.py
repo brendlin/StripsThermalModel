@@ -70,6 +70,7 @@ def main(options,args):
     print 'importing modules done.'
 
     results = []
+    config_text = ''
 
     #
     # Barrel configuration:
@@ -81,7 +82,8 @@ def main(options,args):
             Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
             Config.SetMissingConfigsUsingCommandLine(options,conf)
             Config.ReloadAllPythonModules()
-            Config.Print()
+            config_text += '%% %s:\n'%(Config.GetName())
+            config_text += Config.Print() + '\n'
 
             results.append(SensorTemperatureCalc.CalculateSensorTemperature(options))
 
@@ -102,7 +104,8 @@ def main(options,args):
                 Config.SetMissingConfigsUsingCommandLine(options,conf)
                 print 'CALCULATING Ring %d Disk %d (%s):'%(ring,disk,Config.GetName())
                 Config.ReloadAllPythonModules()
-                Config.Print()
+                config_text += '%% Ring %d Disk %d (%s):\n'%(ring,disk,Config.GetName())
+                config_text += Config.Print() + '\n'
 
                 results.append(SensorTemperatureCalc.CalculateSensorTemperature(options))
                 structure_names.append('R%dD%d'%(ring,disk))
@@ -121,6 +124,11 @@ def main(options,args):
     # Save config files in the output directory
     for conf in config_files :
         os.system('cp %s/data/%s %s/plots/%s/.'%(the_path,conf,os.getcwd().split('/StripsThermalModel')[0],options.outdir))
+
+    outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
+    f = open('%s/ConfigTables.txt'%(outputpath),'w')
+    f.write(config_text)
+    f.close()
 
     print 'done'
     return

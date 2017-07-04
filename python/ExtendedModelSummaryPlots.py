@@ -64,7 +64,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         options.endcap = False
     
     # Write plots
-    c = ROOT.TCanvas('blah','blah',600,500)
+    c = ROOT.TCanvas('ExtendedModelSummaryPlotsCanvas','blah',600,500)
 
     xtitle = 'Time [years]'
     x = GlobalSettings.time_step_list[1:]

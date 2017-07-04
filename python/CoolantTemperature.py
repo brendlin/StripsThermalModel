@@ -24,19 +24,19 @@ cooling = Config.GetStr('cooling','flat-35',unit='$^{\circ}$C')
 
 if 'flat' in cooling :
     temp = float(cooling.replace('flat',''))
-    print 'Setting cooling to \"%s\" (constant at %2.0f C)'%(cooling,temp)
+    # print 'Setting cooling to \"%s\" (constant at %2.0f C)'%(cooling,temp)
     internal_coolantT[0] = [temp]*GlobalSettings.nyears
 
 elif cooling == 'ramp-25' :
-    print 'Setting cooling to \"ramp-25\" (ramping down to -25 C)'
+    # print 'Setting cooling to \"ramp-25\" (ramping down to -25 C)'
     internal_coolantT[0] = [   0,  -5, -10, -15, -15, -20, -20, -25, -25, -25, -25, -25, -25, -25 ]
 
 elif cooling == 'ramp-35' :
-    print 'Setting cooling to \"ramp-35\" (ramping down to -35 C)'
+    # print 'Setting cooling to \"ramp-35\" (ramping down to -35 C)'
     internal_coolantT[0] = [   0,  -5, -10, -15, -15, -20, -20, -25, -30, -35, -35, -35, -35, -35 ]
 
 elif cooling == 'special' :
-    print 'Setting cooling to \"special\" (see CoolantTemperature.py)'
+    # print 'Setting cooling to \"special\" (see CoolantTemperature.py)'
     internal_coolantT[0] = [   0,   0, -20, -20, -20, -35, -35, -35, -35, -35, -35, -35, -35, -35 ]
 
 else :

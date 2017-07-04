@@ -197,6 +197,5 @@ def GetOutputPath(modulename,options) :
     if not os.path.exists(outputpath) :
         os.makedirs(outputpath)
 
-    print '%s output written to %s'%(modulename,outputpath)
-
+    # print '%s output written to %s'%(modulename,outputpath)
     return outputpath
