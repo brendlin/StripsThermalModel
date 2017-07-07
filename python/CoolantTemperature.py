@@ -20,7 +20,8 @@ def GetTimeStepTc() :
 
 # Coolant temperature in Celsius in each year for 14 y of operation
 # Must be defined before loading the module.
-cooling = Config.GetStr('cooling','flat-35',unit='$^{\circ}$C')
+descr_cooling = 'Coolant temperature scenario (usually flat, or ramping down)'
+cooling = Config.GetStr('cooling','flat-35',unit='$^{\circ}$C',description=descr_cooling)
 
 if 'flat' in cooling :
     temp = float(cooling.replace('flat',''))

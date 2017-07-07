@@ -123,6 +123,7 @@ def main(options,args):
     for conf in config_files :
         os.system('cp %s/data/%s %s/plots/%s/.'%(the_path,conf,os.getcwd().split('/StripsThermalModel')[0],options.outdir))
 
+    # Save config summary table
     outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
     f = open('%s/ConfigTables.txt'%(outputpath),'w')
     f.write(config_text)

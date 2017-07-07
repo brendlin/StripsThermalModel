@@ -50,7 +50,7 @@ def PrintLatexTable(thing,justs=[]) :
                 text += '%s & '%(getattr(y,just)(max_column_width[j]))
                 
     justs_text = '|'.join(justs_text)
-    text = '\\begin{tabluar}{|%s|} \hline \n'%(justs_text) + text
+    text = '\\begin{tabular}{|%s|} \hline \n'%(justs_text) + text
     text += '\hline\end{tabular}\n'
     return text
 

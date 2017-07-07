@@ -27,6 +27,8 @@ def main(options,args):
 
     PlotUtils.ApplyGlobalStyle()
 
+    config_text = ''
+
     # Config must be loaded before loading any other module.
     Config.SetConfigFile('%s/data/%s'%(the_path,options.config),doprint=False)
     Config.SetMissingConfigsUsingCommandLine(options)
@@ -50,7 +52,8 @@ def main(options,args):
     import python.CoolantTemperature  as CoolantTemperature
     print 'importing modules done.'
 
-    Config.Print()
+    config_text += '%% %s:\n'%(Config.GetName())
+    config_text += Config.Print() + '\n'
 
     # Add some output directory specifications
     coolingtag = PlotUtils.GetCoolingOutputTag(CoolantTemperature.cooling)
@@ -62,6 +65,12 @@ def main(options,args):
 
     # Save config files in the output directory
     os.system('cp %s/data/%s %s/plots/%s/.'%(the_path,options.config,os.getcwd().split('/StripsThermalModel')[0],options.outdir))
+
+    # Save config summary table
+    outputpath = PlotUtils.GetOutputPath('SensorTemperatureCalc',options)
+    f = open('%s/ConfigTables.txt'%(outputpath),'w')
+    f.write(config_text)
+    f.close()
 
     print 'done'
     return

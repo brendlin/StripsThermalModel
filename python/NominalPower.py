@@ -35,14 +35,14 @@ Phvmux = SensorProperties.vbias*SensorProperties.vbias/float(SensorProperties.Rh
 def Phv(Is) :
     return Phvmux + Prhv(Is)
 
-nabc   = Config.GetInt('NominalPower.nabc')
-nhcc   = Config.GetInt('NominalPower.nhcc')
-nlpgbt = Config.GetInt('NominalPower.nlpgbt')
-ngbld  = Config.GetInt('NominalPower.ngbld')
-ngbtia = Config.GetInt('NominalPower.ngbtia')
+nabc   = Config.GetInt('NominalPower.nabc',description='Number of ABCs on the hybrid')
+nhcc   = Config.GetInt('NominalPower.nhcc',description='Number of HCCs on the hybrid')
+nlpgbt = Config.GetInt('NominalPower.nlpgbt',description='Number of lpGBTs on this module\'s EOS')
+ngbld  = Config.GetInt('NominalPower.ngbld',description='Number of GBLDs on this module\'s EOS')
+ngbtia = Config.GetInt('NominalPower.ngbtia',description='Number of GBTIAs on this module\'s EOS')
 
 # nfeast in the module. To be used in determining the FEAST efficiency due to possible reduction in current
-nfeast = Config.GetInt('NominalPower.nfeast',1)
+nfeast = Config.GetInt('NominalPower.nfeast',1,description='Number of FEAST chips on the hybrid')
 
 # Short strip module
 # module Short strip
