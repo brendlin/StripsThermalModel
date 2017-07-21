@@ -117,7 +117,7 @@ def ReloadAllPythonModules() :
     ReloadPythonModule('python.GlobalSettings'           ) # none
     ReloadPythonModule('python.AbcTidBump'               ) # none
     ReloadPythonModule('python.CableLosses'              ) # none
-    ReloadPythonModule('python.PoweringEfficiency'       ) # none
+    ReloadPythonModule('python.PoweringEfficiency'       ) # Config
     ReloadPythonModule('python.Layout'                   ) # Config
     ReloadPythonModule('python.SafetyFactors'            ) # Config
     ReloadPythonModule('python.CoolantTemperature'       ) # Config (GlobalSettings)

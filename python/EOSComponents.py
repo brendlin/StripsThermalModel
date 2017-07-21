@@ -11,11 +11,11 @@ eosV12 = 1.2 # voltage (1.2 volts)
 eosV25 = 2.5 # voltage (2.5 volts)
 
 # lpGBTx
-descr_lpgbtI = 'Current in lpGBT'
+descr_lpgbtI = 'Current in lpGBT (voltage is 1.2 V)'
 lpgbtI = Config.GetDouble('EOSComponents.lpgbtI',0.625,unit='A',description=descr_lpgbtI)*(1 + SafetyFactors.safetycurrent)
 
 # GBTIA
-descr_gbtiaI = 'Current in GBTIA'
+descr_gbtiaI = 'Current in GBTIA (voltage is 2.5 V)'
 gbtiaI = Config.GetDouble('EOSComponents.gbtiaI',0.053,unit='A',description=descr_gbtiaI)*(1 + SafetyFactors.safetycurrent)
 
 # GBLD10

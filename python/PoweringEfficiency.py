@@ -3,6 +3,7 @@
 #
 
 import ROOT
+import Config
 
 # Fit function used: a+b Subscript[i, load]+c Subsuperscript[i, load, 2]+d Subsuperscript[i, load, 3]-(2 T)/25, with the coefficients:
 # a=58.0448, b=29.6715, c=-12.4747, d=1.40142
@@ -37,7 +38,8 @@ feast_fit_function_T60.SetParameters(*feastfitconstants)
 Vfeast = 10.5 # Feast input voltage
 
 # EOS DCDC converter
-DCDC2eff = 0.88 # DCDC2 efficiency
+descr_DCDC2eff = 'Efficiency of EOS DCDC2 converter'
+DCDC2eff = Config.GetDouble('PoweringEfficiency.DCDC2eff',0.88,description=descr_DCDC2eff)
 
 n_errors = [0]
 
