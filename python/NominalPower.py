@@ -47,14 +47,20 @@ nfeast = Config.GetInt('NominalPower.nfeast',1,description='Number of FEAST chip
 # Short strip module
 # module Short strip
 
+def Iabc_digital(Tabc,d,D) :
+    return nabc * (AbcTidBump.tid_scale_combined_factor(Tabc, d, D) * FrontEndComponents.abcId)
+
 def Iabc(Tabc,d,D) :
-    return nabc * (AbcTidBump.tid_scale_combined_factor(Tabc, d, D) * FrontEndComponents.abcId + FrontEndComponents.abcIa)
+    return Iabc_digital(Tabc,d,D) + (nabc * FrontEndComponents.abcIa)
 
 def Pabc(Tabc,d,D) :
     return FrontEndComponents.hybridV * Iabc(Tabc, d, D)
 
+def Ihcc_digital(Thcc,d,D) :
+    return nhcc * (AbcTidBump.tid_scale_combined_factor(Thcc, d, D) * FrontEndComponents.hccId)
+
 def Ihcc(Thcc,d,D) :
-    return nhcc * (AbcTidBump.tid_scale_combined_factor(Thcc, d, D) * FrontEndComponents.hccId + FrontEndComponents.hccIa)
+    return Ihcc_digital(Thcc,d,D) + (nhcc * FrontEndComponents.hccIa)
 
 def Phcc(Thcc,d,D) :
     return FrontEndComponents.hybridV * Ihcc(Thcc, d, D)
@@ -72,7 +78,7 @@ def Pfeast(Tabc,Thcc,Tfeast,d,D) :
     return Pfamac + Pfeast_ABC_HCC(Tabc,Thcc,Tfeast,d,D)
 
 def Idig(Tabc,Thcc,d,D) :
-    return nabc * AbcTidBump.tid_scale_combined_factor(Tabc,d,D) * FrontEndComponents.abcId + nhcc * AbcTidBump.tid_scale_combined_factor(Thcc,d,D) * FrontEndComponents.hccId
+    return Iabc_digital(Tabc,d,D) + Ihcc_digital(Thcc,d,D)
 
 def Itape(Tabc,Thcc,Tfeast,d,D) :
     return ( Pabc(Tabc, d, D) + Phcc(Thcc, d, D) + Pamac + Pfeast(Tabc,Thcc,Tfeast,d,D) ) / float(PoweringEfficiency.Vfeast)

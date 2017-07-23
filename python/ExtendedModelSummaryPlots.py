@@ -127,13 +127,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         #
         text = ROOT.TLegend(0.11,0.70,0.46,0.92)
         PlotUtils.SetStyleLegend(text)
-        add_label = [graphs[0].GetTitle(),'']
-        while(len(add_label[0]) > 28) :
-            tmp = add_label[0].split(' ')
-            add_label[0] = ' '.join(tmp[:-1])
-            add_label[1] = ' '.join([tmp[-1],add_label[1]])
-        PlotUtils.AddRunParameterLabels(text,add_label)
-
+        PlotUtils.AddRunParameterLabels(text,[graphs[0].GetTitle()],wrap=True)
         text.Draw()
 
         if False :
@@ -158,13 +152,16 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     return
 
 #--------------------------------------------
-def ProcessSummaryTables(result_dicts,names,options) :
+def ProcessSummaryTables(result_dicts,names,options,target_index='eol') : # start, tid, eol
 
     outtext = ''
 
-    for name in ['tsensor','isensor'] :
+    for name in ['tsensor','isensor','ilv_in'] :
         ncolumns = 8 if options.endcap else 2
-        header = '\multicolumn{%d}{|c|}{%s at year 14 (%s)}\\\\ \hline'%(ncolumns,result_dicts[0][name].GetTitle(),result_dicts[0][name].GetYaxis().GetTitle())
+        units = ''
+        if '[' in result_dicts[0][name].GetYaxis().GetTitle() :
+            units = '[%s]'%(result_dicts[0][name].GetYaxis().GetTitle().split('[')[1].split(']')[0])
+        header = '\multicolumn{%d}{|c|}{%s at year 14 %s}\\\\ \hline'%(ncolumns,result_dicts[0][name].GetTitle(),units)
         disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}'
         the_lists = []
 
@@ -178,10 +175,14 @@ def ProcessSummaryTables(result_dicts,names,options) :
                 the_lists[-1].append('%d'%(ring))
                 for disk in range(6) :
                     index = names.index('R%dD%d'%(ring,disk))
-                    gr_tsensor = result_dicts[index][name]
-                    n_tsensor = gr_tsensor.GetN()
-                    eol_tsensor = gr_tsensor.GetY()[n_tsensor-1]
-                    result = '%.5g'%(eol_tsensor)
+                    the_graph = result_dicts[index][name]
+                    idig = list(result_dicts[index]['idig'].GetY()[i] for i in range(result_dicts[index]['idig'].GetN()))
+                    time_index = {'start':0,
+                                  'tid'  :idig.index(max(idig)),
+                                  'eol'  :the_graph.GetN()-1,
+                                  }.get(target_index)
+                    result_double = the_graph.GetY()[time_index]
+                    result = '%.5g'%(result_double)
                     the_lists[-1].append(result)
                     if '.' not in result :
                         nsigfig = max(0,nsigfig)
@@ -205,10 +206,14 @@ def ProcessSummaryTables(result_dicts,names,options) :
                 the_lists.append([])
                 the_lists[-1].append('B%d'%(layer))
                 index = names.index('B%d'%(layer))
-                gr_tsensor = result_dicts[index][name]
-                n_tsensor = gr_tsensor.GetN()
-                eol_tsensor = gr_tsensor.GetY()[n_tsensor-1]
-                result = '%.5g'%(eol_tsensor)
+                the_graph = result_dicts[index][name]
+                idig = list(result_dicts[index]['idig'].GetY()[i] for i in range(result_dicts[index]['idig'].GetN()))
+                time_index = {'start':0,
+                              'tid'  :idig.index(max(idig)),
+                              'eol'  :the_graph.GetN()-1,
+                              }.get(target_index)
+                result_double = the_graph.GetY()[time_index]
+                result = '%.5g'%(result_double)
                 the_lists[-1].append(result)
                 if '.' not in result :
                     nsigfig = max(0,nsigfig)

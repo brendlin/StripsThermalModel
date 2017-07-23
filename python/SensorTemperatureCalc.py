@@ -14,6 +14,7 @@ import PoweringEfficiency
 import CoolantTemperature
 import ThermalImpedances
 import AbcTidBump
+import FrontEndComponents
 import PlotUtils
 from PlotUtils import MakeGraph
 import TAxisFunctions as taxisfunc
@@ -61,8 +62,16 @@ def CalculateSensorTemperature(options) :
     phvtotal   = [] # Total HV Power (sensor+resistors) in layer
     pmhvmux    = [] # HV Power parallel resistor
     itape      = [] # Tape current per module
-    idig       = [] # Digital current per module
-    ifeast     = [] # FEAST current
+    idig       = [] # Digital current per module (ABCs+HCCs)
+    ihcc_dig   = [] # Digital HCC current (all HCCs)
+    ihcc_a     = list(NominalPower.nhcc*FrontEndComponents.hccIa for i in range(GlobalSettings.nstep)) # Analog HCC current
+    iabc_dig   = [] # Digital ABC current (all ABCs)
+    iabc_a     = list(NominalPower.nabc*FrontEndComponents.abcIa for i in range(GlobalSettings.nstep)) # Analog ABC current
+    iamac_3v   = list(FrontEndComponents.amac3I for i in range(GlobalSettings.nstep)) # AMAC 3V
+    iamac_1p5v = list(FrontEndComponents.amac15I for i in range(GlobalSettings.nstep)) # AMAC 1.5V
+    ifeast     = [] # FEAST current (load)
+    ifeast_in  = [] # FEAST current (input)
+    ilv_in     = [] # Total LV current
     efffeast   = [] # FEAST efficiency
     ptape      = [] # Power loss in complete tape layer
     pstave     = [] # Stave Power in layer
@@ -198,7 +207,7 @@ def CalculateSensorTemperature(options) :
 
         if thermal_runaway :
             for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,pmtape,pmhv,isensor,pmhvr,
-                           powertotal,phvtotal,pmhvmux,itape,idig,ifeast,efffeast,ptape,pstave,qsensor,
+                           powertotal,phvtotal,pmhvmux,itape,idig,ihcc_dig,iabc_dig,ilv_in,ifeast,ifeast_in,efffeast,ptape,pstave,qsensor,
                            tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
             qsensor_headroom.append(0.1)
@@ -306,7 +315,7 @@ def CalculateSensorTemperature(options) :
         # EOS Power
         peos.append(NominalPower.eosP(teos[i]))
 
-        # FEAST power
+        # FEAST power (dissipated only by FEAST), including power dissipated due to AMAC. Both FEASTs.
         pfeast.append(NominalPower.Pfeast(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
 
         # FEAST power from ABC and HCC only
@@ -345,14 +354,28 @@ def CalculateSensorTemperature(options) :
         # Tape power for one tape (half a stave)
         ptape.append(NominalPower.Pstavetape(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
 
-        # Digital current per module
+        # Digital current per module (ABCs + HCCs)
         idig.append(NominalPower.Idig(tabc[i],thcc[i],doserate_i,tid_dose_i))
+
+        # Digital current of (all) HCCs
+        ihcc_dig.append(NominalPower.Ihcc_digital(thcc[i],doserate_i,tid_dose_i))
+
+        # Digital current of (all) HCCs
+        iabc_dig.append(NominalPower.Iabc_digital(tabc[i],doserate_i,tid_dose_i))
 
         # FEAST current PER FEAST (in case there is more than one feast)
         ifeast.append(NominalPower.Ifeast(tabc[i],thcc[i],doserate_i,tid_dose_i) / float(NominalPower.nfeast))
 
         # FEAST efficiency
         efffeast.append(PoweringEfficiency.feasteff(tfeast[i],ifeast[i]))
+
+        # FEAST input current (both FEASTs, in case there is more than one feast.)
+        # In any case there is no nfeast in the equation below.
+        ifeast_in.append( (pfeast_abchcc[i] + pabc[i] + phcc[i]) / float(PoweringEfficiency.Vfeast) )
+
+        # Total LV current
+        #ilv_in.append(iamac_3v[i] + iamac_1p5v[i] + ihcc_a[i] + iabc_a[i] + ihcc_dig[i] + iabc_dig[i])
+        ilv_in.append(iamac_3v[i] + iamac_1p5v[i] + ifeast_in[i])
 
         # if i and math.fabs(((i+1)*GlobalSettings.step) % 1.) < 0.000001 :
         #     print 'Calculated year %.0f'%( int((i+1)*GlobalSettings.step) )
@@ -378,17 +401,19 @@ def CalculateSensorTemperature(options) :
     gr['tfeast']     = MakeGraph('FEASTTemperature'       ,'FEAST temperature'                         ,xtitle,'T_{%s} [#circ^{}C]'%('FEAST' ),x,tfeast    )
     gr['teos']       = MakeGraph('EOSTemperature'         ,'EOS temperature'                           ,xtitle,'T_{%s} [#circ^{}C]'%('EOS'   ),x,teos      )
     gr['peos']       = MakeGraph('EOSPower'               ,'EOS power'                                 ,xtitle,'P_{%s} [W]'%('EOS'   )        ,x,peos      )
-    gr['pmodule']    = MakeGraph('ModulePower'            ,'Module Power'                              ,xtitle,'P_{%s} [W]'%('module')        ,x,pmodule   )
+    gr['pmodule']    = MakeGraph('ModulePower'            ,'Module Power (one side)'                   ,xtitle,'P_{%s} [W]'%('module')        ,x,pmodule   )
     gr['pmtape']     = MakeGraph('TapePower'              ,'Tape power loss'                           ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,pmtape    )
     gr['pmhv']       = MakeGraph('HVPower'                ,'Total HV power'                            ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,pmhv      )
-    gr['isensor']    = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current'                  ,xtitle,'I_{%s} [mA]'%('sensor')       ,x,list(isensor[a]*1000. for a in range(len(isensor))))
+    gr['isensor']    = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current (one module side)',xtitle,'I_{%s} [mA]'%('sensor')       ,x,list(isensor[a]*1000. for a in range(len(isensor))))
     gr['pmhvr']      = MakeGraph('HVPowerSerialResistors' ,'HV Power serial resistors'                 ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,pmhvr     )
     gr['powertotal'] = MakeGraph('SummaryTotalPower'      ,'Total Power in %s'%(substructure_name)     ,xtitle,'P_{%s} [kW]'%('Total')        ,x,powertotal)
     gr['phvtotal']   = MakeGraph('SummaryTotalHVPower'    ,'Total HV Power (sensor + resistors) in %s'%(substructure_name),xtitle,'P_{%s} [kW]'%('HV'),x,phvtotal)
     gr['pmhvmux']    = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'                ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,pmhvmux   )
     gr['itape']      = MakeGraph('TapeCurrent'            ,'Tape current per module'                   ,xtitle,'I_{%s} [A]'%('tape')          ,x,itape     )
     gr['idig']       = MakeGraph('DigitalCurrent'         ,'ABC and HCC digital current'               ,xtitle,'I_{%s} [A]'%('digital')       ,x,idig      )
-    gr['ifeast']     = MakeGraph('FeastCurrent'           ,'FEAST current'                             ,xtitle,'I_{%s} [A]'%('FEAST')         ,x,ifeast    )
+    gr['ilv_in']     = MakeGraph('LVCurrent'              ,'LV current input (one module side)'        ,xtitle,'I [A]'                        ,x,ilv_in    )
+    gr['ifeast']     = MakeGraph('FeastCurrent'           ,'FEAST current (load, per FEAST)'           ,xtitle,'I_{%s} [A]'%('FEAST,load')    ,x,ifeast    )
+    gr['ifeast_in']  = MakeGraph('FeastCurrentInput'      ,'FEAST current (input)'                     ,xtitle,'I_{%s} [A]'%('FEAST,in')      ,x,ifeast_in )
     gr['efffeast']   = MakeGraph('FeastEfficiency'        ,'Feast efficiency'                          ,xtitle,'Efficiency [%]'               ,x,efffeast  )
     gr['ptape']      = MakeGraph('TotalPowerLossTape'     ,'Power loss in complete tape in %s'%(layer_or_ring),xtitle,'P_{%s} [W]'%('tape')   ,x,ptape     )
     gr['pstave']     = MakeGraph('TotalStavePower'        ,'Stave Power'                               ,xtitle,'P_{%s} [W]'%('stave')         ,x,pstave    )
@@ -417,12 +442,13 @@ def CalculateSensorTemperature(options) :
         c = ROOT.TCanvas('SensorTemperatureCalcCanvas','blah',600,500)
     c.Clear()
 
-    text = ROOT.TLegend(0.13,0.77,0.41,0.94) # a more flexible way to draw text.
+    text = ROOT.TLegend(0.11,0.70,0.46,0.92) # a more flexible way to draw text.
     PlotUtils.SetStyleLegend(text)
-    PlotUtils.AddRunParameterLabels(text)
     for g in gr.keys() :
         c.Clear()
         gr[g].Draw('al')
+        text.Clear()
+        PlotUtils.AddRunParameterLabels(text,additionalinfo=[gr[g].GetTitle()])
         text.Draw()
         minzero = PlotUtils.MakePlotMinimumZero(g)
         forcemin = PlotUtils.GetPlotForcedMinimum(g)
@@ -434,6 +460,9 @@ def CalculateSensorTemperature(options) :
         if g == 'qsensor_headroom' :
             c.SetLogy(False)
 
+    text.Clear()
+    PlotUtils.AddRunParameterLabels(text)
+
     # Extra graphs that you may not want to save individually
     extr = dict()
     extr['pamac']         = MakeGraph('AMACPower'              ,'AMAC power'                                ,xtitle,'P_{%s} [W]'%('AMAC'  )        ,x,pamac     )
@@ -443,6 +472,12 @@ def CalculateSensorTemperature(options) :
     extr['pfeast_abchcc'] = MakeGraph('FeastPower_ABC_HCC'     ,'FEAST power (HCC,ABC)'                     ,xtitle,'P_{%s} [W]'%('FEAST' )        ,x,pfeast_abchcc)
     extr['pfamac']        = MakeGraph('FeastPower_AMAC'        ,'FEAST power (AMAC)'                        ,xtitle,'P_{%s} [W]'%('FEAST' )        ,x,pfamac    )
     extr['tid_shape']     = MakeGraph('TID_Shape'              ,'TID shape #times 1.45'                     ,xtitle,'shape'                        ,x,tid_shape )
+    extr['ihcc_dig']      = MakeGraph('HCCDigitalCurrent'      ,'HCC digital current'                       ,xtitle,'I_{%s} [A]'%('HCC')           ,x,ihcc_dig  )
+    extr['ihcc_a']        = MakeGraph('HCCAnalogCurrent'       ,'HCC analog current'                        ,xtitle,'I_{%s} [A]'%('HCC')           ,x,ihcc_a    )
+    extr['iabc_dig']      = MakeGraph('HCCDigitalCurrent'      ,'ABC digital current'                       ,xtitle,'I_{%s} [A]'%('ABC')           ,x,iabc_dig  )
+    extr['iabc_a']        = MakeGraph('HCCAnalogCurrent'       ,'ABC analog current'                        ,xtitle,'I_{%s} [A]'%('ABC')           ,x,iabc_a    )
+    extr['iamac_3v']      = MakeGraph('AMACCurrent3V'          ,'AMAC current (3V)'                         ,xtitle,'I_{%s} [A]'%('AMAC')          ,x,iamac_3v  )
+    extr['iamac_1p5v']    = MakeGraph('AMACCurrent1p5V'        ,'AMAC current (1.5V)'                       ,xtitle,'I_{%s} [A]'%('IMAC')          ,x,iamac_1p5v)
 
     # Kurt, put any extra plots here
 
@@ -582,6 +617,34 @@ def CalculateSensorTemperature(options) :
     #taxisfunc.SetYaxisRanges(c,0,20)
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'PowerStackPlot'))
+
+
+    #
+    # Total LV plot
+    #
+    c.Clear()
+    hists = dict()
+    stack = ROOT.THStack('stack_lv','stack_lv')
+    leg = ROOT.TLegend(0.61,0.73,0.86,0.93)
+    leg.SetName('legend')
+    PlotUtils.SetStyleLegend(leg)
+    hists = []
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['ihcc_a']  )))
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['iabc_a']  )))
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['ihcc_dig'])))
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['iabc_dig'])))
+
+    for h in hists :
+        leg.AddEntry(h,h.GetTitle().replace('current ','').replace('current',''),'f')
+
+    stack.Draw('l')
+    leg.Draw()
+    text.Draw()
+    stack.GetHistogram().GetXaxis().SetTitle(xtitle)
+    stack.GetHistogram().GetYaxis().SetTitle('I [A]')
+    taxisfunc.AutoFixYaxis(c,ignorelegend=False,minzero=True)
+    if dosave :
+        c.Print('%s/%s.eps'%(outputpath,'LVCurrentHCCABCStackPlot'))
 
     #
     # Thermal balance curve

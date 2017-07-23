@@ -111,7 +111,7 @@ def GetCoolingScenarioLabel(cooling_option) :
         }.get(cooling_option,'unknown cooling scenario')
     return scenariolabel
 
-def AddRunParameterLabels(legend,additionalinfo=[]) :
+def AddRunParameterLabels(legend,additionalinfo=[],wrap=False) :
     import SafetyFactors
     import CoolantTemperature
     layout,fluence,thermalimpedance,current,vbias = '','','','',''
@@ -148,8 +148,19 @@ def AddRunParameterLabels(legend,additionalinfo=[]) :
     for addinfo in additionalinfo :
         if not addinfo :
             continue
-        legend.AddEntry(0,addinfo,'')
+
+        add_label = [addinfo,'']
+        if wrap :
+            while(len(add_label[0]) > 28) :
+                tmp = add_label[0].split(' ')
+                add_label[0] = ' '.join(tmp[:-1])
+                add_label[1] = ' '.join([tmp[-1],add_label[1]])
+
+        legend.AddEntry(0,add_label[0],'')
         nlines += 1
+        if add_label[1] :
+            legend.AddEntry(0,add_label[1],'')
+            nlines += 1
 
     while nlines < 5 :
         legend.AddEntry(0,'','')
@@ -177,7 +188,7 @@ def AddToStack(stack,leg,h) :
     return h
 
 def MakePlotMinimumZero(plotname) :
-    return plotname in ['tc_headroom','idig','ifeast',
+    return plotname in ['tc_headroom','idig','ilv_in','ifeast','ifeast_in',
                         'pmhv','pmhvr','pmhvmux','hv_power_resistors','pmodule_noHV',
                         'pmodule','powertotal','itape','pmtape','ptape','pstave']
 

@@ -1,3 +1,9 @@
+2017-07-23 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Shuffle some definitions in NominalPower.py
+    * More options for printing out plots in ExtendedRunModel.py
+    * Add LV current output
+    * Clarify some of the quantities
+
 2017-07-21 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Print out more configuration details
 
