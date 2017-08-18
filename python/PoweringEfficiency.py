@@ -36,7 +36,7 @@ feast_fit_function_T60 = ROOT.TF1("feast_fit_function","[0] + [1]*x + [2]*x*x + 
 feast_fit_function_T60.SetParameters(*feastfitconstants)
 
 descr_Vfeast = 'Feast input voltage'
-Vfeast = Config.GetDouble('PoweringEfficiency.Vfeast',10.5,description=descr_Vfeast)
+Vfeast = Config.GetDouble('PoweringEfficiency.Vfeast',10.5,unit='V',description=descr_Vfeast)
 
 # EOS DCDC converter
 descr_DCDC2eff = 'Efficiency of EOS DCDC2 converter'
