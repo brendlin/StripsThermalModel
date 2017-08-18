@@ -165,7 +165,9 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
     ncolumns = 8 if options.endcap else 2
     units = ''
     if '[' in result_dicts[0][quantity_name].GetYaxis().GetTitle() :
-        units = '[%s]'%(result_dicts[0][quantity_name].GetYaxis().GetTitle().split('[')[1].split(']')[0])
+        units = result_dicts[0][quantity_name].GetYaxis().GetTitle().split('[')[1].split(']')[0]
+        units = units.replace('#circ^{}','$^\circ$')
+        units = '[%s]'%(units)
     header = '\multicolumn{%d}{|c|}{%s at %s %s}\\\\ \hline'%(ncolumns,result_dicts[0][quantity_name].GetTitle(),time_label,units)
     disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}'
     the_lists = []
@@ -239,5 +241,6 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
     print table
     outtext += table
     outtext += '\n'
+    outtext += '\\vspace{4mm}\n'
 
     return outtext

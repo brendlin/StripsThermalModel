@@ -1,0 +1,18 @@
+\documentclass[10pt]{article}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{amssymb} %maths
+\usepackage{amsmath} %maths
+\usepackage[utf8]{inputenc} %useful to type directly diacritic characters
+\usepackage{multirow} % \multirow{6}{*}{Blah}
+\usepackage{adjustbox} % \adjustbox{max width=\textwidth}{ %% just before tabular } %% resize box after tabular
+\usepackage{paralist}
+
+%% Use these lines for letter-sized paper
+\usepackage[paper=letterpaper,margin=1in,left=1.0in,right=1.0in]{geometry}
+
+%% More layout: Get rid of indenting throughout entire document
+\setlength{\parindent}{0in}
+
+\renewenvironment{itemize}[1]{\begin{compactitem}#1}{\end{compactitem}}
+
+\begin{document}

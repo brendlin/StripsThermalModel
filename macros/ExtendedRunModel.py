@@ -136,6 +136,12 @@ def main(options,args):
     f.write(config_text)
     f.close()
 
+    # make an auto-latex document
+    os.system('cat %s/latex/FrontMatter.tex > %s/Document.tex'%(the_path,outputpath))
+    os.system('cat %s/SummaryTables.txt >> %s/Document.tex'%(outputpath,outputpath))
+    os.system('echo "\end{document}\n" >> %s/Document.tex'%(outputpath))
+    os.system('cd %s && pdflatex Document.tex'%(outputpath))
+
     print 'done'
     return
 

@@ -1,4 +1,5 @@
 2017-08-18 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Add first latex document output
     * Remove LV current output (it is the same as itape)
     * Print out summary quantities at start, TID, end-of-life
     * Add Itape_eos, tape current load due to EOS
