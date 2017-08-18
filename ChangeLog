@@ -1,3 +1,10 @@
+2017-08-18 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+    * Remove LV current output (it is the same as itape)
+    * Print out summary quantities at start, TID, end-of-life
+    * Add Itape_eos, tape current load due to EOS
+    * Add Veos (EOS input voltage) -- 11V
+    * Add units to Vfeast
+
 2017-07-23 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Shuffle some definitions in NominalPower.py
     * More options for printing out plots in ExtendedRunModel.py

@@ -71,7 +71,6 @@ def CalculateSensorTemperature(options) :
     iamac_1p5v = list(FrontEndComponents.amac15I for i in range(GlobalSettings.nstep)) # AMAC 1.5V
     ifeast     = [] # FEAST current (load)
     ifeast_in  = [] # FEAST current (input)
-    ilv_in     = [] # Total LV current
     efffeast   = [] # FEAST efficiency
     ptape      = [] # Power loss in complete tape layer
     pstave     = [] # Stave Power in layer
@@ -207,7 +206,7 @@ def CalculateSensorTemperature(options) :
 
         if thermal_runaway :
             for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,pmtape,pmhv,isensor,pmhvr,
-                           powertotal,phvtotal,pmhvmux,itape,idig,ihcc_dig,iabc_dig,ilv_in,ifeast,ifeast_in,efffeast,ptape,pstave,qsensor,
+                           powertotal,phvtotal,pmhvmux,itape,idig,ihcc_dig,iabc_dig,ifeast,ifeast_in,efffeast,ptape,pstave,qsensor,
                            tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
             qsensor_headroom.append(0.1)
@@ -373,10 +372,6 @@ def CalculateSensorTemperature(options) :
         # In any case there is no nfeast in the equation below.
         ifeast_in.append( (pfeast_abchcc[i] + pabc[i] + phcc[i]) / float(PoweringEfficiency.Vfeast) )
 
-        # Total LV current
-        #ilv_in.append(iamac_3v[i] + iamac_1p5v[i] + ihcc_a[i] + iabc_a[i] + ihcc_dig[i] + iabc_dig[i])
-        ilv_in.append(iamac_3v[i] + iamac_1p5v[i] + ifeast_in[i])
-
         # if i and math.fabs(((i+1)*GlobalSettings.step) % 1.) < 0.000001 :
         #     print 'Calculated year %.0f'%( int((i+1)*GlobalSettings.step) )
 
@@ -411,7 +406,6 @@ def CalculateSensorTemperature(options) :
     gr['pmhvmux']    = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'                ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,pmhvmux   )
     gr['itape']      = MakeGraph('TapeCurrent'            ,'Tape current per module'                   ,xtitle,'I_{%s} [A]'%('tape')          ,x,itape     )
     gr['idig']       = MakeGraph('DigitalCurrent'         ,'ABC and HCC digital current'               ,xtitle,'I_{%s} [A]'%('digital')       ,x,idig      )
-    gr['ilv_in']     = MakeGraph('LVCurrent'              ,'LV current input (one module side)'        ,xtitle,'I [A]'                        ,x,ilv_in    )
     gr['ifeast']     = MakeGraph('FeastCurrent'           ,'FEAST current (load, per FEAST)'           ,xtitle,'I_{%s} [A]'%('FEAST,load')    ,x,ifeast    )
     gr['ifeast_in']  = MakeGraph('FeastCurrentInput'      ,'FEAST current (input)'                     ,xtitle,'I_{%s} [A]'%('FEAST,in')      ,x,ifeast_in )
     gr['efffeast']   = MakeGraph('FeastEfficiency'        ,'Feast efficiency'                          ,xtitle,'Efficiency [%]'               ,x,efffeast  )

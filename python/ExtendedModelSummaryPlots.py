@@ -152,61 +152,35 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     return
 
 #--------------------------------------------
-def ProcessSummaryTables(result_dicts,names,options,target_index='eol') : # start, tid, eol
+def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,target_index='tid') :
+    # Target indices are 'start', 'tid', 'eol'
 
     outtext = ''
 
-    for name in ['tsensor','isensor','ilv_in'] :
-        ncolumns = 8 if options.endcap else 2
-        units = ''
-        if '[' in result_dicts[0][name].GetYaxis().GetTitle() :
-            units = '[%s]'%(result_dicts[0][name].GetYaxis().GetTitle().split('[')[1].split(']')[0])
-        header = '\multicolumn{%d}{|c|}{%s at year 14 %s}\\\\ \hline'%(ncolumns,result_dicts[0][name].GetTitle(),units)
-        disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}'
-        the_lists = []
+    time_label = {'tid'  :'TID bump',
+                  'start':'Year 0',
+                  'eol':'Year 14',
+                  }.get(target_index)
 
-        nsigfig = 0
+    ncolumns = 8 if options.endcap else 2
+    units = ''
+    if '[' in result_dicts[0][quantity_name].GetYaxis().GetTitle() :
+        units = '[%s]'%(result_dicts[0][quantity_name].GetYaxis().GetTitle().split('[')[1].split(']')[0])
+    header = '\multicolumn{%d}{|c|}{%s at %s %s}\\\\ \hline'%(ncolumns,result_dicts[0][quantity_name].GetTitle(),time_label,units)
+    disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}'
+    the_lists = []
 
-        if options.endcap :
-            the_lists.append(['','','0','1','2','3','4','5'])
-            for ring in range(5,-1,-1) :
-                the_lists.append([])
-                the_lists[-1].append('')
-                the_lists[-1].append('%d'%(ring))
-                for disk in range(6) :
-                    index = names.index('R%dD%d'%(ring,disk))
-                    the_graph = result_dicts[index][name]
-                    idig = list(result_dicts[index]['idig'].GetY()[i] for i in range(result_dicts[index]['idig'].GetN()))
-                    time_index = {'start':0,
-                                  'tid'  :idig.index(max(idig)),
-                                  'eol'  :the_graph.GetN()-1,
-                                  }.get(target_index)
-                    result_double = the_graph.GetY()[time_index]
-                    result = '%.5g'%(result_double)
-                    the_lists[-1].append(result)
-                    if '.' not in result :
-                        nsigfig = max(0,nsigfig)
-                    else :
-                        nsigfig = max(len(result.split('.')[-1]),nsigfig)
+    nsigfig = 0
 
-            for i in range(1,len(the_lists)) :
-                for j in range(2,len(the_lists[i])) :
-                    try :
-                        num = float(the_lists[i][j])
-                        the_lists[i][j] = '%.*f'%(nsigfig-2,num)
-                    except :
-                        pass
-
-            table = TableUtils.PrintLatexTable(the_lists)
-            table = table[:table.index('\n')+1] + disk_ring_labels + table[table.index('\n'):]
-            table = table[:table.index('\n')+1] + header + table[table.index('\n'):]
-
-        if options.barrel :
-            for layer in range(4,0,-1) :
-                the_lists.append([])
-                the_lists[-1].append('B%d'%(layer))
-                index = names.index('B%d'%(layer))
-                the_graph = result_dicts[index][name]
+    if options.endcap :
+        the_lists.append(['','','0','1','2','3','4','5'])
+        for ring in range(5,-1,-1) :
+            the_lists.append([])
+            the_lists[-1].append('')
+            the_lists[-1].append('%d'%(ring))
+            for disk in range(6) :
+                index = structure_names.index('R%dD%d'%(ring,disk))
+                the_graph = result_dicts[index][quantity_name]
                 idig = list(result_dicts[index]['idig'].GetY()[i] for i in range(result_dicts[index]['idig'].GetN()))
                 time_index = {'start':0,
                               'tid'  :idig.index(max(idig)),
@@ -220,24 +194,50 @@ def ProcessSummaryTables(result_dicts,names,options,target_index='eol') : # star
                 else :
                     nsigfig = max(len(result.split('.')[-1]),nsigfig)
 
-            for i in range(0,len(the_lists)) :
-                for j in range(1,len(the_lists[i])) :
-                    try :
-                        num = float(the_lists[i][j])
-                        the_lists[i][j] = '%.*f'%(nsigfig-2,num)
-                    except :
-                        pass
+        for i in range(1,len(the_lists)) :
+            for j in range(2,len(the_lists[i])) :
+                try :
+                    num = float(the_lists[i][j])
+                    the_lists[i][j] = '%.*f'%(nsigfig-2,num)
+                except :
+                    pass
 
-            table = TableUtils.PrintLatexTable(the_lists)
-            table = table[:table.index('\n')+1] + header + table[table.index('\n'):]
+        table = TableUtils.PrintLatexTable(the_lists)
+        table = table[:table.index('\n')+1] + disk_ring_labels + table[table.index('\n'):]
+        table = table[:table.index('\n')+1] + header + table[table.index('\n'):]
 
-        print table
-        outtext += table
-        outtext += '\n'
+    if options.barrel :
+        for layer in range(4,0,-1) :
+            the_lists.append([])
+            the_lists[-1].append('B%d'%(layer))
+            index = structure_names.index('B%d'%(layer))
+            the_graph = result_dicts[index][quantity_name]
+            idig = list(result_dicts[index]['idig'].GetY()[i] for i in range(result_dicts[index]['idig'].GetN()))
+            time_index = {'start':0,
+                          'tid'  :idig.index(max(idig)),
+                          'eol'  :the_graph.GetN()-1,
+                          }.get(target_index)
+            result_double = the_graph.GetY()[time_index]
+            result = '%.5g'%(result_double)
+            the_lists[-1].append(result)
+            if '.' not in result :
+                nsigfig = max(0,nsigfig)
+            else :
+                nsigfig = max(len(result.split('.')[-1]),nsigfig)
 
-    outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
-    f = open('%s/SummaryTables.txt'%(outputpath),'w')
-    f.write(outtext)
-    f.close()
+        for i in range(0,len(the_lists)) :
+            for j in range(1,len(the_lists[i])) :
+                try :
+                    num = float(the_lists[i][j])
+                    the_lists[i][j] = '%.*f'%(nsigfig-2,num)
+                except :
+                    pass
 
-    return
+        table = TableUtils.PrintLatexTable(the_lists)
+        table = table[:table.index('\n')+1] + header + table[table.index('\n'):]
+
+    print table
+    outtext += table
+    outtext += '\n'
+
+    return outtext

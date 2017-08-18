@@ -188,7 +188,7 @@ def AddToStack(stack,leg,h) :
     return h
 
 def MakePlotMinimumZero(plotname) :
-    return plotname in ['tc_headroom','idig','ilv_in','ifeast','ifeast_in',
+    return plotname in ['tc_headroom','idig','ifeast','ifeast_in',
                         'pmhv','pmhvr','pmhvmux','hv_power_resistors','pmodule_noHV',
                         'pmodule','powertotal','itape','pmtape','ptape','pstave']
 

@@ -117,14 +117,21 @@ def main(options,args):
 
     import python.ExtendedModelSummaryPlots as ExtendedModelSummaryPlots
     ExtendedModelSummaryPlots.ProcessSummaryPlots(results,structure_names,options,speciallegend=options.endcap,plotaverage=False)
-    ExtendedModelSummaryPlots.ProcessSummaryTables(results,structure_names,options)
+
+    outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
+
+    f = open('%s/SummaryTables.txt'%(outputpath),'w')
+    for name in ['tsensor','isensor','itape'] :
+        f.write(ExtendedModelSummaryPlots.ProcessSummaryTables(name,results,structure_names,options,target_index='start'))
+        f.write(ExtendedModelSummaryPlots.ProcessSummaryTables(name,results,structure_names,options,target_index='tid'))
+        f.write(ExtendedModelSummaryPlots.ProcessSummaryTables(name,results,structure_names,options,target_index='eol'))
+    f.close()
 
     # Save config files in the output directory
     for conf in config_files :
         os.system('cp %s/data/%s %s/plots/%s/.'%(the_path,conf,os.getcwd().split('/StripsThermalModel')[0],options.outdir))
 
     # Save config summary table
-    outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
     f = open('%s/ConfigTables.txt'%(outputpath),'w')
     f.write(config_text)
     f.close()
