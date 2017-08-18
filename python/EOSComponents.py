@@ -7,6 +7,9 @@
 import Config
 import SafetyFactors
 
+descr_veos = 'EOS input voltage'
+Veos = Config.GetDouble('EOSComponents.Veos',11.0,unit='V',description=descr_veos)
+
 eosV12 = 1.2 # voltage (1.2 volts)
 eosV25 = 2.5 # voltage (2.5 volts)
 

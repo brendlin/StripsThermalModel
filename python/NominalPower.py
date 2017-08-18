@@ -65,7 +65,7 @@ def Ihcc(Thcc,d,D) :
 def Phcc(Thcc,d,D) :
     return FrontEndComponents.hybridV * Ihcc(Thcc, d, D)
 
-# TOTAL feast efficiency given n feasts on the module
+# TOTAL feast current (load) given n feasts on the module
 def Ifeast(Tabc,Thcc,d,D) :
     return Iabc(Tabc, d, D) + Ihcc(Thcc, d, D)
 
@@ -80,6 +80,7 @@ def Pfeast(Tabc,Thcc,Tfeast,d,D) :
 def Idig(Tabc,Thcc,d,D) :
     return Iabc_digital(Tabc,d,D) + Ihcc_digital(Thcc,d,D)
 
+# Input from module FEAST and LDOs (e.g. load on the tape)
 def Itape(Tabc,Thcc,Tfeast,d,D) :
     return ( Pabc(Tabc, d, D) + Phcc(Thcc, d, D) + Pamac + Pfeast(Tabc,Thcc,Tfeast,d,D) ) / float(PoweringEfficiency.Vfeast)
 
@@ -89,13 +90,17 @@ def Ptape(Tabc,Thcc,Tfeast,d,D) :
 def Pmod(Tabc,Thcc,Tfeast,d,D,Is) :
     return Pabc(Tabc,d,D) + Phcc(Thcc,d,D) + Pamac + Pfeast(Tabc,Thcc,Tfeast,d,D) + Ptape(Tabc,Thcc,Tfeast,d,D) + Phv(Is)
 
-# EOS power (including powering efficiency)
-
+# EOS current (load) on FEAST
 eosI  = ( (nlpgbt * EOSComponents.lpgbtI + ngbld * EOSComponents.gbld12I) / float(PoweringEfficiency.DCDC2eff) ) * (EOSComponents.eosV12/float(EOSComponents.eosV25))
 eosI += ngbtia * EOSComponents.gbtiaI + ngbld * EOSComponents.gbld25I
 
+# EOS power (including powering efficiency)
 def eosP(Teos) :
     return EOSComponents.eosV25 * eosI * 100 / float(PoweringEfficiency.feasteff(Teos, eosI))
+
+# Tape current load due to EOS
+def Itape_eos(Teos) :
+    return eosP(Teos) / float(EOSComponents.Veos)
 
 # Stave power
 # in Watt, 2x14 modules (including ohmic loss in tape) +2xEOS, nominal (no irradiation and leakage) 
