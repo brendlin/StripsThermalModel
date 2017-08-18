@@ -698,7 +698,7 @@ def CalculateSensorTemperature(options) :
     if thermal_runaway_index :
         collection.append(PlotQGraph(c,leg,thermal_runaway_index,PlotUtils.ColorPalette()[3],'t = thermal runaway'))
     else :
-        collection.append(PlotQGraph(c,leg,-1           ,PlotUtils.ColorPalette()[2],'t = 14 years' ))
+        collection.append(PlotQGraph(c,leg,-1,PlotUtils.ColorPalette()[2],'t = %d years'%(GlobalSettings.nyears)))
     leg.Draw()
 
     taxisfunc.AutoFixYaxis(c)
@@ -763,7 +763,7 @@ def CalculateSensorTemperature(options) :
     if thermal_runaway_index :
         collection.append(PlotQRefGraph(c,leg,thermal_runaway_index,PlotUtils.ColorPalette()[3],'t = thermal runaway'))
     else :
-        collection.append(PlotQRefGraph(c,leg,-1           ,PlotUtils.ColorPalette()[2],'t = 14 years'))
+        collection.append(PlotQRefGraph(c,leg,-1           ,PlotUtils.ColorPalette()[2],'t = %d years'%(GlobalSettings.nyears)))
     leg.Draw()
 
     taxisfunc.AutoFixYaxis(c)

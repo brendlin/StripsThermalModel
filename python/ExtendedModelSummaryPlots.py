@@ -159,7 +159,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
 
     time_label = {'tid'  :'TID bump',
                   'start':'Year 0',
-                  'eol':'Year 14',
+                  'eol':'Year %d'%(GlobalSettings.nyears),
                   }.get(target_index)
 
     ncolumns = 8 if options.endcap else 2
