@@ -8,7 +8,6 @@ import NominalPower
 import SensorLeakage
 import OperationalProfiles
 import SensorProperties
-import Layout
 import SafetyFactors
 import PoweringEfficiency
 import CoolantTemperature
@@ -377,12 +376,6 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
 
     # dictionary of graphs
     gr = dict()
-
-    structure_name = Config.GetStr('Layout.Detector')
-    substructure_name = {'Barrel':'layer (both sides)',
-                         'Endcap':'ring (both endcaps)'}.get(structure_name)
-    layer_or_ring = {'Barrel':'layer',
-                     'Endcap':'-----'}.get(structure_name)
 
     gr['tsensor']    = MakeGraph('SensorTemperature'      ,'sensor temperature'                        ,xtitle,'T_{%s} [#circ^{}C]'%('sensor'),x,tsensor   )
     gr['tabc']       = MakeGraph('AbcTemperature'         ,'ABC temperature'                           ,xtitle,'T_{%s} [#circ^{}C]'%('ABC'   ),x,tabc      )

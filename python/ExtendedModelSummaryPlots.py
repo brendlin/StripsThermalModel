@@ -7,6 +7,7 @@ import TAxisFunctions as taxisfunc
 import GlobalSettings
 import CoolantTemperature
 import TableUtils
+import Layout
 from array import array
 
 colors = {'B1':ROOT.kGreen,
@@ -58,7 +59,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
     barrel_endcap = ''
     if hasattr(options,'barrel') :
-        barrel_endcap = 'Barrel_' if options.barrel else 'Endcap_'
+        structure_name = 'Barrel'  if options.barrel else 'Endcap'
+        barrel_endcap  = 'Barrel_' if options.barrel else 'Endcap_'
 
     if not hasattr(options,'endcap') :
         options.endcap = False
@@ -148,6 +150,43 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
         if plotname in ['qsensor_headroom'] :
             c.SetLogy(False)
+
+    #
+    # Process Totals
+    #
+    substructure_name = {'Barrel':'layer (both sides)',
+                         'Endcap':'ring (both endcaps)'}.get(structure_name)
+#     layer_or_ring = {'Barrel':'layer',
+#                      'Endcap':'-----'}.get(structure_name)
+
+    x = GlobalSettings.time_step_list[1:]
+    powertotal = []
+    nModuleSides = 2.
+    nDetectors = 2. # 2 barrel sides; 2 endcaps
+    for i in range(GlobalSettings.nstep) :
+        powertotal.append(0)
+        for result_dict in result_dicts :
+            powertotal[i] += result_dict['pmodule'].GetY()[i]
+            # peos should be 0 for R0-R4
+            powertotal[i] += result_dict['peos'   ].GetY()[i]
+
+        # endcap          2              1/petal       npetals/ring     nEndcaps (2)
+        # barrel          2              14/stave      nstaves/side     nSides (2)
+        powertotal[i] *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors / 1000.)
+
+    gr = dict()
+    gr['powertotal'] = MakeGraph('TotalPower','Total Power in both %ss'%(structure_name),xtitle,'P_{%s} [kW]'%('Total'),x,powertotal)
+
+    for g in gr.keys() :
+        c.Clear()
+        gr[g].Draw('al')
+        text.Clear()
+        PlotUtils.AddRunParameterLabels(text,additionalinfo=[gr[g].GetTitle()])
+        text.Draw()
+        minzero = PlotUtils.MakePlotMinimumZero(g)
+        forcemin = PlotUtils.GetPlotForcedMinimum(g)
+        taxisfunc.AutoFixYaxis(c,minzero=minzero,forcemin=forcemin)
+        c.Print('%s/%s%s.eps'%(outputpath,barrel_endcap,gr[g].GetName()))
 
     return
 
