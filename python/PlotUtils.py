@@ -190,7 +190,7 @@ def AddToStack(stack,leg,h) :
 def MakePlotMinimumZero(plotname) :
     return plotname in ['tc_headroom','idig','ifeast','ifeast_in',
                         'pmhv','pmhvr','pmhvmux','hv_power_resistors','pmodule_noHV',
-                        'pmodule','powertotal','itape','pmtape','ptape','pstave']
+                        'pmodule','powertotal','itape','itape_cumulative','ptape','ptape_cumulative','pstave']
 
 def GetPlotForcedMinimum(plotname) :
     return {'qsensor_headroom': 0.09}.get(plotname,None)

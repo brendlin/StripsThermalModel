@@ -1,3 +1,9 @@
+2017-08-30 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Remove incorrect quantities from SensorTemperatureCalc: powertotal, pstave, phvtotal
+   * Fix up itape, ptape
+   * New method to transmit the tape load of the previous modules (e.g. R0, R1) to the next module R2
+   * Add itape_cumulative, ptape_cumulative which include the load of the previous modules
+
 2017-08-18 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Un-hardcode "year 14" as last year
     * Add first latex document output

@@ -107,7 +107,14 @@ def main(options,args):
                 config_text += '%% Ring %d Disk %d (%s):\n'%(ring,disk,Config.GetName())
                 config_text += Config.Print() + '\n'
 
-                results.append(SensorTemperatureCalc.CalculateSensorTemperature(options))
+                itape_previous_list = []
+                if ring :
+                    index_previousmodule = (ring-1)*6 + (disk)
+                    tmp_gr = results[index_previousmodule]['itape_cumulative']
+                    for tmp_i in range(tmp_gr.GetN()) :
+                        itape_previous_list.append(tmp_gr.GetY()[tmp_i])
+
+                results.append(SensorTemperatureCalc.CalculateSensorTemperature(options,itape_previous_list=itape_previous_list))
                 structure_names.append('R%dD%d'%(ring,disk))
 
     # Add some output directory specifications

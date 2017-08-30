@@ -37,7 +37,8 @@ def GraphToHist(gr) :
         h.SetBinContent(h.FindBin(gr.GetX()[i]),gr.GetY()[i])
     return h
 
-def CalculateSensorTemperature(options) :
+def CalculateSensorTemperature(options,itape_previous_list=[]) :
+    # itape_previous must be a list with the same length as GlobalSettings.nstep
 
     # "Initialize lists"
     # Lists of quantities vs time
@@ -54,14 +55,14 @@ def CalculateSensorTemperature(options) :
     pfeast_abchcc = [] # FEAST power, abc and hcc specific
     pfamac     = list(NominalPower.Pfamac for i in range(GlobalSettings.nstep))
     pmodule    = [] # Power per module (front-end + HV)
-    pmtape     = [] # Power loss in tape per module
+    ptape      = [] # Power loss in tape due to items on the module
+    ptape_cumulative = [] # Power loss in tape due to items on the module, plus previous modules
     pmhv       = [] # HV power per module (leakage + resistors)
     isensor    = [] # Sensor current (Leakage current per module)
     pmhvr      = [] # HV power per module due to serial resistors
-    powertotal = [] # Total power in layer
-    phvtotal   = [] # Total HV Power (sensor+resistors) in layer
     pmhvmux    = [] # HV Power parallel resistor
-    itape      = [] # Tape current per module
+    itape      = [] # Tape current (load) per module
+    itape_cumulative = [] # Cumulative tape current (load) per module - adding the previous modules
     idig       = [] # Digital current per module (ABCs+HCCs)
     ihcc_dig   = [] # Digital HCC current (all HCCs)
     ihcc_a     = list(NominalPower.nhcc*FrontEndComponents.hccIa for i in range(GlobalSettings.nstep)) # Analog HCC current
@@ -72,8 +73,6 @@ def CalculateSensorTemperature(options) :
     ifeast     = [] # FEAST current (load)
     ifeast_in  = [] # FEAST current (input)
     efffeast   = [] # FEAST efficiency
-    ptape      = [] # Power loss in complete tape layer
-    pstave     = [] # Stave Power in layer
     qsensor    = [] # sensor Q
     qsensor_headroom = [] # Sensor Qleakage headroom factor
     tc_crit = [] # Critical coolant temperature
@@ -91,21 +90,21 @@ def CalculateSensorTemperature(options) :
     # These are initial values. Saved slightly differently for simplicity.
     # defTeos
     teos.append(Temperatures.Teos( NominalPower.eosP(nomT),
-                                   NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0),
+                                   NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0, itape_previous_modules=0),
                                    0, CoolantTemperature.GetTimeStepTc()[0] ))
     # defTabc
     tabc.append(Temperatures.Tabc( NominalPower.Pabc(nomT, 1, 0),
                                    NominalPower.eosP(nomT),
-                                   NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0),
+                                   NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0, itape_previous_modules=0),
                                    0, CoolantTemperature.GetTimeStepTc()[0] ))
     # defThcc
     thcc.append(Temperatures.Thcc( NominalPower.Phcc(nomT, 1, 0), NominalPower.eosP(nomT),
-                                   NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0),
+                                   NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0, itape_previous_modules=0),
                                    0, CoolantTemperature.GetTimeStepTc()[0] ))
     # defTfeast
     tfeast.append(Temperatures.Tfeast( NominalPower.Pfeast(nomT, nomT, nomT, 1, 0),
                                        NominalPower.eosP(nomT),
-                                       NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0),
+                                       NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0, itape_previous_modules=0),
                                        0, CoolantTemperature.GetTimeStepTc()[0] ))
 
     thermal_runaway = False
@@ -139,6 +138,7 @@ def CalculateSensorTemperature(options) :
 
         y_gets_over_zero = False
 
+        itape_previous_i = 0 if not itape_previous_list else itape_previous_list[i]
         doserate_i = OperationalProfiles.doserate[i]
         tid_dose_i = OperationalProfiles.tid_dose[i]
         Tcoolant_i = CoolantTemperature.GetTimeStepTc()[i]
@@ -156,7 +156,8 @@ def CalculateSensorTemperature(options) :
             t0_noLeakage_ts_i = Temperatures.T0(NominalPower.eosP(teos[-1]),
                                                 NominalPower.Pmod(tabc[-1],thcc[-1],tfeast[-1],
                                                                   doserate_i,tid_dose_i,
-                                                                  isensor_i), # You need the current here to get the heat from the HV resistors
+                                                                  isensor_i, # You need the current here to get the heat from the HV resistors
+                                                                  itape_previous_modules=itape_previous_i),
                                                 Tcoolant_i
                                                 )
 
@@ -205,8 +206,8 @@ def CalculateSensorTemperature(options) :
                 qref_rootsolve_list.append(y)
 
         if thermal_runaway :
-            for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,pmtape,pmhv,isensor,pmhvr,
-                           powertotal,phvtotal,pmhvmux,itape,idig,ihcc_dig,iabc_dig,ifeast,ifeast_in,efffeast,ptape,pstave,qsensor,
+            for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,ptape,ptape_cumulative,pmhv,isensor,pmhvr,
+                           pmhvmux,itape,itape_cumulative,idig,ihcc_dig,iabc_dig,ifeast,ifeast_in,efffeast,qsensor,
                            tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
             qsensor_headroom.append(0.1)
@@ -259,7 +260,8 @@ def CalculateSensorTemperature(options) :
 
         # module power: no leakage power, but power from hvmux and rhv is included here.
         pmodule_noLeakagePow_lastStep = NominalPower.Pmod(tabc[i-1],thcc[i-1],tfeast[i-1],
-                                                          doserate_i,tid_dose_i,isensor[i])
+                                                          doserate_i,tid_dose_i,isensor[i],
+                                                          itape_previous_modules=itape_previous_i)
 
         # Temperature of ABC
         tabc.append(Temperatures.Tabc(NominalPower.Pabc(tabc[i-1],doserate_i,tid_dose_i),
@@ -298,7 +300,8 @@ def CalculateSensorTemperature(options) :
         #
 
         pmodule_noLeakagePow_thisStep = NominalPower.Pmod(tabc[i],thcc[i],tfeast[i],
-                                                          doserate_i,tid_dose_i,isensor[i])
+                                                          doserate_i,tid_dose_i,isensor[i],
+                                                          itape_previous_modules=itape_previous_i)
 
         # ABC Power (all n ABCs)
         pabc.append(NominalPower.Pabc(tabc[i],doserate_i,tid_dose_i))
@@ -323,8 +326,11 @@ def CalculateSensorTemperature(options) :
         # Power per module (front-end + HV)
         pmodule.append(pmodule_noLeakagePow_thisStep + resultqsensor)
 
-        # Power loss in tape per module
-        pmtape.append(NominalPower.Ptape(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
+        # Power loss in tape due to items on the module
+        ptape.append(NominalPower.Ptape(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
+
+        # Power loss in tape due to items on the module, plus previous modules
+        ptape_cumulative.append(NominalPower.Ptape_Cumulative(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i,itape_previous_i))
 
         # HV power per module (leakage + resistors)
         pmhv.append(resultqsensor + NominalPower.Phv( isensor[i] ) )
@@ -335,23 +341,11 @@ def CalculateSensorTemperature(options) :
         # HV per module due to parallel resistor
         pmhvmux.append(NominalPower.Phvmux)
 
-        # Stave power B1
-        pstave.append(NominalPower.Pstave(tabc[i],thcc[i],tfeast[i],teos[i],doserate_i,tid_dose_i,isensor[i]))
-
-        # Total power for layer
-        # Extra factor of 2 is for 2 sides of the barrel, or 2 endcaps.
-        powertotal.append( 2 * Layout.nstaves * (1 + SafetyFactors.safetylayout) * pstave[i] / 1000.)
-
-        # Total HV power for layer
-        # One factor of 2 is for 2 sides of the barrel, or 2 endcaps.
-        # Antoher factor of 2 is for two sides of the module
-        phvtotal.append( 2 * Layout.nstaves * (1 + SafetyFactors.safetylayout) * 2 * Layout.nmod * (pmhv[i] + pmhvr[i]) / 1000. )
-
-        # Tape current per module
+        # Tape current (load) per module
         itape.append(NominalPower.Itape(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
 
-        # Tape power for one tape (half a stave)
-        ptape.append(NominalPower.Pstavetape(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
+        # Cumulative tape current (load) per module - adding the previous modules
+        itape_cumulative.append(NominalPower.Itape_Cumulative(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i,itape_previous_i))
 
         # Digital current per module (ABCs + HCCs)
         idig.append(NominalPower.Idig(tabc[i],thcc[i],doserate_i,tid_dose_i))
@@ -397,20 +391,18 @@ def CalculateSensorTemperature(options) :
     gr['teos']       = MakeGraph('EOSTemperature'         ,'EOS temperature'                           ,xtitle,'T_{%s} [#circ^{}C]'%('EOS'   ),x,teos      )
     gr['peos']       = MakeGraph('EOSPower'               ,'EOS power'                                 ,xtitle,'P_{%s} [W]'%('EOS'   )        ,x,peos      )
     gr['pmodule']    = MakeGraph('ModulePower'            ,'Module Power (one side)'                   ,xtitle,'P_{%s} [W]'%('module')        ,x,pmodule   )
-    gr['pmtape']     = MakeGraph('TapePower'              ,'Tape power loss'                           ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,pmtape    )
+    gr['ptape']      = MakeGraph('TapePower'              ,'LV tape power loss due to items on module' ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,ptape    )
+    gr['ptape_cumulative'] = MakeGraph('TapePowerCumulative','Cumulative LV tape power loss (one module, one side)',xtitle,'P_{%s} [W]'%('tape'),x,ptape_cumulative)
     gr['pmhv']       = MakeGraph('HVPower'                ,'Total HV power'                            ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,pmhv      )
     gr['isensor']    = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current (one module side)',xtitle,'I_{%s} [mA]'%('sensor')       ,x,list(isensor[a]*1000. for a in range(len(isensor))))
     gr['pmhvr']      = MakeGraph('HVPowerSerialResistors' ,'HV Power serial resistors'                 ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,pmhvr     )
-    gr['powertotal'] = MakeGraph('SummaryTotalPower'      ,'Total Power in %s'%(substructure_name)     ,xtitle,'P_{%s} [kW]'%('Total')        ,x,powertotal)
-    gr['phvtotal']   = MakeGraph('SummaryTotalHVPower'    ,'Total HV Power (sensor + resistors) in %s'%(substructure_name),xtitle,'P_{%s} [kW]'%('HV'),x,phvtotal)
     gr['pmhvmux']    = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'                ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,pmhvmux   )
-    gr['itape']      = MakeGraph('TapeCurrent'            ,'Tape current per module'                   ,xtitle,'I_{%s} [A]'%('tape')          ,x,itape     )
+    gr['itape']      = MakeGraph('TapeCurrentLV'          ,'LV Tape current due to items on module'    ,xtitle,'I_{%s} [A]'%('tape')          ,x,itape     )
+    gr['itape_cumulative'] = MakeGraph('TapeCurrentLVCumulative','Cumulative LV tape current (one module, one side)',xtitle,'I_{%s} [A]'%('tape'),x,itape_cumulative)
     gr['idig']       = MakeGraph('DigitalCurrent'         ,'ABC and HCC digital current'               ,xtitle,'I_{%s} [A]'%('digital')       ,x,idig      )
     gr['ifeast']     = MakeGraph('FeastCurrent'           ,'FEAST current (load, per FEAST)'           ,xtitle,'I_{%s} [A]'%('FEAST,load')    ,x,ifeast    )
     gr['ifeast_in']  = MakeGraph('FeastCurrentInput'      ,'FEAST current (input)'                     ,xtitle,'I_{%s} [A]'%('FEAST,in')      ,x,ifeast_in )
     gr['efffeast']   = MakeGraph('FeastEfficiency'        ,'Feast efficiency'                          ,xtitle,'Efficiency [%]'               ,x,efffeast  )
-    gr['ptape']      = MakeGraph('TotalPowerLossTape'     ,'Power loss in complete tape in %s'%(layer_or_ring),xtitle,'P_{%s} [W]'%('tape')   ,x,ptape     )
-    gr['pstave']     = MakeGraph('TotalStavePower'        ,'Stave Power'                               ,xtitle,'P_{%s} [W]'%('stave')         ,x,pstave    )
     gr['qsensor_headroom'] = MakeGraph('SensorQHeadroom'  ,'Sensor Q Headroom factor'                  ,xtitle,'Power headroom factor, _{}Q_{S,crit}/Q_{S}',x,qsensor_headroom)
     gr['tcoolant']   = MakeGraph('CoolantTemperature'     ,'coolant temperature'                       ,xtitle,'T_{%s} [#circ^{}C]'%('coolant'),x,CoolantTemperature.GetTimeStepTc())
     gr['tid_sf_abc'] = MakeGraph('ABCTidBumpScaleFactor'  ,'ABC TID bump scale factor'                 ,xtitle,'scale factor'                 ,x,tid_sf_abc)
@@ -482,7 +474,7 @@ def CalculateSensorTemperature(options) :
     # pmodule_noHV is (Power per module) minus (HV power + HV power due to serial resistors)
     pmodule_noHV  = list(pmodule[i] - (pmhv[i] + pmhvr[i]) for i in range(len(pmodule)))
     gr['pmodule_noHV'] = MakeGraph('ModulePower_noHV','Power without HV',xtitle,'P [W]',x,pmodule_noHV)
-    pmodule_noHV_noTapeLoss = list(pmodule[i] - (pmhv[i] + pmhvr[i]) - pmtape[i] for i in range(len(pmodule)))
+    pmodule_noHV_noTapeLoss = list(pmodule[i] - (pmhv[i] + pmhvr[i]) - ptape_cumulative[i] for i in range(len(pmodule)))
     gr_pmodule_noHV_noTapeLoss = MakeGraph('ModulePower_noHV_NoTapeLoss','Power w/o HV and w/o tape loss',xtitle,'P [W]',x,pmodule_noHV_noTapeLoss)
     colors = {'pmodule'                :ROOT.kGreen+1,
               'pmodule_noHV'           :ROOT.kBlue+1,
@@ -578,7 +570,7 @@ def CalculateSensorTemperature(options) :
     c.Clear()
     hists = dict()
     stack = ROOT.THStack('stack','stack')
-    # pmod = pabc + phcc + pamac + pfeast + ptape + phv
+    # pmod = pabc + phcc + pamac + pfeast + ptape_cumulative + phv
     leg = ROOT.TLegend(0.61,0.63,0.86,0.93)
     leg.SetName('legend')
     PlotUtils.SetStyleLegend(leg)
@@ -588,7 +580,7 @@ def CalculateSensorTemperature(options) :
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['phcc'])))
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pfeast_abchcc'])))
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pfamac'])))
-    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr['pmtape']))) # fix!!!
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr['ptape_cumulative'])))
     phvresistors  = list(pmhvmux[i] + pmhvr[i] for i in range(len(pmhvmux)))
     gr_phvresistors = MakeGraph('ModulePower_HVResistors','Power of HV resistors',xtitle,'P [W]',x,phvresistors)
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr_phvresistors))) # HV resistors
@@ -598,7 +590,7 @@ def CalculateSensorTemperature(options) :
         hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr['peos'])))
 
     for h in hists :
-        leg.AddEntry(h,h.GetTitle().replace('power ','').replace('power',''),'f')
+        leg.AddEntry(h,h.GetTitle().replace('power ','').replace('power','').replace(' (one module, one side)',''),'f')
     if max(peos) == 0 :
         leg.AddEntry(0,'','')
 
