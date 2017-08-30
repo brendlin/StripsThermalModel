@@ -4,6 +4,7 @@
    * New method to transmit the tape load of the previous modules (e.g. R0, R1) to the next module R2
    * Add itape_cumulative, ptape_cumulative which include the load of the previous modules
    * Add TotalPower into ExtendedModelSummaryPlots
+   * Add TotalHVPower into ExtendedModelSummaryPlots
 
 2017-08-18 Kurt Brendlinger <kurt.brendlinger@cern.ch>
     * Un-hardcode "year 14" as last year

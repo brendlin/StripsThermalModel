@@ -160,22 +160,28 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 #                      'Endcap':'-----'}.get(structure_name)
 
     x = GlobalSettings.time_step_list[1:]
-    powertotal = []
+    powertotal = [] # Total power in full endcap or barrel (both sides)
+    phvtotal   = [] # Total HV Power (sensor+resistors) in full endcap or barrel (both sides)
     nModuleSides = 2.
     nDetectors = 2. # 2 barrel sides; 2 endcaps
     for i in range(GlobalSettings.nstep) :
         powertotal.append(0)
+        phvtotal.append(0)
         for result_dict in result_dicts :
             powertotal[i] += result_dict['pmodule'].GetY()[i]
-            # peos should be 0 for R0-R4
-            powertotal[i] += result_dict['peos'   ].GetY()[i]
+            powertotal[i] += result_dict['peos'   ].GetY()[i] # peos should be 0 for R0-R4
+
+            phvtotal[i] += result_dict['pmhv' ].GetY()[i]
+            phvtotal[i] += result_dict['pmhvr'].GetY()[i]
 
         # endcap          2              1/petal       npetals/ring     nEndcaps (2)
         # barrel          2              14/stave      nstaves/side     nSides (2)
         powertotal[i] *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors / 1000.)
+        phvtotal[i]   *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors / 1000.)
 
     gr = dict()
-    gr['powertotal'] = MakeGraph('TotalPower','Total Power in both %ss'%(structure_name),xtitle,'P_{%s} [kW]'%('Total'),x,powertotal)
+    gr['powertotal'] = MakeGraph('TotalPower'  ,'Total Power in both %ss'%(structure_name)                   ,xtitle,'P_{%s} [kW]'%('Total'),x,powertotal)
+    gr['phvtotal']   = MakeGraph('TotalHVPower','Total HV Power (sensor + resistors) in %ss'%(structure_name),xtitle,'P_{%s} [kW]'%('HV')   ,x,phvtotal  )
 
     for g in gr.keys() :
         c.Clear()
