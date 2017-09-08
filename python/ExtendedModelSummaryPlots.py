@@ -217,8 +217,6 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
     disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}'
     the_lists = []
 
-    nsigfig = 0
-
     if options.endcap :
         the_lists.append(['','','0','1','2','3','4','5'])
         for ring in range(5,-1,-1) :
@@ -234,20 +232,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                               'eol'  :the_graph.GetN()-1,
                               }.get(target_index)
                 result_double = the_graph.GetY()[time_index]
-                result = '%.5g'%(result_double)
-                the_lists[-1].append(result)
-                if '.' not in result :
-                    nsigfig = max(0,nsigfig)
-                else :
-                    nsigfig = max(len(result.split('.')[-1]),nsigfig)
-
-        for i in range(1,len(the_lists)) :
-            for j in range(2,len(the_lists[i])) :
-                try :
-                    num = float(the_lists[i][j])
-                    the_lists[i][j] = '%.*f'%(nsigfig-2,num)
-                except :
-                    pass
+                the_lists[-1].append(result_double)
 
         table = TableUtils.PrintLatexTable(the_lists)
         table = table[:table.index('\n')+1] + disk_ring_labels + table[table.index('\n'):]
@@ -265,20 +250,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                           'eol'  :the_graph.GetN()-1,
                           }.get(target_index)
             result_double = the_graph.GetY()[time_index]
-            result = '%.5g'%(result_double)
-            the_lists[-1].append(result)
-            if '.' not in result :
-                nsigfig = max(0,nsigfig)
-            else :
-                nsigfig = max(len(result.split('.')[-1]),nsigfig)
-
-        for i in range(0,len(the_lists)) :
-            for j in range(1,len(the_lists[i])) :
-                try :
-                    num = float(the_lists[i][j])
-                    the_lists[i][j] = '%.*f'%(nsigfig-2,num)
-                except :
-                    pass
+            the_lists[-1].append(result_double)
 
         table = TableUtils.PrintLatexTable(the_lists)
         table = table[:table.index('\n')+1] + header + table[table.index('\n'):]

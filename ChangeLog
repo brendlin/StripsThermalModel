@@ -1,3 +1,6 @@
+2017-09-08 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Clean up code for printing out latex tables.
+
 2017-08-30 Kurt Brendlinger <kurt.brendlinger@cern.ch>
    * Remove incorrect quantities from SensorTemperatureCalc: powertotal, pstave, phvtotal
    * Fix up itape, ptape
