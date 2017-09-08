@@ -171,8 +171,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             powertotal[i] += result_dict['pmodule'].GetY()[i]
             powertotal[i] += result_dict['peos'   ].GetY()[i] # peos should be 0 for R0-R4
 
-            phvtotal[i] += result_dict['pmhv' ].GetY()[i]
-            phvtotal[i] += result_dict['pmhvr'].GetY()[i]
+            phvtotal[i] += result_dict['phv_wleakage' ].GetY()[i]
 
         # endcap          2              1/petal       npetals/ring     nEndcaps (2)
         # barrel          2              14/stave      nstaves/side     nSides (2)

@@ -56,10 +56,10 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     pmodule    = [] # Power per module (front-end + HV)
     ptape      = [] # Power loss in tape due to items on the module
     ptape_cumulative = [] # Power loss in tape due to items on the module, plus previous modules
-    pmhv       = [] # HV power per module (leakage + resistors)
+    phv_wleakage = [] # HV power per module (leakage + resistors)
     isensor    = [] # Sensor current (Leakage current per module)
-    pmhvr      = [] # HV power per module due to serial resistors
-    pmhvmux    = [] # HV Power parallel resistor
+    phvr       = [] # HV power per module due to serial resistors
+    phvmux     = [] # HV Power per module parallel resistor
     itape      = [] # Tape current (load) per module
     itape_cumulative = [] # Cumulative tape current (load) per module - adding the previous modules
     idig       = [] # Digital current per module (ABCs+HCCs)
@@ -205,8 +205,8 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
                 qref_rootsolve_list.append(y)
 
         if thermal_runaway :
-            for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,ptape,ptape_cumulative,pmhv,isensor,pmhvr,
-                           pmhvmux,itape,itape_cumulative,idig,ihcc_dig,iabc_dig,ifeast,ifeast_in,efffeast,qsensor,
+            for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,ptape,ptape_cumulative,phv_wleakage,isensor,phvr,
+                           phvmux,itape,itape_cumulative,idig,ihcc_dig,iabc_dig,ifeast,ifeast_in,efffeast,qsensor,
                            tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
             qsensor_headroom.append(0.1)
@@ -331,14 +331,14 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
         # Power loss in tape due to items on the module, plus previous modules
         ptape_cumulative.append(NominalPower.Ptape_Cumulative(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i,itape_previous_i))
 
-        # HV power per module (leakage + resistors)
-        pmhv.append(resultqsensor + NominalPower.Phv( isensor[i] ) )
+        # HV power per module (leakage + Phv_R + Phv_Mux)
+        phv_wleakage.append(resultqsensor + NominalPower.Phv_R( isensor[i] ) + NominalPower.Phv_Mux )
 
         # HV power per module due to serial resistors
-        pmhvr.append( NominalPower.Prhv( isensor[i] ) )
+        phvr.append( NominalPower.Phv_R( isensor[i] ) )
 
         # HV per module due to parallel resistor
-        pmhvmux.append(NominalPower.Phvmux)
+        phvmux.append(NominalPower.Phv_Mux)
 
         # Tape current (load) per module
         itape.append(NominalPower.Itape(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
@@ -384,12 +384,13 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     gr['teos']       = MakeGraph('EOSTemperature'         ,'EOS temperature'                           ,xtitle,'T_{%s} [#circ^{}C]'%('EOS'   ),x,teos      )
     gr['peos']       = MakeGraph('EOSPower'               ,'EOS power'                                 ,xtitle,'P_{%s} [W]'%('EOS'   )        ,x,peos      )
     gr['pmodule']    = MakeGraph('ModulePower'            ,'Module Power (one side)'                   ,xtitle,'P_{%s} [W]'%('module')        ,x,pmodule   )
-    gr['ptape']      = MakeGraph('TapePower'              ,'LV tape power loss due to items on module' ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,ptape    )
+    gr['ptape']      = MakeGraph('TapePower'              ,'LV tape power loss due to items on module' ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,ptape     )
     gr['ptape_cumulative'] = MakeGraph('TapePowerCumulative','Cumulative LV tape power loss (one module, one side)',xtitle,'P_{%s} [W]'%('tape'),x,ptape_cumulative)
-    gr['pmhv']       = MakeGraph('HVPower'                ,'Total HV power'                            ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,pmhv      )
+    gr['phv_wleakage'] = MakeGraph('HVPower'              ,'Total HV power (with leakage)'             ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,phv_wleakage )
     gr['isensor']    = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current (one module side)',xtitle,'I_{%s} [mA]'%('sensor')       ,x,list(isensor[a]*1000. for a in range(len(isensor))))
-    gr['pmhvr']      = MakeGraph('HVPowerSerialResistors' ,'HV Power serial resistors'                 ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,pmhvr     )
-    gr['pmhvmux']    = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'                ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,pmhvmux   )
+    gr['qsensor']    = MakeGraph('HVSensorQ'              ,'Sensor Q'                                  ,xtitle,'P [W]'                        ,x,qsensor   )
+    gr['phvr']       = MakeGraph('HVPowerSerialResistors' ,'HV Power serial resistors'                 ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,phvr      )
+    gr['phvmux']     = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'                ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,phvmux    )
     gr['itape']      = MakeGraph('TapeCurrentLV'          ,'LV Tape current due to items on module'    ,xtitle,'I_{%s} [A]'%('tape')          ,x,itape     )
     gr['itape_cumulative'] = MakeGraph('TapeCurrentLVCumulative','Cumulative LV tape current (one module, one side)',xtitle,'I_{%s} [A]'%('tape'),x,itape_cumulative)
     gr['idig']       = MakeGraph('DigitalCurrent'         ,'ABC and HCC digital current'               ,xtitle,'I_{%s} [A]'%('digital')       ,x,idig      )
@@ -464,11 +465,13 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     # Module power
     #
     c.Clear()
-    # pmodule_noHV is (Power per module) minus (HV power + HV power due to serial resistors)
-    pmodule_noHV  = list(pmodule[i] - (pmhv[i] + pmhvr[i]) for i in range(len(pmodule)))
+    # pmodule_noHV is (Power per module including leakage) minus (HV power including leakage)
+    pmodule_noHV  = list(pmodule[i] - phv_wleakage[i] for i in range(len(pmodule)))
     gr['pmodule_noHV'] = MakeGraph('ModulePower_noHV','Power without HV',xtitle,'P [W]',x,pmodule_noHV)
-    pmodule_noHV_noTapeLoss = list(pmodule[i] - (pmhv[i] + pmhvr[i]) - ptape_cumulative[i] for i in range(len(pmodule)))
+    gr['pmodule_noHV']
+    pmodule_noHV_noTapeLoss = list(pmodule[i] - phv_wleakage[i] - ptape_cumulative[i] for i in range(len(pmodule)))
     gr_pmodule_noHV_noTapeLoss = MakeGraph('ModulePower_noHV_NoTapeLoss','Power w/o HV and w/o tape loss',xtitle,'P [W]',x,pmodule_noHV_noTapeLoss)
+    gr_pmodule_noHV_noTapeLoss.SetLineStyle(7)
     colors = {'pmodule'                :ROOT.kGreen+1,
               'pmodule_noHV'           :ROOT.kBlue+1,
               'pmodule_noHV_noTapeLoss':ROOT.kRed+1
@@ -538,16 +541,17 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     # HV power summary
     #
     c.Clear()
-    hv_power_resistors = list(pmhvr[i] + pmhvmux[i] for i in range(len(pmhv)))
+    hv_power_resistors = list(phvr[i] + phvmux[i] for i in range(len(phvr)))
     gr['hv_power_resistors'] = MakeGraph('HVPowerResistors','Contribution from all resistors',xtitle,'P [W]',x,hv_power_resistors)
-    gr['pmhvmux'].SetTitle('Contribution from parallel resistor')
-    colors = {'pmhv'              :ROOT.kBlue+1,
+    gr['phvmux'].SetTitle('Contribution from parallel resistor')
+    gr['phvmux'].SetLineStyle(7)
+    colors = {'phv_wleakage'      :ROOT.kBlue+1,
               'hv_power_resistors':ROOT.kGreen+1,
-              'pmhvmux'           :ROOT.kRed+1,
+              'phvmux'            :ROOT.kRed+1,
               }
     leg = ROOT.TLegend(0.50,0.81,0.78,0.94)
     PlotUtils.SetStyleLegend(leg)
-    for i,key in enumerate(['pmhv','hv_power_resistors','pmhvmux']) :
+    for i,key in enumerate(['phv_wleakage','hv_power_resistors','phvmux']) :
         gr[key].SetLineColor(colors.get(key))
         gr[key].Draw('l' if i else 'al')
         leg.AddEntry(gr[key],gr[key].GetTitle(),'l')
@@ -563,7 +567,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     c.Clear()
     hists = dict()
     stack = ROOT.THStack('stack','stack')
-    # pmod = pabc + phcc + pamac + pfeast + ptape_cumulative + phv
+    # pmod = pabc + phcc + pamac + pfeast + ptape_cumulative + phv_wleakage
     leg = ROOT.TLegend(0.61,0.63,0.86,0.93)
     leg.SetName('legend')
     PlotUtils.SetStyleLegend(leg)
@@ -574,11 +578,10 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pfeast_abchcc'])))
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pfamac'])))
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr['ptape_cumulative'])))
-    phvresistors  = list(pmhvmux[i] + pmhvr[i] for i in range(len(pmhvmux)))
+    phvresistors  = list(phvmux[i] + phvr[i] for i in range(len(phvmux)))
     gr_phvresistors = MakeGraph('ModulePower_HVResistors','Power of HV resistors',xtitle,'P [W]',x,phvresistors)
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr_phvresistors))) # HV resistors
-    gr_qsensor = MakeGraph('Qsensor','Sensor Q',xtitle,'P [W]',x,qsensor)
-    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr_qsensor))) # qsensor
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr['qsensor']))) # qsensor
     if max(peos) > 0 :
         hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr['peos'])))
 

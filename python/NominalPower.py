@@ -27,13 +27,10 @@ Pamac = (FrontEndComponents.amac15V * FrontEndComponents.amac15I + FrontEndCompo
 Pfamac  = (PoweringEfficiency.Vfeast - FrontEndComponents.amac15V) * FrontEndComponents.amac15I
 Pfamac += (PoweringEfficiency.Vfeast - FrontEndComponents.amac3V ) * FrontEndComponents.amac3I
 
-def Prhv(Is) :
+def Phv_R(Is) :
     return SensorProperties.Rhv*Is*Is
 
-Phvmux = SensorProperties.vbias*SensorProperties.vbias/float(SensorProperties.Rhvmux + SensorProperties.Rhv)
-
-def Phv(Is) :
-    return Phvmux + Prhv(Is)
+Phv_Mux = SensorProperties.vbias*SensorProperties.vbias/float(SensorProperties.Rhvmux + SensorProperties.Rhv)
 
 nabc   = Config.GetInt('NominalPower.nabc',description='Number of ABCs on the hybrid')
 nhcc   = Config.GetInt('NominalPower.nhcc',description='Number of HCCs on the hybrid')
@@ -97,7 +94,7 @@ def Ptape_Cumulative(Tabc,Thcc,Tfeast,d,D,itape_previous_modules=0) :
     return ( Itape_Cumulative(Tabc,Thcc,Tfeast,d,D,itape_previous_modules) )**2 * Rtape
 
 def Pmod(Tabc,Thcc,Tfeast,d,D,Is,itape_previous_modules=0) :
-    return Pabc(Tabc,d,D) + Phcc(Thcc,d,D) + Pamac + Pfeast(Tabc,Thcc,Tfeast,d,D) + Ptape_Cumulative(Tabc,Thcc,Tfeast,d,D,itape_previous_modules) + Phv(Is)
+    return Pabc(Tabc,d,D) + Phcc(Thcc,d,D) + Pamac + Pfeast(Tabc,Thcc,Tfeast,d,D) + Ptape_Cumulative(Tabc,Thcc,Tfeast,d,D,itape_previous_modules) + Phv_R(Is) + Phv_Mux
 
 # EOS current (load) on FEAST
 eosI  = ( (nlpgbt * EOSComponents.lpgbtI + ngbld * EOSComponents.gbld12I) / float(PoweringEfficiency.DCDC2eff) ) * (EOSComponents.eosV12/float(EOSComponents.eosV25))

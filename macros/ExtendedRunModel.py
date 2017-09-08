@@ -109,7 +109,7 @@ def main(options,args):
 
                 itape_previous_list = []
                 if ring :
-                    index_previousmodule = (ring-1)*6 + (disk)
+                    index_previousmodule = structure_names.index('R%dD%d'%(ring-1,disk))
                     tmp_gr = results[index_previousmodule]['itape_cumulative']
                     for tmp_i in range(tmp_gr.GetN()) :
                         itape_previous_list.append(tmp_gr.GetY()[tmp_i])
@@ -128,7 +128,7 @@ def main(options,args):
     outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
 
     f = open('%s/SummaryTables.txt'%(outputpath),'w')
-    for name in ['tsensor','isensor','itape'] :
+    for name in ['tsensor','isensor','itape','itape_cumulative'] :
         f.write(ExtendedModelSummaryPlots.ProcessSummaryTables(name,results,structure_names,options,target_index='start'))
         f.write(ExtendedModelSummaryPlots.ProcessSummaryTables(name,results,structure_names,options,target_index='tid'))
         f.write(ExtendedModelSummaryPlots.ProcessSummaryTables(name,results,structure_names,options,target_index='eol'))
