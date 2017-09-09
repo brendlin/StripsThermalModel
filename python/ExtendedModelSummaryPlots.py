@@ -23,25 +23,29 @@ colors = {'B1':ROOT.kGreen,
           }
 
 
-def SetEndcapLegendSpecial(leg,graphs) :
+def SetEndcapLegendSpecial(leg,graphs,doDisks=True,doRings=True) :
     leg.Clear()
-    leg.SetNColumns(2)
+    if doDisks and doRings :
+        leg.SetNColumns(2)
     leg.SetMargin(.5)
 
     dummy_graphs = []
     for i in range(6) :
-        # Rings
-        dummy_graphs.append(ROOT.TGraph(1,array('d',[1]),array('d',[1])))
-        dummy_graphs[-1].SetLineColor(colors['R%d'%(i)])
-        dummy_graphs[-1].SetLineWidth(2)
-        leg.AddEntry(dummy_graphs[-1],'Ring %d'%(i),'l')
+        if doRings :
+            # Rings
+            dummy_graphs.append(ROOT.TGraph(1,array('d',[1]),array('d',[1])))
+            dummy_graphs[-1].SetLineColor(colors['R%d'%(i)])
+            dummy_graphs[-1].SetLineWidth(2)
+            leg.AddEntry(dummy_graphs[-1],'Ring %d'%(i),'l')
 
-        # Disks
-        dummy_graphs.append(ROOT.TGraph(1,array('d',[1]),array('d',[1])))
-        dummy_graphs[-1].SetLineStyle([1,10,11,12,13,14][i])
-        dummy_graphs[-1].SetLineColor(ROOT.kGray+1)
-        dummy_graphs[-1].SetLineWidth(2)
-        leg.AddEntry(dummy_graphs[-1],'Disk %d'%(i),'l')
+        if doDisks :
+            # Disks
+            dummy_graphs.append(ROOT.TGraph(1,array('d',[1]),array('d',[1])))
+            dummy_graphs[-1].SetLineStyle([1,10,11,12,13,14][i])
+            if doRings :
+                dummy_graphs[-1].SetLineColor(ROOT.kGray+1)
+            dummy_graphs[-1].SetLineWidth(2)
+            leg.AddEntry(dummy_graphs[-1],'Disk %d'%(i),'l')
 
     return dummy_graphs
 
@@ -151,15 +155,51 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         if plotname in ['qsensor_headroom'] :
             c.SetLogy(False)
 
+    x = GlobalSettings.time_step_list[1:]
+
+    #
+    # Process stave / petal totals. One dict per petal -- a list of 6 dicts.
+    #
+
+    if options.endcap :
+        result_dicts_petals = [] # endcap
+
+        for disk in range(6) :
+            result_dicts_petals.append(dict())
+            ppetal = []
+
+            for i in range(GlobalSettings.nstep) :
+                ppetal.append(0)
+                for ring in range(6) :
+                    index = names.index('R%dD%d'%(ring,disk))
+                    ppetal[i] += result_dicts[index]['pmodule'].GetY()[i]
+                    ppetal[i] += result_dicts[index]['peos'   ].GetY()[i] # peos should be 0 for R0-R4
+
+            result_dicts_petals[disk]['ppetal'] = MakeGraph('PetalPowerDisk%d'%(disk),'Total Power in petal',xtitle,'P_{%s} [W]'%('Petal'),x,ppetal)
+
+        for plotname in result_dicts_petals[0].keys() :
+            c.Clear()
+
+            leg = ROOT.TLegend(0.74,0.69,0.91,0.93)
+            PlotUtils.SetStyleLegend(leg)
+            dummy_graphs = SetEndcapLegendSpecial(leg,graphs,doRings=False)
+
+            for disk in range(6) :
+                result_dicts_petals[disk][plotname].SetLineStyle(styles.get('D%d'%disk,1))
+                result_dicts_petals[disk][plotname].Draw('l' if disk else 'al')
+            text.Clear()
+            PlotUtils.AddRunParameterLabels(text,additionalinfo=[result_dicts_petals[0][plotname].GetTitle()])
+            text.Draw()
+            leg.Draw()
+            minzero = PlotUtils.MakePlotMinimumZero(plotname)
+            forcemin = PlotUtils.GetPlotForcedMinimum(plotname)
+            taxisfunc.AutoFixYaxis(c,minzero=minzero,forcemin=forcemin)
+            c.Print('%s/%s%s.eps'%(outputpath,barrel_endcap,result_dicts_petals[0][plotname].GetName().replace('Disk0','')))
+
     #
     # Process Totals
     #
-    substructure_name = {'Barrel':'layer (both sides)',
-                         'Endcap':'ring (both endcaps)'}.get(structure_name)
-#     layer_or_ring = {'Barrel':'layer',
-#                      'Endcap':'-----'}.get(structure_name)
 
-    x = GlobalSettings.time_step_list[1:]
     powertotal = [] # Total power in full endcap or barrel (both sides)
     phvtotal   = [] # Total HV Power (sensor+resistors) in full endcap or barrel (both sides)
     nModuleSides = 2.

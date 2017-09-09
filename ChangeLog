@@ -1,3 +1,6 @@
+2017-09-09 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Add petal power plot
+
 2017-09-08 Kurt Brendlinger <kurt.brendlinger@cern.ch>
    * Fix HV quantities (one small bug in a power summary plot) and try to clarify the labeling
    * Clean up code for printing out latex tables.
