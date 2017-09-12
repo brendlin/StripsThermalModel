@@ -386,15 +386,15 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     gr['thcc']       = MakeGraph('HCCTemperature'         ,'HCC temperature'                           ,xtitle,'T_{%s} [#circ^{}C]'%('HCC'   ),x,thcc      )
     gr['tfeast']     = MakeGraph('FEASTTemperature'       ,'FEAST temperature'                         ,xtitle,'T_{%s} [#circ^{}C]'%('FEAST' ),x,tfeast    )
     gr['teos']       = MakeGraph('EOSTemperature'         ,'EOS temperature'                           ,xtitle,'T_{%s} [#circ^{}C]'%('EOS'   ),x,teos      )
-    gr['peos']       = MakeGraph('EOSPower'               ,'EOS power'                                 ,xtitle,'P_{%s} [W]'%('EOS'   )        ,x,peos      )
+    gr['peos']       = MakeGraph('EOSPower'               ,'EOS power (one side)'                      ,xtitle,'P_{%s} [W]'%('EOS'   )        ,x,peos      )
     gr['pmodule']    = MakeGraph('ModulePower'            ,'Module Power (one side)'                   ,xtitle,'P_{%s} [W]'%('module')        ,x,pmodule   )
-    gr['ptape']      = MakeGraph('TapePower'              ,'LV tape power loss due to items on module' ,xtitle,'P_{%s} [W]'%('tape'  )        ,x,ptape     )
+    gr['ptape']      = MakeGraph('TapePower'              ,'LV tape power loss due to items on module (one side)',xtitle,'P_{%s} [W]'%('tape'  ),x,ptape   )
     gr['ptape_cumulative'] = MakeGraph('TapePowerCumulative','Cumulative LV tape power loss (one module, one side)',xtitle,'P_{%s} [W]'%('tape'),x,ptape_cumulative)
-    gr['phv_wleakage'] = MakeGraph('HVPower'              ,'Total HV power (with leakage)'             ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,phv_wleakage )
+    gr['phv_wleakage'] = MakeGraph('HVPower'              ,'Total HV power (with leakage) (one side)'  ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,phv_wleakage)
     gr['isensor']    = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current (one module side)',xtitle,'I_{%s} [mA]'%('sensor')       ,x,list(isensor[a]*1000. for a in range(len(isensor))))
-    gr['qsensor']    = MakeGraph('HVSensorQ'              ,'Sensor Q'                                  ,xtitle,'P [W]'                        ,x,qsensor   )
-    gr['phvr']       = MakeGraph('HVPowerSerialResistors' ,'HV Power serial resistors'                 ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,phvr      )
-    gr['phvmux']     = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'                ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,phvmux    )
+    gr['qsensor']    = MakeGraph('HVSensorQ'              ,'Sensor Q (one side)'                       ,xtitle,'P [W]'                        ,x,qsensor   )
+    gr['phvr']       = MakeGraph('HVPowerSerialResistors' ,'HV Power serial resistors (one side)'      ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,phvr      )
+    gr['phvmux']     = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor (one side)'     ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,phvmux    )
     gr['itape']      = MakeGraph('TapeCurrentLV'          ,'LV Tape current (one side) due to items on module',xtitle,'I_{%s} [A]'%('tape')   ,x,itape     )
     gr['itape_cumulative'] = MakeGraph('TapeCurrentLVCumulative','Cumulative LV tape current (one side)',xtitle,'I_{%s} [A]'%('tape')         ,x,itape_cumulative)
     gr['itape_eos']  = MakeGraph('TapeCurrentEOS'         ,'Tape current load for EOS (one side)'      ,xtitle,'I_{%s} [A]'%('tape')          ,x,itape_eos )
@@ -548,6 +548,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     c.Clear()
     hv_power_resistors = list(phvr[i] + phvmux[i] for i in range(len(phvr)))
     gr['hv_power_resistors'] = MakeGraph('HVPowerResistors','Contribution from all resistors',xtitle,'P [W]',x,hv_power_resistors)
+    phvmux_title_old = gr['phvmux'].GetTitle()
     gr['phvmux'].SetTitle('Contribution from parallel resistor')
     gr['phvmux'].SetLineStyle(7)
     colors = {'phv_wleakage'      :ROOT.kBlue+1,
@@ -565,6 +566,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     taxisfunc.AutoFixYaxis(c,minzero=True)
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'SummaryHVPower'))
+    gr['phvmux'].SetTitle(phvmux_title_old)
 
     #
     # Total power plot
