@@ -136,9 +136,11 @@ def main(options,args):
 
     f = open('%s/SummaryTables.txt'%(outputpath),'w')
     for name in ['tsensor','isensor','itape','itape_cumulative','itape_eos'] :
+        f.write('\\subsection{Results, %s}\n'%(results[0][name].GetTitle()))
         f.write(ExtendedModelSummaryPlots.ProcessSummaryTables(name,results,structure_names,options,target_index='start'))
         f.write(ExtendedModelSummaryPlots.ProcessSummaryTables(name,results,structure_names,options,target_index='tid'))
         f.write(ExtendedModelSummaryPlots.ProcessSummaryTables(name,results,structure_names,options,target_index='eol'))
+        f.write('\\clearpage\n')
     f.close()
 
     # Save config files in the output directory

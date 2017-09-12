@@ -252,7 +252,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
         units = result_dicts[0][quantity_name].GetYaxis().GetTitle().split('[')[1].split(']')[0]
         units = units.replace('#circ^{}','$^\circ$')
         units = '[%s]'%(units)
-    header = '\multicolumn{%d}{|c|}{%s at %s %s}\\\\ \hline\n'%(ncolumns,result_dicts[0][quantity_name].GetTitle(),time_label,units)
+    caption = '%s at %s %s'%(result_dicts[0][quantity_name].GetTitle(),time_label,units)
     disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}\n'
     the_lists = []
 
@@ -273,12 +273,11 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                 result_double = the_graph.GetY()[time_index]
                 the_lists[-1].append(result_double)
 
-        table = TableUtils.PrintLatexTable(the_lists)
+        table = TableUtils.PrintLatexTable(the_lists,caption=caption)
         # insert special headers
         import re
         i_start_of_data = re.search("data_below\n",table).end()
         table = table[:i_start_of_data] + disk_ring_labels + table[i_start_of_data:]
-        table = table[:i_start_of_data] + header + table[i_start_of_data:]
 
     if options.barrel :
         for layer in range(4,0,-1) :
@@ -294,8 +293,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
             result_double = the_graph.GetY()[time_index]
             the_lists[-1].append(result_double)
 
-        table = TableUtils.PrintLatexTable(the_lists)
-        table = table[:table.index('\n')+1] + header + table[table.index('\n'):]
+        table = TableUtils.PrintLatexTable(the_lists,caption=caption)
 
     print table
     outtext += table

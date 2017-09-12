@@ -198,7 +198,7 @@ def FancyPrintLatexTables_Endcap(saved_configs,structure_names) :
         ring_specific_config = ring_specific_config and not (False in list(saved_configs[24][item]['value'] == saved_configs[i][item]['value'] for i in range(25,30)))
         ring_specific_config = ring_specific_config and not (False in list(saved_configs[30][item]['value'] == saved_configs[i][item]['value'] for i in range(31,36)))
 
-        print item,module_specific_config,ring_specific_config
+        # print item,module_specific_config,ring_specific_config
 
         if ring_specific_config :
             config_list_ring_specific.append([])
@@ -213,7 +213,7 @@ def FancyPrintLatexTables_Endcap(saved_configs,structure_names) :
             config_list_ring_specific[-1].append(saved_configs[0][item]['units'])
 
         elif module_specific_config :
-            header = '\multicolumn{%d}{|c|}{%s [%s]}\\\\ \hline\n'%(8,item.replace('_','\_'),saved_configs[0][item]['units'].replace('\t','\\t'))
+            caption = '%s [%s]'%(saved_configs[0][item]['description'],saved_configs[0][item]['units'].replace('\t','\\t'))
             disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}\n'
             the_list = []
             the_list.append(['','','0','1','2','3','4','5'])
@@ -224,12 +224,11 @@ def FancyPrintLatexTables_Endcap(saved_configs,structure_names) :
                 for disk in range(6) :
                     index = structure_names.index('R%dD%d'%(ring,disk))
                     the_list[-1].append(saved_configs[index][item]['value'])
-            table = TableUtils.PrintLatexTable(the_list)
+            table = TableUtils.PrintLatexTable(the_list,caption=caption)
             # insert special headers
             import re
             i_start_of_data = re.search("data_below\n",table).end()
             table = table[:i_start_of_data] + disk_ring_labels + table[i_start_of_data:]
-            table = table[:i_start_of_data] + header + table[i_start_of_data:]
             config_text_modulespecific += table
 
         else :
@@ -239,11 +238,12 @@ def FancyPrintLatexTables_Endcap(saved_configs,structure_names) :
             config_list_general[-1].append(saved_configs[0][item]['value'])
             config_list_general[-1].append(saved_configs[0][item]['units'])
 
-    config_text += '\\subsection{Common to all endcap modules}\n'
+    config_text += '\\subsection{Inputs, common to all endcap modules}\n'
     config_text += TableUtils.PrintLatexTable(config_list_general,justs='llrl')
-    config_text += '\\subsection{Specific to endcap module type (R0, R1, etc.)}\n'
+    config_text += '\\subsection{Inputs, specific to endcap module type (R0, R1, etc.)}\n'
     config_text += TableUtils.PrintLatexTable(config_list_ring_specific,justs='llrrrrrrl')
-    config_text += '\\subsection{Specific to endcap module position (ring, disk)}\n'
+    config_text += '\n\\clearpage\n\n'
+    config_text += '\\subsection{Inputs, specific to endcap module position (ring, disk)}\n'
     config_text += config_text_modulespecific
 
     return config_text

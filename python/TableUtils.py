@@ -2,7 +2,7 @@
 #
 # A "list of rows"
 #
-def PrintLatexTable(thing,justs=[],nsigfig=3) :
+def PrintLatexTable(thing,justs=[],nsigfig=3,caption='') :
 
     #
     # Calculate the correct number of digits, given that you want at least
@@ -82,10 +82,14 @@ def PrintLatexTable(thing,justs=[],nsigfig=3) :
     justs_text = '|'.join(justs_text)
 
     ret_text =  '\\begin{table}[ht]\n'
+    ret_text += '\\begin{centering}'
     ret_text += '\\adjustbox{max width=\\textwidth}{ %% just before tabular\n'
     ret_text += '\\begin{tabular}{|%s|} \hline %% data_below\n'%(justs_text) + text
     ret_text += '\hline\end{tabular}\n'
     ret_text += '} %% resize box after tabular\n'
+    if caption :
+        ret_text += '\\caption*{%s}\n'%(caption)
+    ret_text += '\\end{centering}\n'
     ret_text +=  '\\end{table}\n'
     return ret_text
 
