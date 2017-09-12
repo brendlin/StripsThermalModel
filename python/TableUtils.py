@@ -12,18 +12,18 @@ def PrintLatexTable(thing,justs=[],nsigfig=3,caption='') :
     ndecimalplaces = 0
     for i,x in enumerate(thing) :
         for j,y in enumerate(x) :
-            if type(y) != type(0.1) :
+            if type(y) != type(0.1) and type(y) != type(1) :
                 continue
 
             result = '%.*g'%(nsigfig,y)
-            if '.' not in result :
+            if ('.' not in result) or (y > pow(10,nsigfig)) :
                 ndecimalplaces = max(0,ndecimalplaces)
             else :
                 ndecimalplaces = max(len(result.split('.')[-1]),ndecimalplaces)
 
     for i,x in enumerate(thing) :
         for j,y in enumerate(x) :
-            if type(y) != type(0.1) :
+            if type(y) != type(0.1) and type(y) != type(1) :
                 continue
             try :
                 thing[i][j] = '%.*f'%(ndecimalplaces,thing[i][j])
