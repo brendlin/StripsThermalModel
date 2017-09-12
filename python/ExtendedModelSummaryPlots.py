@@ -160,31 +160,28 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
         for disk in range(6) :
             result_dicts_petals.append(dict())
-            ppetal = []
-            qsensorpetal = []
-            phvpetal = []
+            ppetal,qsensorpetal,phvpetal,itapepetal = [],[],[],[]
 
             for i in range(GlobalSettings.nstep) :
-                ppetal.append(0)
-                qsensorpetal.append(0)
-                phvpetal.append(0)
+                ppetal.append(0); qsensorpetal.append(0); phvpetal.append(0); itapepetal.append(0);
                 for ring in range(6) :
                     index = names.index('R%dD%d'%(ring,disk))
                     ppetal[i] += result_dicts[index]['pmodule'].GetY()[i]
                     ppetal[i] += result_dicts[index]['peos'   ].GetY()[i] # peos should be 0 for R0-R4
-
                     qsensorpetal[i] += result_dicts[index]['qsensor'].GetY()[i]
-
                     phvpetal[i] += result_dicts[index]['phv_wleakage'].GetY()[i]
+                    itapepetal[i] += result_dicts[index]['itape'].GetY()[i]
+                    itapepetal[i] += result_dicts[index]['itape_eos'].GetY()[i]
 
-            result_dicts_petals[disk]['ppetal']       = MakeGraph('PetalPowerDisk%d'  %(disk),'Total Power in petal (with EOS)',xtitle,'P_{%s} [W]'%('Petal'),x,ppetal)
-            result_dicts_petals[disk]['qsensorpetal'] = MakeGraph('PetalSensorQDisk%d'%(disk),'Total Sensor Q in petal'        ,xtitle,'P [W]'               ,x,qsensorpetal)
-            result_dicts_petals[disk]['phvpetal']     = MakeGraph('PetalHVPowerDisk%d'%(disk),'HV Power in petal'              ,xtitle,'P [W]'               ,x,phvpetal)
+            result_dicts_petals[disk]['pmodulepetal']      = MakeGraph('PetalPowerDisk%d'  %(disk),'Total Power in petal (with EOS) (one side)',xtitle,'P_{%s} [W]'%('Petal'),x,ppetal)
+            result_dicts_petals[disk]['qsensorpetal']      = MakeGraph('PetalSensorQDisk%d'%(disk),'Total Sensor Q in petal (one side)'        ,xtitle,'P [W]'               ,x,qsensorpetal)
+            result_dicts_petals[disk]['phv_wleakagepetal'] = MakeGraph('PetalHVPowerDisk%d'%(disk),'HV Power in petal (one side)'              ,xtitle,'P [W]'               ,x,phvpetal)
+            result_dicts_petals[disk]['itapepetal']        = MakeGraph('PetalTapeCurrentLVDisk%d'%(disk),'LV tape current in petal (with EOS) (one side)',xtitle,'I [A]'     ,x,itapepetal)
+
             # Append to result_dicts for further use in ProcessSummaryTables
             index = names.index('R%dD%d'%(0,disk))
-            result_dicts[index]['ppetal']       = result_dicts_petals[disk]['ppetal']
-            result_dicts[index]['qsensorpetal'] = result_dicts_petals[disk]['qsensorpetal']
-            result_dicts[index]['phvpetal']     = result_dicts_petals[disk]['phvpetal']
+            for i in ['pmodulepetal','qsensorpetal','phv_wleakagepetal','itapepetal'] :
+                result_dicts[index][i] = result_dicts_petals[disk][i]
 
         for plotname in result_dicts_petals[0].keys() :
             c.Clear()
@@ -228,11 +225,11 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         phvtotal[i]   *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors)
 
     gr = dict()
-    gr['powertotal'] = MakeGraph('TotalPower'  ,'Total Power in both %ss'%(structure_name)                   ,xtitle,'P_{%s} [W]'%('Total'),x,powertotal)
-    gr['phvtotal']   = MakeGraph('TotalHVPower','Total HV Power (sensor + resistors) in %ss'%(structure_name),xtitle,'P_{%s} [W]'%('HV')   ,x,phvtotal  )
+    gr['pmoduletotal']      = MakeGraph('TotalPower'  ,'Total Power in both %ss'%(structure_name)                   ,xtitle,'P_{%s} [W]'%('Total'),x,powertotal)
+    gr['phv_wleakagetotal'] = MakeGraph('TotalHVPower','Total HV Power (sensor + resistors) in %ss'%(structure_name),xtitle,'P_{%s} [W]'%('HV')   ,x,phvtotal  )
 
-    result_dicts[0]['powertotal'] = gr['powertotal']
-    result_dicts[0]['phvtotal'] = gr['phvtotal']
+    result_dicts[0]['pmoduletotal']      = gr['pmoduletotal']
+    result_dicts[0]['phv_wleakagetotal'] = gr['phv_wleakagetotal']
 
     for g in gr.keys() :
         c.Clear()
@@ -264,7 +261,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
         units = result_dicts[0][quantity_name].GetYaxis().GetTitle().split('[')[1].split(']')[0]
         units = units.replace('#circ^{}','$^\circ$')
         units = '[%s]'%(units)
-    caption = '%s at %s %s.'%(result_dicts[0][quantity_name].GetTitle(),time_label,units)
+    caption = '%s at {\\bf %s} %s.'%(result_dicts[0][quantity_name].GetTitle(),time_label,units)
     disk_label = '\multirow{2}{*}{%s} & & \multicolumn{6}{c|}{Disk} \\\\\n'%(units)
     ring_label = '\multirow{6}{*}{Ring}'
     the_lists = []
@@ -274,13 +271,15 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
         endcap_total = None
 
         # EOS (if applicable)
-        if quantity_name in ['pmodule'] :
+        if quantity_name in ['pmodule','itape'] :
             caption = caption.replace('(no EOS)','')
             the_lists.append([])
             the_lists[-1].append('')
             the_lists[-1].append('EOS')
             for disk in range(6) :
-                quantity_name_eos = {'pmodule':'peos'}.get(quantity_name)
+                quantity_name_eos = {'pmodule':'peos',
+                                     'itape':'itape_eos',
+                                     }.get(quantity_name)
                 index = structure_names.index('R%dD%d'%(5,disk))
                 the_graph = result_dicts[index][quantity_name_eos]
                 idig = list(result_dicts[index]['idig'].GetY()[i] for i in range(result_dicts[index]['idig'].GetN()))
@@ -306,19 +305,15 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                 the_lists[-1].append(the_graph.GetY()[time_index])
 
         # Petal totals
-        if quantity_name in ['qsensor','pmodule','phv_wleakage'] :
+        if quantity_name in ['qsensor','pmodule','phv_wleakage','itape'] :
             caption += ' The ``petal total\'\' corresponds to one petal side.'
             the_lists.append([])
             the_lists[-1] += ['petal total','']
             for disk in range(6) :
                 index = structure_names.index('R%dD%d'%(0,disk))
-                quantity_name_petal = {'qsensor':'qsensorpetal',
-                                       'pmodule':'ppetal',
-                                       'phv_wleakage':'phvpetal',
-                                       }.get(quantity_name)
-                the_graph = result_dicts[index][quantity_name_petal]
+                the_graph = result_dicts[index][quantity_name+'petal']
                 # For "tid" take max, or value at max petal power
-                ppetal = list(result_dicts[index]['ppetal'].GetY()[i] for i in range(result_dicts[index]['ppetal'].GetN()))
+                ppetal = list(result_dicts[index]['pmodulepetal'].GetY()[i] for i in range(result_dicts[index]['pmodulepetal'].GetN()))
                 tid_index = ppetal.index(max(ppetal))
 
                 if target_index == 'start' :
@@ -344,12 +339,9 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
             the_lists.append([])
             the_lists[-1] += ['endcaps total','']
             the_lists[-1] += ['-','-','-','-','-','-'] # this is a placeholder
-            quantity_name_total = {'pmodule':'powertotal',
-                                   'phv_wleakage':'phvtotal',
-                                   }.get(quantity_name)
-            the_graph = result_dicts[0][quantity_name_total]
+            the_graph = result_dicts[0][quantity_name+'total']
             # For "tid" take max, or value at max petal power
-            ptotal = list(result_dicts[0]['powertotal'].GetY()[i] for i in range(result_dicts[0]['powertotal'].GetN()))
+            ptotal = list(result_dicts[0]['pmoduletotal'].GetY()[i] for i in range(result_dicts[0]['pmoduletotal'].GetN()))
             tid_index = ptotal.index(max(ptotal))
 
             if target_index == 'start' :
