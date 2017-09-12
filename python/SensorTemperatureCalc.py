@@ -62,6 +62,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     phvmux     = [] # HV Power per module parallel resistor
     itape      = [] # Tape current (load) per module
     itape_cumulative = [] # Cumulative tape current (load) per module - adding the previous modules
+    itape_eos  = [] # Tape current per module (load) due to EOS
     idig       = [] # Digital current per module (ABCs+HCCs)
     ihcc_dig   = [] # Digital HCC current (all HCCs)
     ihcc_a     = list(NominalPower.nhcc*FrontEndComponents.hccIa for i in range(GlobalSettings.nstep)) # Analog HCC current
@@ -206,7 +207,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
 
         if thermal_runaway :
             for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,ptape,ptape_cumulative,phv_wleakage,isensor,phvr,
-                           phvmux,itape,itape_cumulative,idig,ihcc_dig,iabc_dig,ifeast,ifeast_in,efffeast,qsensor,
+                           phvmux,itape,itape_cumulative,itape_eos,idig,ihcc_dig,iabc_dig,ifeast,ifeast_in,efffeast,qsensor,
                            tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
             qsensor_headroom.append(0.1)
@@ -346,6 +347,9 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
         # Cumulative tape current (load) per module - adding the previous modules
         itape_cumulative.append(NominalPower.Itape_Cumulative(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i,itape_previous_i))
 
+        # Tape current (load) per module due to EOS
+        itape_eos.append(NominalPower.Itape_eos(teos[i]))
+
         # Digital current per module (ABCs + HCCs)
         idig.append(NominalPower.Idig(tabc[i],thcc[i],doserate_i,tid_dose_i))
 
@@ -393,6 +397,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     gr['phvmux']     = MakeGraph('HVPowerParallelResistor','HV Power parallel resistor'                ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,phvmux    )
     gr['itape']      = MakeGraph('TapeCurrentLV'          ,'LV Tape current due to items on module'    ,xtitle,'I_{%s} [A]'%('tape')          ,x,itape     )
     gr['itape_cumulative'] = MakeGraph('TapeCurrentLVCumulative','Cumulative LV tape current (one module, one side)',xtitle,'I_{%s} [A]'%('tape'),x,itape_cumulative)
+    gr['itape_eos']  = MakeGraph('TapeCurrentEOS'         ,'Tape current load for EOS (one side)'      ,xtitle,'I_{%s} [A]'%('tape')          ,x,itape_eos )
     gr['idig']       = MakeGraph('DigitalCurrent'         ,'ABC and HCC digital current'               ,xtitle,'I_{%s} [A]'%('digital')       ,x,idig      )
     gr['ifeast']     = MakeGraph('FeastCurrent'           ,'FEAST current (load, per FEAST)'           ,xtitle,'I_{%s} [A]'%('FEAST,load')    ,x,ifeast    )
     gr['ifeast_in']  = MakeGraph('FeastCurrentInput'      ,'FEAST current (input)'                     ,xtitle,'I_{%s} [A]'%('FEAST,in')      ,x,ifeast_in )
