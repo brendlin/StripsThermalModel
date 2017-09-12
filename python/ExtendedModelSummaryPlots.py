@@ -162,10 +162,12 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             result_dicts_petals.append(dict())
             ppetal = []
             qsensorpetal = []
+            phvpetal = []
 
             for i in range(GlobalSettings.nstep) :
                 ppetal.append(0)
                 qsensorpetal.append(0)
+                phvpetal.append(0)
                 for ring in range(6) :
                     index = names.index('R%dD%d'%(ring,disk))
                     ppetal[i] += result_dicts[index]['pmodule'].GetY()[i]
@@ -173,12 +175,16 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
                     qsensorpetal[i] += result_dicts[index]['qsensor'].GetY()[i]
 
+                    phvpetal[i] += result_dicts[index]['phv_wleakage'].GetY()[i]
+
             result_dicts_petals[disk]['ppetal']       = MakeGraph('PetalPowerDisk%d'  %(disk),'Total Power in petal (with EOS)',xtitle,'P_{%s} [W]'%('Petal'),x,ppetal)
             result_dicts_petals[disk]['qsensorpetal'] = MakeGraph('PetalSensorQDisk%d'%(disk),'Total Sensor Q in petal'        ,xtitle,'P [W]'               ,x,qsensorpetal)
+            result_dicts_petals[disk]['phvpetal']     = MakeGraph('PetalHVPowerDisk%d'%(disk),'HV Power in petal'              ,xtitle,'P [W]'               ,x,phvpetal)
             # Append to result_dicts for further use in ProcessSummaryTables
             index = names.index('R%dD%d'%(0,disk))
             result_dicts[index]['ppetal']       = result_dicts_petals[disk]['ppetal']
             result_dicts[index]['qsensorpetal'] = result_dicts_petals[disk]['qsensorpetal']
+            result_dicts[index]['phvpetal']     = result_dicts_petals[disk]['phvpetal']
 
         for plotname in result_dicts_petals[0].keys() :
             c.Clear()
@@ -226,6 +232,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     gr['phvtotal']   = MakeGraph('TotalHVPower','Total HV Power (sensor + resistors) in %ss'%(structure_name),xtitle,'P_{%s} [W]'%('HV')   ,x,phvtotal  )
 
     result_dicts[0]['powertotal'] = gr['powertotal']
+    result_dicts[0]['phvtotal'] = gr['phvtotal']
 
     for g in gr.keys() :
         c.Clear()
@@ -299,14 +306,16 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                 the_lists[-1].append(the_graph.GetY()[time_index])
 
         # Petal totals
-        if quantity_name in ['qsensor','pmodule'] :
-            caption += ' The \"petal total\" corresponds to one petal side.'
+        if quantity_name in ['qsensor','pmodule','phv_wleakage'] :
+            caption += ' The ``petal total\'\' corresponds to one petal side.'
             the_lists.append([])
             the_lists[-1] += ['petal total','']
             for disk in range(6) :
                 index = structure_names.index('R%dD%d'%(0,disk))
                 quantity_name_petal = {'qsensor':'qsensorpetal',
-                                       'pmodule':'ppetal'}.get(quantity_name)
+                                       'pmodule':'ppetal',
+                                       'phv_wleakage':'phvpetal',
+                                       }.get(quantity_name)
                 the_graph = result_dicts[index][quantity_name_petal]
                 # For "tid" take max, or value at max petal power
                 ppetal = list(result_dicts[index]['ppetal'].GetY()[i] for i in range(result_dicts[index]['ppetal'].GetN()))
@@ -330,13 +339,14 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                         the_lists[-1].append(result_tid)
 
         # Endcap system totals
-        if quantity_name in ['pmodule'] :
-            caption += ' The \"endcaps total\" corresponds to both petal sides, all petals, 2 endcaps.'
+        if quantity_name in ['pmodule','phv_wleakage'] :
+            caption += ' The ``endcaps total\'\' corresponds to both petal sides, all petals, 2 endcaps.'
             the_lists.append([])
             the_lists[-1] += ['endcaps total','']
             the_lists[-1] += ['-','-','-','-','-','-'] # this is a placeholder
-            quantity_name_total = {'qsensor':'',
-                                   'pmodule':'powertotal'}.get(quantity_name)
+            quantity_name_total = {'pmodule':'powertotal',
+                                   'phv_wleakage':'phvtotal',
+                                   }.get(quantity_name)
             the_graph = result_dicts[0][quantity_name_total]
             # For "tid" take max, or value at max petal power
             ptotal = list(result_dicts[0]['powertotal'].GetY()[i] for i in range(result_dicts[0]['powertotal'].GetN()))
@@ -387,6 +397,5 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
 
     outtext += table
     outtext += '\n'
-    outtext += '\\vspace{4mm}\n'
 
     return outtext
