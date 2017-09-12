@@ -167,15 +167,24 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         for disk in range(6) :
             result_dicts_petals.append(dict())
             ppetal = []
+            qsensorpetal = []
 
             for i in range(GlobalSettings.nstep) :
                 ppetal.append(0)
+                qsensorpetal.append(0)
                 for ring in range(6) :
                     index = names.index('R%dD%d'%(ring,disk))
                     ppetal[i] += result_dicts[index]['pmodule'].GetY()[i]
                     ppetal[i] += result_dicts[index]['peos'   ].GetY()[i] # peos should be 0 for R0-R4
 
-            result_dicts_petals[disk]['ppetal'] = MakeGraph('PetalPowerDisk%d'%(disk),'Total Power in petal',xtitle,'P_{%s} [W]'%('Petal'),x,ppetal)
+                    qsensorpetal[i] += result_dicts[index]['qsensor'].GetY()[i]
+
+            result_dicts_petals[disk]['ppetal']       = MakeGraph('PetalPowerDisk%d'  %(disk),'Total Power in petal (with EOS)',xtitle,'P_{%s} [W]'%('Petal'),x,ppetal)
+            result_dicts_petals[disk]['qsensorpetal'] = MakeGraph('PetalSensorQDisk%d'%(disk),'Total Sensor Q in petal'        ,xtitle,'P [W]'               ,x,qsensorpetal)
+            # Append to result_dicts for further use in ProcessSummaryTables
+            index = names.index('R%dD%d'%(0,disk))
+            result_dicts[index]['ppetal']       = result_dicts_petals[disk]['ppetal']
+            result_dicts[index]['qsensorpetal'] = result_dicts_petals[disk]['qsensorpetal']
 
         for plotname in result_dicts_petals[0].keys() :
             c.Clear()
@@ -215,12 +224,14 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
         # endcap          2              1/petal       npetals/ring     nEndcaps (2)
         # barrel          2              14/stave      nstaves/side     nSides (2)
-        powertotal[i] *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors / 1000.)
-        phvtotal[i]   *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors / 1000.)
+        powertotal[i] *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors)
+        phvtotal[i]   *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors)
 
     gr = dict()
-    gr['powertotal'] = MakeGraph('TotalPower'  ,'Total Power in both %ss'%(structure_name)                   ,xtitle,'P_{%s} [kW]'%('Total'),x,powertotal)
-    gr['phvtotal']   = MakeGraph('TotalHVPower','Total HV Power (sensor + resistors) in %ss'%(structure_name),xtitle,'P_{%s} [kW]'%('HV')   ,x,phvtotal  )
+    gr['powertotal'] = MakeGraph('TotalPower'  ,'Total Power in both %ss'%(structure_name)                   ,xtitle,'P_{%s} [W]'%('Total'),x,powertotal)
+    gr['phvtotal']   = MakeGraph('TotalHVPower','Total HV Power (sensor + resistors) in %ss'%(structure_name),xtitle,'P_{%s} [W]'%('HV')   ,x,phvtotal  )
+
+    result_dicts[0]['powertotal'] = gr['powertotal']
 
     for g in gr.keys() :
         c.Clear()
@@ -252,12 +263,15 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
         units = result_dicts[0][quantity_name].GetYaxis().GetTitle().split('[')[1].split(']')[0]
         units = units.replace('#circ^{}','$^\circ$')
         units = '[%s]'%(units)
-    caption = '%s at %s %s'%(result_dicts[0][quantity_name].GetTitle(),time_label,units)
-    disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}\n'
+    caption = '%s at %s %s.'%(result_dicts[0][quantity_name].GetTitle(),time_label,units)
+    disk_ring_labels = '\multirow{2}{*}{%s} & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}\n'%(units)
     the_lists = []
 
     if options.endcap :
         the_lists.append(['','','0','1','2','3','4','5'])
+        endcap_total = None
+
+        # Individual modules on rings / disks
         for ring in range(5,-1,-1) :
             the_lists.append([])
             the_lists[-1].append('')
@@ -270,14 +284,79 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                               'tid'  :idig.index(max(idig)),
                               'eol'  :the_graph.GetN()-1,
                               }.get(target_index)
-                result_double = the_graph.GetY()[time_index]
-                the_lists[-1].append(result_double)
+                the_lists[-1].append(the_graph.GetY()[time_index])
+
+        # Petal totals
+        if quantity_name in ['qsensor','pmodule'] :
+            caption += ' The \"petal total\" corresponds to one petal side.'
+            the_lists.append([])
+            the_lists[-1] += ['petal total','']
+            for disk in range(6) :
+                index = structure_names.index('R%dD%d'%(0,disk))
+                quantity_name_petal = {'qsensor':'qsensorpetal',
+                                       'pmodule':'ppetal'}.get(quantity_name)
+                the_graph = result_dicts[index][quantity_name_petal]
+                # For "tid" take max, or value at max petal power
+                ppetal = list(result_dicts[index]['ppetal'].GetY()[i] for i in range(result_dicts[index]['ppetal'].GetN()))
+                tid_index = ppetal.index(max(ppetal))
+
+                if target_index == 'start' :
+                    the_lists[-1].append(the_graph.GetY()[0])
+                elif target_index == 'eol' :
+                    the_lists[-1].append(the_graph.GetY()[the_graph.GetN()-1])
+                else :
+                    result_start = the_graph.GetY()[0]
+                    result_max   = max(list(the_graph.GetY()[i] for i in range(the_graph.GetN())))
+                    result_tid   = the_graph.GetY()[tid_index]
+                    result_eol   = the_graph.GetY()[the_graph.GetN()-1]
+                    if (result_max == result_start) or (result_max == result_eol) :
+                        the_lists[-1].append(result_tid)
+                    elif result_max != result_tid :
+                        print 'Warning! Maximum does not correspond to maximum power! %.3g vs %.3g'%(result_max,result_tid)
+                        the_lists[-1].append(result_max)
+                    else :
+                        the_lists[-1].append(result_tid)
+
+        # Endcap system totals
+        if quantity_name in ['pmodule'] :
+            caption += ' The \"endcaps total\" corresponds to both petal sides, all petals, 2 endcaps.'
+            the_lists.append([])
+            the_lists[-1] += ['endcaps total','']
+            the_lists[-1] += ['-','-','-','-','-','-'] # this is a placeholder
+            quantity_name_total = {'qsensor':'',
+                                   'pmodule':'powertotal'}.get(quantity_name)
+            the_graph = result_dicts[0][quantity_name_total]
+            # For "tid" take max, or value at max petal power
+            ptotal = list(result_dicts[0]['powertotal'].GetY()[i] for i in range(result_dicts[0]['powertotal'].GetN()))
+            tid_index = ptotal.index(max(ptotal))
+
+            if target_index == 'start' :
+                endcap_total = the_graph.GetY()[0]
+            elif target_index == 'eol' :
+                endcap_total = the_graph.GetY()[the_graph.GetN()-1]
+            else :
+                result_start = the_graph.GetY()[0]
+                result_max   = max(list(the_graph.GetY()[i] for i in range(the_graph.GetN())))
+                result_tid   = the_graph.GetY()[tid_index]
+                result_eol   = the_graph.GetY()[the_graph.GetN()-1]
+                if (result_max == result_start) or (result_max == result_eol) :
+                    endcap_total = result_tid
+                elif result_max != result_tid :
+                    print 'Warning! Maximum does not correspond to maximum power! %.3g vs %.3g'%(result_max,result_tid)
+                    endcap_total = result_max
+                else :
+                    endcap_total = result_tid
 
         table = TableUtils.PrintLatexTable(the_lists,caption=caption)
         # insert special headers
         import re
         i_start_of_data = re.search("data_below\n",table).end()
         table = table[:i_start_of_data] + disk_ring_labels + table[i_start_of_data:]
+        # convert to multiline
+        table = re.sub('\npetal total\s+&','\hline\n\multicolumn{2}{|l|}{petal total}',table)
+        if endcap_total != None :
+            table = re.sub('\nendcaps total\s+&','\hline\n\multicolumn{2}{|l|}{endcaps total}',table)
+            table = re.sub('\s+-\s+&\s+-\s+&\s+-\s+&\s+-\s+&\s+-\s+&\s+-','\multicolumn{6}{l|}{%.3g}'%(endcap_total),table)
 
     if options.barrel :
         for layer in range(4,0,-1) :
@@ -290,12 +369,10 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                           'tid'  :idig.index(max(idig)),
                           'eol'  :the_graph.GetN()-1,
                           }.get(target_index)
-            result_double = the_graph.GetY()[time_index]
-            the_lists[-1].append(result_double)
+            the_lists[-1].append(the_graph.GetY()[time_index])
 
         table = TableUtils.PrintLatexTable(the_lists,caption=caption)
 
-    print table
     outtext += table
     outtext += '\n'
     outtext += '\\vspace{4mm}\n'

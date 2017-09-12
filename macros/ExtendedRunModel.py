@@ -135,7 +135,7 @@ def main(options,args):
     outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
 
     f = open('%s/SummaryTables.txt'%(outputpath),'w')
-    for name in ['tsensor','isensor','itape','itape_cumulative','itape_eos'] :
+    for name in ['pmodule','tsensor','isensor','qsensor','phv_wleakage','phvr','phvmux','itape','itape_cumulative','itape_eos'] :
         f.write('\\subsection{Results, %s}\n'%(results[0][name].GetTitle()))
         f.write(ExtendedModelSummaryPlots.ProcessSummaryTables(name,results,structure_names,options,target_index='start'))
         f.write(ExtendedModelSummaryPlots.ProcessSummaryTables(name,results,structure_names,options,target_index='tid'))

@@ -1,4 +1,6 @@
 2017-09-12 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Clarify some additional quatities (e.g. EOS not included in some power numbers)
+   * Add totals (per petal, full system) to table printouts
    * More compact endcap configuration printed to latex
    * Add current load on tape due to EOS
 

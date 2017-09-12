@@ -387,7 +387,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     gr['tfeast']     = MakeGraph('FEASTTemperature'       ,'FEAST temperature'                         ,xtitle,'T_{%s} [#circ^{}C]'%('FEAST' ),x,tfeast    )
     gr['teos']       = MakeGraph('EOSTemperature'         ,'EOS temperature'                           ,xtitle,'T_{%s} [#circ^{}C]'%('EOS'   ),x,teos      )
     gr['peos']       = MakeGraph('EOSPower'               ,'EOS power (one side)'                      ,xtitle,'P_{%s} [W]'%('EOS'   )        ,x,peos      )
-    gr['pmodule']    = MakeGraph('ModulePower'            ,'Module Power (one side)'                   ,xtitle,'P_{%s} [W]'%('module')        ,x,pmodule   )
+    gr['pmodule']    = MakeGraph('ModulePower'            ,'Module Power (one side) (no EOS)'          ,xtitle,'P_{%s} [W]'%('module')        ,x,pmodule   )
     gr['ptape']      = MakeGraph('TapePower'              ,'LV tape power loss due to items on module (one side)',xtitle,'P_{%s} [W]'%('tape'  ),x,ptape   )
     gr['ptape_cumulative'] = MakeGraph('TapePowerCumulative','Cumulative LV tape power loss (one module, one side)',xtitle,'P_{%s} [W]'%('tape'),x,ptape_cumulative)
     gr['phv_wleakage'] = MakeGraph('HVPower'              ,'Total HV power (with leakage) (one side)'  ,xtitle,'P_{%s} [W]'%('HV'    )        ,x,phv_wleakage)
@@ -472,7 +472,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     c.Clear()
     # pmodule_noHV is (Power per module including leakage) minus (HV power including leakage)
     pmodule_noHV  = list(pmodule[i] - phv_wleakage[i] for i in range(len(pmodule)))
-    gr['pmodule_noHV'] = MakeGraph('ModulePower_noHV','Power without HV',xtitle,'P [W]',x,pmodule_noHV)
+    gr['pmodule_noHV'] = MakeGraph('ModulePower_noHV','Power without HV (no EOS)',xtitle,'P [W]',x,pmodule_noHV)
     gr['pmodule_noHV']
     pmodule_noHV_noTapeLoss = list(pmodule[i] - phv_wleakage[i] - ptape_cumulative[i] for i in range(len(pmodule)))
     gr_pmodule_noHV_noTapeLoss = MakeGraph('ModulePower_noHV_NoTapeLoss','Power w/o HV and w/o tape loss',xtitle,'P [W]',x,pmodule_noHV_noTapeLoss)
