@@ -75,13 +75,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     xtitle = 'Time [years]'
     x = GlobalSettings.time_step_list[1:]
 
-    styles = {'D0':1,
-              'D1':10,
-              'D2':11,
-              'D3':12,
-              'D4':13,
-              'D5':14
-              }
+    styles = {'D0':1,'D1':10,'D2':11,'D3':12,'D4':13,'D5':14}
 
     list_of_plots = list(result_dicts[0].keys())
 
@@ -264,17 +258,35 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
         units = units.replace('#circ^{}','$^\circ$')
         units = '[%s]'%(units)
     caption = '%s at %s %s.'%(result_dicts[0][quantity_name].GetTitle(),time_label,units)
-    disk_ring_labels = '\multirow{2}{*}{%s} & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}\n'%(units)
+    disk_label = '\multirow{2}{*}{%s} & & \multicolumn{6}{c|}{Disk} \\\\\n'%(units)
+    ring_label = '\multirow{6}{*}{Ring}'
     the_lists = []
 
     if options.endcap :
         the_lists.append(['','','0','1','2','3','4','5'])
         endcap_total = None
 
+        # EOS (if applicable)
+        if quantity_name in ['pmodule'] :
+            caption = caption.replace('(no EOS)','')
+            the_lists.append([])
+            the_lists[-1].append('')
+            the_lists[-1].append('EOS')
+            for disk in range(6) :
+                quantity_name_eos = {'pmodule':'peos'}.get(quantity_name)
+                index = structure_names.index('R%dD%d'%(5,disk))
+                the_graph = result_dicts[index][quantity_name_eos]
+                idig = list(result_dicts[index]['idig'].GetY()[i] for i in range(result_dicts[index]['idig'].GetN()))
+                time_index = {'start':0,
+                              'tid'  :idig.index(max(idig)),
+                              'eol'  :the_graph.GetN()-1,
+                              }.get(target_index)
+                the_lists[-1].append(the_graph.GetY()[time_index])
+
         # Individual modules on rings / disks
         for ring in range(5,-1,-1) :
             the_lists.append([])
-            the_lists[-1].append('')
+            the_lists[-1].append(ring_label if ring == 5 else '')
             the_lists[-1].append('%d'%(ring))
             for disk in range(6) :
                 index = structure_names.index('R%dD%d'%(ring,disk))
@@ -351,7 +363,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
         # insert special headers
         import re
         i_start_of_data = re.search("data_below\n",table).end()
-        table = table[:i_start_of_data] + disk_ring_labels + table[i_start_of_data:]
+        table = table[:i_start_of_data] + disk_label + table[i_start_of_data:]
         # convert to multiline
         table = re.sub('\npetal total\s+&','\hline\n\multicolumn{2}{|l|}{petal total}',table)
         if endcap_total != None :
