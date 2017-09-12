@@ -100,6 +100,17 @@ def Print() :
     table = TableUtils.PrintLatexTable(the_lists,justs='llrl')
     return table
 
+def SaveSnapshot() :
+    snapshot = dict()
+    for i in range(internal_config.GetTable().GetSize()) :
+        tenvrec = internal_config.GetTable().At(i)
+        nm = tenvrec.GetName()
+        snapshot[nm] = dict()
+        snapshot[nm]['description'] = descriptions.get(nm,'--')
+        snapshot[nm]['value'] = internal_config.GetValue(nm,'')
+        snapshot[nm]['units'] = units.get(nm,'--')
+    return snapshot
+
 # For reloading python module, in case e.g. the config file changed.
 def ReloadPythonModule(name) :
     import sys,imp
@@ -167,3 +178,72 @@ def SetMissingConfigsUsingCommandLine(options,config='') :
         SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(config))
 
     return
+
+# --------------------------------
+def FancyPrintLatexTables_Endcap(saved_configs,structure_names) :
+    config_text = ''
+
+    config_list_general = []
+    config_list_general.append(['Configurable Item','Description','Value','Unit'])
+    config_list_ring_specific = []
+    config_list_ring_specific.append(['Configurable Item','Description','R0','R1','R2','R3','R4','R5','Unit'])
+    config_text_modulespecific = ''
+    for item in sorted(saved_configs[0].keys()) :
+        module_specific_config = False in list(saved_configs[0][item]['value'] == saved_configs[i][item]['value'] for i in range(len(saved_configs)))
+        ring_specific_config = module_specific_config
+        ring_specific_config = ring_specific_config and not (False in list(saved_configs[ 0][item]['value'] == saved_configs[i][item]['value'] for i in range( 1, 6)))
+        ring_specific_config = ring_specific_config and not (False in list(saved_configs[ 6][item]['value'] == saved_configs[i][item]['value'] for i in range( 7,12)))
+        ring_specific_config = ring_specific_config and not (False in list(saved_configs[12][item]['value'] == saved_configs[i][item]['value'] for i in range(13,18)))
+        ring_specific_config = ring_specific_config and not (False in list(saved_configs[18][item]['value'] == saved_configs[i][item]['value'] for i in range(19,24)))
+        ring_specific_config = ring_specific_config and not (False in list(saved_configs[24][item]['value'] == saved_configs[i][item]['value'] for i in range(25,30)))
+        ring_specific_config = ring_specific_config and not (False in list(saved_configs[30][item]['value'] == saved_configs[i][item]['value'] for i in range(31,36)))
+
+        print item,module_specific_config,ring_specific_config
+
+        if ring_specific_config :
+            config_list_ring_specific.append([])
+            config_list_ring_specific[-1].append(item)
+            config_list_ring_specific[-1].append(saved_configs[0][item]['description'])
+            config_list_ring_specific[-1].append(saved_configs[ 0][item]['value'])
+            config_list_ring_specific[-1].append(saved_configs[ 6][item]['value'])
+            config_list_ring_specific[-1].append(saved_configs[12][item]['value'])
+            config_list_ring_specific[-1].append(saved_configs[18][item]['value'])
+            config_list_ring_specific[-1].append(saved_configs[24][item]['value'])
+            config_list_ring_specific[-1].append(saved_configs[30][item]['value'])
+            config_list_ring_specific[-1].append(saved_configs[0][item]['units'])
+
+        elif module_specific_config :
+            header = '\multicolumn{%d}{|c|}{%s [%s]}\\\\ \hline\n'%(8,item.replace('_','\_'),saved_configs[0][item]['units'].replace('\t','\\t'))
+            disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}\n'
+            the_list = []
+            the_list.append(['','','0','1','2','3','4','5'])
+            for ring in range(5,-1,-1) :
+                the_list.append([])
+                the_list[-1].append('')
+                the_list[-1].append('%d'%(ring))
+                for disk in range(6) :
+                    index = structure_names.index('R%dD%d'%(ring,disk))
+                    the_list[-1].append(saved_configs[index][item]['value'])
+            table = TableUtils.PrintLatexTable(the_list)
+            # insert special headers
+            import re
+            i_start_of_data = re.search("data_below\n",table).end()
+            table = table[:i_start_of_data] + disk_ring_labels + table[i_start_of_data:]
+            table = table[:i_start_of_data] + header + table[i_start_of_data:]
+            config_text_modulespecific += table
+
+        else :
+            config_list_general.append([])
+            config_list_general[-1].append(item)
+            config_list_general[-1].append(saved_configs[0][item]['description'])
+            config_list_general[-1].append(saved_configs[0][item]['value'])
+            config_list_general[-1].append(saved_configs[0][item]['units'])
+
+    config_text += '\\subsection{Common to all endcap modules}\n'
+    config_text += TableUtils.PrintLatexTable(config_list_general,justs='llrl')
+    config_text += '\\subsection{Specific to endcap module type (R0, R1, etc.)}\n'
+    config_text += TableUtils.PrintLatexTable(config_list_ring_specific,justs='llrrrrrrl')
+    config_text += '\\subsection{Specific to endcap module position (ring, disk)}\n'
+    config_text += config_text_modulespecific
+
+    return config_text

@@ -80,7 +80,12 @@ def PrintLatexTable(thing,justs=[],nsigfig=3) :
                 text += '%s & '%(getattr(y,just)(max_column_width[j]))
                 
     justs_text = '|'.join(justs_text)
-    text = '\\begin{tabular}{|%s|} \hline \n'%(justs_text) + text
-    text += '\hline\end{tabular}\n'
-    return text
+
+    ret_text =  '\\begin{table}[ht]\n'
+    ret_text += '\\adjustbox{max width=\\textwidth}{ %% just before tabular\n'
+    ret_text += '\\begin{tabular}{|%s|} \hline %% data_below\n'%(justs_text) + text
+    ret_text += '\hline\end{tabular}\n'
+    ret_text += '} %% resize box after tabular\n'
+    ret_text +=  '\\end{table}\n'
+    return ret_text
 

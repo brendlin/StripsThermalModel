@@ -45,6 +45,7 @@ def main(options,args):
                         'Endcap_R5.config'
                         ]
         structure_names = []
+        saved_configs = []
 
     # Config must be loaded before loading any other module.
     Config.SetConfigFile('%s/data/%s'%(the_path,config_files[0]),doprint=False)
@@ -104,8 +105,8 @@ def main(options,args):
                 Config.SetMissingConfigsUsingCommandLine(options,conf)
                 print 'CALCULATING Ring %d Disk %d (%s):'%(ring,disk,Config.GetName())
                 Config.ReloadAllPythonModules()
-                config_text += '%% Ring %d Disk %d (%s):\n'%(ring,disk,Config.GetName())
-                config_text += Config.Print() + '\n'
+                # config_text += '%% Ring %d Disk %d (%s):\n'%(ring,disk,Config.GetName())
+                # config_text += Config.Print() + '\n'
 
                 itape_previous_list = []
                 if ring :
@@ -116,6 +117,12 @@ def main(options,args):
 
                 results.append(SensorTemperatureCalc.CalculateSensorTemperature(options,itape_previous_list=itape_previous_list))
                 structure_names.append('R%dD%d'%(ring,disk))
+                saved_configs.append(Config.SaveSnapshot())
+
+            # config_text += '\n\\clearpage\n\n'
+
+        config_text += Config.FancyPrintLatexTables_Endcap(saved_configs,structure_names)
+        config_text += '\n\n\\clearpage\n'
 
     # Add some output directory specifications
     barrel_endcap = 'ExtendedModelBarrel' if options.barrel else 'ExtendedModelEndcap'
@@ -145,6 +152,9 @@ def main(options,args):
 
     # make an auto-latex document
     os.system('cat %s/latex/FrontMatter.tex > %s/Document.tex'%(the_path,outputpath))
+    os.system('echo "\section{Inputs}\n" >> %s/Document.tex'%(outputpath))
+    os.system('cat %s/ConfigTables.txt >> %s/Document.tex'%(outputpath,outputpath))
+    os.system('echo "\section{Model Results}\n" >> %s/Document.tex'%(outputpath))
     os.system('cat %s/SummaryTables.txt >> %s/Document.tex'%(outputpath,outputpath))
     os.system('echo "\end{document}\n" >> %s/Document.tex'%(outputpath))
     os.system('cd %s && pdflatex Document.tex'%(outputpath))
