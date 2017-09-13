@@ -160,10 +160,10 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
         for disk in range(6) :
             result_dicts_petals.append(dict())
-            ppetal,qsensorpetal,phvpetal,itapepetal = [],[],[],[]
+            ppetal,qsensorpetal,phvpetal,itapepetal,isensorpetal = [],[],[],[],[]
 
             for i in range(GlobalSettings.nstep) :
-                ppetal.append(0); qsensorpetal.append(0); phvpetal.append(0); itapepetal.append(0);
+                ppetal.append(0); qsensorpetal.append(0); phvpetal.append(0); itapepetal.append(0); isensorpetal.append(0)
                 for ring in range(6) :
                     index = names.index('R%dD%d'%(ring,disk))
                     ppetal[i] += result_dicts[index]['pmodule'].GetY()[i]
@@ -172,15 +172,17 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
                     phvpetal[i] += result_dicts[index]['phv_wleakage'].GetY()[i]
                     itapepetal[i] += result_dicts[index]['itape'].GetY()[i]
                     itapepetal[i] += result_dicts[index]['itape_eos'].GetY()[i]
+                    isensorpetal[i] += result_dicts[index]['isensor'].GetY()[i]
 
             result_dicts_petals[disk]['pmodulepetal']      = MakeGraph('PetalPowerDisk%d'  %(disk),'Total Power in petal (with EOS) (one side)',xtitle,'P_{%s} [W]'%('Petal'),x,ppetal)
             result_dicts_petals[disk]['qsensorpetal']      = MakeGraph('PetalSensorQDisk%d'%(disk),'Total Sensor Q in petal (one side)'        ,xtitle,'P [W]'               ,x,qsensorpetal)
             result_dicts_petals[disk]['phv_wleakagepetal'] = MakeGraph('PetalHVPowerDisk%d'%(disk),'HV Power in petal (one side)'              ,xtitle,'P [W]'               ,x,phvpetal)
             result_dicts_petals[disk]['itapepetal']        = MakeGraph('PetalTapeCurrentLVDisk%d'%(disk),'LV tape current in petal (with EOS) (one side)',xtitle,'I [A]'     ,x,itapepetal)
+            result_dicts_petals[disk]['isensorpetal']      = MakeGraph('PetalSensorCurrentDisk%d'%(disk),'Total Sensor (leakage) current (one side)',xtitle,'I [mA]'         ,x,isensorpetal)
 
             # Append to result_dicts for further use in ProcessSummaryTables
             index = names.index('R%dD%d'%(0,disk))
-            for i in ['pmodulepetal','qsensorpetal','phv_wleakagepetal','itapepetal'] :
+            for i in ['pmodulepetal','qsensorpetal','phv_wleakagepetal','itapepetal','isensorpetal'] :
                 result_dicts[index][i] = result_dicts_petals[disk][i]
 
         for plotname in result_dicts_petals[0].keys() :
@@ -305,7 +307,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                 the_lists[-1].append(the_graph.GetY()[time_index])
 
         # Petal totals
-        if quantity_name in ['qsensor','pmodule','phv_wleakage','itape'] :
+        if quantity_name in ['qsensor','pmodule','phv_wleakage','itape','isensor'] :
             caption += ' The ``petal total\'\' corresponds to one petal side.'
             the_lists.append([])
             the_lists[-1] += ['petal total','']
