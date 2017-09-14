@@ -8,6 +8,7 @@ import GlobalSettings
 import CoolantTemperature
 import TableUtils
 import Layout
+import CableLosses
 from array import array
 
 colors = {'B1':ROOT.kGreen,
@@ -223,11 +224,11 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
         # endcap          2              1/petal       npetals/ring     nEndcaps (2)
         # barrel          2              14/stave      nstaves/side     nSides (2)
-        powertotal[i] *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors)
+        powertotal[i] *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors * (1+CableLosses.losstype1) * (1+CableLosses.lossouter))
         phvtotal[i]   *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors)
 
     gr = dict()
-    gr['pmoduletotal']      = MakeGraph('TotalPower'  ,'Total Power in both %ss'%(structure_name)                   ,xtitle,'P_{%s} [W]'%('Total'),x,powertotal)
+    gr['pmoduletotal']      = MakeGraph('TotalPower'  ,'Total Power in both %ss (including cable losses)'%(structure_name),xtitle,'P_{%s} [W]'%('Total'),x,powertotal)
     gr['phv_wleakagetotal'] = MakeGraph('TotalHVPower','Total HV Power (sensor + resistors) in %ss'%(structure_name),xtitle,'P_{%s} [W]'%('HV')   ,x,phvtotal  )
 
     result_dicts[0]['pmoduletotal']      = gr['pmoduletotal']
@@ -330,7 +331,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                     if (result_max == result_start) or (result_max == result_eol) :
                         the_lists[-1].append(result_tid)
                     elif result_max != result_tid :
-                        print 'Warning! Maximum does not correspond to maximum power! %.3g vs %.3g'%(result_max,result_tid)
+                        print 'Warning! Maximum does not correspond to maximum power! %.3g vs %.3g %0.1f%%'%(result_max,result_tid,100*(result_max-result_tid)/float(result_max))
                         the_lists[-1].append(result_max)
                     else :
                         the_lists[-1].append(result_tid)

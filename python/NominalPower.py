@@ -21,7 +21,7 @@ import AbcTidBump
 
 Rtape_descr = 'tape resistance is 0.01 $\Omega$ per module worst case'
 Rtape = Config.GetDouble('NominalPower.Rtape',0.01,unit='$\Omega$',description=Rtape_descr)
-Pamac = (FrontEndComponents.amac15V * FrontEndComponents.amac15I + FrontEndComponents.amac3V * FrontEndComponents.amac3I) * (1 + SafetyFactors.safetycurrent)
+Pamac = (FrontEndComponents.amac15V * FrontEndComponents.amac15I + FrontEndComponents.amac3V * FrontEndComponents.amac3I)
 
 # Power in the FEAST chip due to AMAC supply
 Pfamac  = (PoweringEfficiency.Vfeast - FrontEndComponents.amac15V) * FrontEndComponents.amac15I

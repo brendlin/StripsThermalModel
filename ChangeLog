@@ -1,3 +1,10 @@
+2017-09-14 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Include cable losses in total power estimates (mistakenly omitted)
+   * Split safetycurrent into digital (safetycurrentd, should be 20%) and analog (safetycurrenta, should be 5%)
+   * Remove vbiasscale in favor of just setting vbias directly (cleans things up a bit)
+   * Remove safetylayout since we don't use it
+   * Current safety factor was double-counted for Pamac (small effect)
+
 2017-09-12 Kurt Brendlinger <kurt.brendlinger@cern.ch>
    * Clarify some additional quatities (e.g. EOS not included in some power numbers)
    * Add totals (per petal, full system) to table printouts

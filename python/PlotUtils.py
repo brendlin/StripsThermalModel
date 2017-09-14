@@ -116,20 +116,20 @@ def AddRunParameterLabels(legend,additionalinfo=[],wrap=False) :
     import CoolantTemperature
     layout,fluence,thermalimpedance,current,vbias = '','','','',''
 
-    if SafetyFactors.safetylayout :
-        layout = 'SF{#font[52]{Layout}}=%2.1f;  '%(SafetyFactors.safetylayout + 1.0)
     if SafetyFactors.safetyfluence :
-        fluence = 'SF_{#font[52]{flux}}=%2.1f;  '%(SafetyFactors.safetyfluence + 1.0)
+        fluence = 'flux_{ }#times^{ }%2.1f;  '%(SafetyFactors.safetyfluence + 1.0)
     if SafetyFactors.safetythermalimpedance :
-        thermalimpedance = 'SF_{#font[52]{RThermal}}=%2.1f;  '%(SafetyFactors.safetythermalimpedance + 1.0)
-    if SafetyFactors.safetycurrent :
-        current = 'SF_{#font[52]{current}}=%2.1f;  '%(SafetyFactors.safetycurrent + 1.0)
-    if (SafetyFactors.vbiasscale - 1.) != 0 :
-        vbias = 'SF_{#font[52]{Impedance}}=%2.1f;  '%(SafetyFactors.vbiasscale)
+        thermalimpedance = '^{}R_{thermal }#times^{ }%2.1f;  '%(SafetyFactors.safetythermalimpedance + 1.0)
+    if SafetyFactors.safetycurrentd :
+        currentd = 'I_{dig}#times%2.2f;  '%(SafetyFactors.safetycurrentd + 1.0)
+    if SafetyFactors.safetycurrenta :
+        currenta = '^{}I_{a }#times^{ }%2.2f;  '%(SafetyFactors.safetycurrenta + 1.0)
+    if (SafetyFactors.vbias) != 500. :
+        vbias = '^{}V_{bias}=^{ }%2.0f;  '%(SafetyFactors.vbias)
 
     #text = ('%s%s%s%s%s'%(layout,fluence,thermalimpedance,current,vbias)).rstrip('; ')
     sf1 = ('%s%s%s'    %(layout,fluence,thermalimpedance)).rstrip('; ')
-    sf2 = ('%s%s'      %(                                current,vbias)).rstrip('; ')
+    sf2 = ('%s%s%s'    %(                               currentd,currenta,vbias)).rstrip('; ')
     no_factors = ' none' if (not sf1 and not sf2) else ''
 
     nlines = 0

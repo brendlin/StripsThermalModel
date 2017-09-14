@@ -139,7 +139,7 @@ def ReloadAllPythonModules() :
     ReloadPythonModule('python.FrontEndComponents'       ) # SafetyFactors
     ReloadPythonModule('python.PlotUtils'                ) # SafetyFactors CoolantTemperature
     ReloadPythonModule('python.Temperatures'             ) # ThermalImpedances (GlobalSettings)
-    ReloadPythonModule('python.ExtendedModelSummaryPlots') # CoolantTemperature PlotUtils (GlobalSettings)
+    ReloadPythonModule('python.ExtendedModelSummaryPlots') # CoolantTemperature PlotUtils CableLosses Layout (GlobalSettings)
     ReloadPythonModule('python.SensorLeakage'            ) # SensorProperties OperationalProfiles (GlobalSettings)
     ReloadPythonModule('python.NominalPower'             ) # SensorProperties Config SafetyFactors Layout FrontEndComponents EOSComponents (GlobalSettings PoweringEfficiency AbcTidBump CableLosses)
     ReloadPythonModule('python.SensorTemperatureCalc'    ) # SensorProperties Config SafetyFactors Layout FrontEndComponents Temperatures NominalPower SensorLeakage OperationalProfiles CoolantTemperature PlotUtils (GlobalSettings PoweringEfficiency AbcTidBump)
@@ -149,9 +149,11 @@ def ReloadAllPythonModules() :
 # --------------------------------
 def AddConfigurationOptions(opt_parser) :
     opt_parser.add_option('--cooling',type='string',default=None,dest='cooling',help='Cooling scheme (\"-flat25\",\"-flat35\",\"ramp-25\",\"ramp-35\").')
-    opt_parser.add_option('--safetyi',type='float' ,default=None,dest='safetyi',help='Current safety factor (default is 0.0)')
+    opt_parser.add_option('--safetyid',type='float',default=None,dest='safetyid',help='Current digital safety factor (default is 0.0)')
+    opt_parser.add_option('--safetyia',type='float',default=None,dest='safetyia',help='Current analog safety factor (default is 0.0)')
     opt_parser.add_option('--safetyr',type='float' ,default=None,dest='safetyr',help='Thermal resistance safety factor (default is 0.0)')
     opt_parser.add_option('--safetyf',type='float' ,default=None,dest='safetyf',help='Flux safety factor (default is 0.0)')
+    opt_parser.add_option('--vbias'  ,type='float' ,default=None,dest='vbias'  ,help='Vbias (default is 500V)')
     return
 
 # --------------------------------
@@ -162,9 +164,11 @@ def SetMissingConfigsUsingCommandLine(options,config='') :
 
     # If "key" is not defined in the config file, define it using the command-line argument
     value_to_set = {'cooling'                              : options.cooling,
-                    'SafetyFactors.safetycurrent'          : options.safetyi,
+                    'SafetyFactors.safetycurrentd'         : options.safetyid,
+                    'SafetyFactors.safetycurrenta'         : options.safetyia,
                     'SafetyFactors.safetythermalimpedance' : options.safetyr,
                     'SafetyFactors.safetyfluence'          : options.safetyf,
+                    'SafetyFactors.vbias'                  : options.vbias,
                     }
 
     for k in value_to_set.keys() :

@@ -28,7 +28,8 @@ def FindAutoLabel(config,nom) :
                 name += '; '
             variable = {'SafetyFactors.safetyfluence'         :'SF_{#font[52]{flux}}',
                         'SafetyFactors.safetythermalimpedance':'SF_{#font[52]{RThermal}}',
-                        'SafetyFactors.safetycurrent'         :'SF_{#font[52]{current}}',
+                        'SafetyFactors.safetycurrentd'        :'SF_{#font[52]{Idigital}}',
+                        'SafetyFactors.safetycurrenta'        :'SF_{#font[52]{Ianalog}}',
                         'ThermalImpedances.rfeast'            :'R_{FEAST}',
                         'NominalPower.nfeast'                 :'_{}n_{FEAST}',
                         'NominalPower.nabc'                   :'nabc',
@@ -36,7 +37,8 @@ def FindAutoLabel(config,nom) :
             value = tenvrec.GetValue()
             if tenvrec.GetName() in ['SafetyFactors.safetyfluence',
                                      'SafetyFactors.safetythermalimpedance',
-                                     'SafetyFactors.safetycurrent'
+                                     'SafetyFactors.safetycurrentd',
+                                     'SafetyFactors.safetycurrenta',
                                      ] :
                 value = str(float(value) + 1.0)
             name += '%s^{ }=^{ }%s'%(variable,value)
