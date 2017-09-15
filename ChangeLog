@@ -1,4 +1,5 @@
 2017-09-15 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Automatic hlines... also propagate thermal runaway info vs module
    * Propagate thermal runaway all the way through to output tables
    * Add a script to put together scenario tables
    * Add Results.npy and Config.npy for saving results (needed for new scenario script)

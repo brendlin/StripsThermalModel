@@ -2,7 +2,7 @@
 #
 # A "list of rows"
 #
-def PrintLatexTable(thing,justs=[],nsigfig=3,caption='') :
+def PrintLatexTable(thing,justs=[],nsigfig=3,caption='',hlines=[]) :
 
     #
     # Calculate the correct number of digits, given that you want at least
@@ -72,7 +72,7 @@ def PrintLatexTable(thing,justs=[],nsigfig=3,caption='') :
 
             y = MakeTextReplacements(y)
             if j == len(x)-1 :
-                hline = '' if i else '\\hline'
+                hline = '' if (i and i not in hlines) else '\\hline'
                 text += '%s \\\\ %s\n'%(getattr(y,just)(max_column_width[j]),hline)
             elif j == 0 :
                 text += '%s & '%(getattr(y,just)(max_column_width[j]))

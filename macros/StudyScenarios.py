@@ -106,6 +106,18 @@ def GetSixScenarioParamters(a_list) :
     return
 
 #
+# Automate hlines
+#
+hlines = []
+scenario_last = scenarios[0]
+for s,scenario in enumerate(scenarios) :
+    cooling      = all_configs[scenario     ].GetValue('cooling','')
+    cooling_last = all_configs[scenario_last].GetValue('cooling','')
+    if cooling != cooling_last :
+        hlines.append(s)
+    scenario_last = scenario
+
+#
 # Main Summary Table
 #
 f.write('\subsubsection{Main Summary Table}\n')
@@ -114,7 +126,7 @@ for scenario in scenarios :
 
     the_lists.append([])
     GetSixScenarioParamters(the_lists[-1])
-    
+
     for quantity_name in ['pmodule','phv_wleakage'] :
         if all_results[scenario][0]['thermal_runaway_yeartotal'] :
             the_lists[-1].append('{\\bf Year %d}'%(all_results[scenario][0]['thermal_runaway_yeartotal']))
@@ -127,7 +139,7 @@ for scenario in scenarios :
 
 scenario0 = scenarios[0]
 header = '\n\multicolumn{4}{|c|}{%s} & $V_{bias}$ & Cooling & Endcaps max & Endcaps max \\\\'%('Safety factor')
-table = TableUtils.PrintLatexTable(the_lists,caption='Summary of all safety factor scenarios.')
+table = TableUtils.PrintLatexTable(the_lists,caption='Summary of all safety factor scenarios.',hlines=hlines)
 i_start_of_data = re.search("data_below\n",table).end()
 table = table[:i_start_of_data] + header + table[i_start_of_data:]
 table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|','|cccc|cc|rr|',table)
@@ -178,7 +190,7 @@ for quantity_name in ['pmodule','itape'] :
 
     label_short = graph0.GetYaxis().GetTitle().split('[')[0]
     disk_label = '\multicolumn{4}{|c|}{%s} & $V_{bias}$ & Cooling & \multicolumn{6}{c|}{Max $%s$ for full petal (1 side) on disk $n$ %s} \\\\\n'%('Safety factor',label_short,units_dict[quantity_name])
-    table = TableUtils.PrintLatexTable(the_lists,caption=caption)
+    table = TableUtils.PrintLatexTable(the_lists,caption=caption,hlines=hlines)
     # insert special headers
     i_start_of_data = re.search("data_below\n",table).end()
     table = table[:i_start_of_data] + disk_label + table[i_start_of_data:]
@@ -198,10 +210,10 @@ for quantity_name in ['phv_wleakage'] :
         the_lists.append([])
         GetSixScenarioParamters(the_lists[-1])
         for ring in range(6) :
-            index = structure_names.index('R%dD%d'%(0,disk))
-#             if all_results[scenario][index]['thermal_runaway_yearpetal'] :
-#                 the_lists[-1].append('{\\bf Y%d}'%(all_results[scenario][index]['thermal_runaway_yearpetal']))
-#                 continue
+            index = structure_names.index('R%dD%d'%(ring,0))
+            if all_results[scenario][index]['thermal_runaway_yearmodule'] :
+                the_lists[-1].append('{\\bf Y%d}'%(all_results[scenario][index]['thermal_runaway_yearmodule']))
+                continue
             maxval_ring = 0
             for disk in range(6) :
                 index = structure_names.index('R%dD%d'%(ring,disk))
@@ -221,7 +233,7 @@ for quantity_name in ['phv_wleakage'] :
 
     label_short = graph0.GetYaxis().GetTitle().split('[')[0]
     disk_label = '\multicolumn{4}{|c|}{%s} & $V_{bias}$ & Cooling & \multicolumn{6}{c|}{Max $%s$ for module of type R$n$ (1 side) %s} \\\\\n'%('Safety factor',label_short,units_dict[quantity_name])
-    table = TableUtils.PrintLatexTable(the_lists,caption=caption)
+    table = TableUtils.PrintLatexTable(the_lists,caption=caption,hlines=hlines)
     # insert special headers
     i_start_of_data = re.search("data_below\n",table).end()
     table = table[:i_start_of_data] + disk_label + table[i_start_of_data:]

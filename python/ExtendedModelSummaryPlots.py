@@ -217,6 +217,19 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             taxisfunc.AutoFixYaxis(c,minzero=minzero,forcemin=forcemin)
             c.Print('%s/%s%s.eps'%(outputpath,barrel_endcap,result_dicts_petals[0][plotname].GetName().replace('Disk0','')))
 
+        # Endcap totals, if necessary.
+        for ring in range(6) :
+            thermal_runaway_yearmodule = 999
+            for disk in range(6) :
+                index = names.index('R%dD%d'%(ring,disk))
+                if result_dicts[index]['thermal_runaway_year'] :
+                    thermal_runaway_yearmodule = min(thermal_runaway_yearmodule,result_dicts[index]['thermal_runaway_year'])
+            if thermal_runaway_yearmodule == 999 :
+                thermal_runaway_yearmodule = 0
+
+            index = names.index('R%dD%d'%(ring,0))
+            result_dicts[index]['thermal_runaway_yearmodule'] = thermal_runaway_yearmodule
+
     #
     # Process Totals
     #
