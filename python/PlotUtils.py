@@ -114,7 +114,7 @@ def GetCoolingScenarioLabel(cooling_option) :
 def AddRunParameterLabels(legend,additionalinfo=[],wrap=False) :
     import SafetyFactors
     import CoolantTemperature
-    layout,fluence,thermalimpedance,current,vbias = '','','','',''
+    layout,fluence,thermalimpedance,currenta,currentd,vbias = '','','','','',''
 
     if SafetyFactors.safetyfluence :
         fluence = 'flux_{ }#times^{ }%2.1f;  '%(SafetyFactors.safetyfluence + 1.0)

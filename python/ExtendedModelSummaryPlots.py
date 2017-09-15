@@ -82,6 +82,9 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
     for plotname in list_of_plots :
 
+        if not issubclass(type(result_dicts[0][plotname]),ROOT.TGraph) :
+            continue
+
         # collect all the graphs
         graphs = list(a[plotname] for a in result_dicts)
 
@@ -181,10 +184,19 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             result_dicts_petals[disk]['itapepetal']        = MakeGraph('PetalTapeCurrentLVDisk%d'%(disk),'LV tape current in petal (with EOS) (one side)',xtitle,'I [A]'     ,x,itapepetal)
             result_dicts_petals[disk]['isensorpetal']      = MakeGraph('PetalSensorCurrentDisk%d'%(disk),'Total Sensor (leakage) current (one side)',xtitle,'I [mA]'         ,x,isensorpetal)
 
+            thermal_runaway_yearpetal = 999
+            for ring in range(6) :
+                index = names.index('R%dD%d'%(ring,disk))
+                if result_dicts[index]['thermal_runaway_year'] :
+                    thermal_runaway_yearpetal = min(thermal_runaway_yearpetal,result_dicts[index]['thermal_runaway_year'])
+            if thermal_runaway_yearpetal == 999 :
+                thermal_runaway_yearpetal = 0
+
             # Append to result_dicts for further use in ProcessSummaryTables
             index = names.index('R%dD%d'%(0,disk))
             for i in ['pmodulepetal','qsensorpetal','phv_wleakagepetal','itapepetal','isensorpetal'] :
                 result_dicts[index][i] = result_dicts_petals[disk][i]
+            result_dicts[index]['thermal_runaway_yearpetal'] = thermal_runaway_yearpetal
 
         for plotname in result_dicts_petals[0].keys() :
             c.Clear()
@@ -231,8 +243,18 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     gr['pmoduletotal']      = MakeGraph('TotalPower'  ,'Total Power in both %ss (including cable losses)'%(structure_name),xtitle,'P_{%s} [W]'%('Total'),x,powertotal)
     gr['phv_wleakagetotal'] = MakeGraph('TotalHVPower','Total HV Power (sensor + resistors) in %ss'%(structure_name),xtitle,'P_{%s} [W]'%('HV')   ,x,phvtotal  )
 
+    thermal_runaway_yeartotal = 999
+    for disk in range(6) :
+        for ring in range(6) :
+            index = names.index('R%dD%d'%(ring,disk))
+            if result_dicts[index]['thermal_runaway_year'] :
+                thermal_runaway_yeartotal = min(thermal_runaway_yeartotal,result_dicts[index]['thermal_runaway_year'])
+    if thermal_runaway_yeartotal == 999 :
+        thermal_runaway_yeartotal = 0
+
     result_dicts[0]['pmoduletotal']      = gr['pmoduletotal']
     result_dicts[0]['phv_wleakagetotal'] = gr['phv_wleakagetotal']
+    result_dicts[0]['thermal_runaway_yeartotal'] = thermal_runaway_yeartotal
 
     for g in gr.keys() :
         c.Clear()
@@ -263,6 +285,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
     if '[' in result_dicts[0][quantity_name].GetYaxis().GetTitle() :
         units = result_dicts[0][quantity_name].GetYaxis().GetTitle().split('[')[1].split(']')[0]
         units = units.replace('#circ^{}','$^\circ$')
+        units = units.replace('_{}Q_{S,crit}/Q_{S}','$Q_{S,crit}/Q_{S}$')
         units = '[%s]'%(units)
     caption = '%s at {\\bf %s} %s.'%(result_dicts[0][quantity_name].GetTitle(),time_label,units)
     disk_label = '\multirow{2}{*}{%s} & & \multicolumn{6}{c|}{Disk} \\\\\n'%(units)
@@ -299,6 +322,9 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
             the_lists[-1].append('%d'%(ring))
             for disk in range(6) :
                 index = structure_names.index('R%dD%d'%(ring,disk))
+                if result_dicts[index]['thermal_runaway_year'] :
+                    the_lists[-1].append('{\\bf Y%d}'%(result_dicts[index]['thermal_runaway_year']))
+                    continue
                 the_graph = result_dicts[index][quantity_name]
                 idig = list(result_dicts[index]['idig'].GetY()[i] for i in range(result_dicts[index]['idig'].GetN()))
                 time_index = {'start':0,
@@ -314,6 +340,9 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
             the_lists[-1] += ['petal total','']
             for disk in range(6) :
                 index = structure_names.index('R%dD%d'%(0,disk))
+                if result_dicts[index]['thermal_runaway_yearpetal'] :
+                    the_lists[-1].append('{\\bf Y%d}'%(result_dicts[index]['thermal_runaway_yearpetal']))
+                    continue
                 the_graph = result_dicts[index][quantity_name+'petal']
                 # For "tid" take max, or value at max petal power
                 ppetal = list(result_dicts[index]['pmodulepetal'].GetY()[i] for i in range(result_dicts[index]['pmodulepetal'].GetN()))
@@ -342,29 +371,34 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
             the_lists.append([])
             the_lists[-1] += ['endcaps total','']
             the_lists[-1] += ['-','-','-','-','-','-'] # this is a placeholder
-            the_graph = result_dicts[0][quantity_name+'total']
-            # For "tid" take max, or value at max petal power
-            ptotal = list(result_dicts[0]['pmoduletotal'].GetY()[i] for i in range(result_dicts[0]['pmoduletotal'].GetN()))
-            tid_index = ptotal.index(max(ptotal))
+            if result_dicts[0]['thermal_runaway_yeartotal'] :
+                endcap_total = '{\\\\bf Y%d}'%(result_dicts[0]['thermal_runaway_yeartotal'])
 
-            if target_index == 'start' :
-                endcap_total = the_graph.GetY()[0]
-            elif target_index == 'eol' :
-                endcap_total = the_graph.GetY()[the_graph.GetN()-1]
             else :
-                result_start = the_graph.GetY()[0]
-                result_max   = max(list(the_graph.GetY()[i] for i in range(the_graph.GetN())))
-                result_tid   = the_graph.GetY()[tid_index]
-                result_eol   = the_graph.GetY()[the_graph.GetN()-1]
-                if (result_max == result_start) or (result_max == result_eol) :
-                    endcap_total = result_tid
-                elif result_max != result_tid :
-                    print 'Warning! Maximum does not correspond to maximum power! %.3g vs %.3g'%(result_max,result_tid)
-                    endcap_total = result_max
+                the_graph = result_dicts[0][quantity_name+'total']
+                # For "tid" take max, or value at max petal power
+                ptotal = list(result_dicts[0]['pmoduletotal'].GetY()[i] for i in range(result_dicts[0]['pmoduletotal'].GetN()))
+                tid_index = ptotal.index(max(ptotal))
+
+                if target_index == 'start' :
+                    endcap_total = the_graph.GetY()[0]
+                elif target_index == 'eol' :
+                    endcap_total = the_graph.GetY()[the_graph.GetN()-1]
                 else :
-                    endcap_total = result_tid
+                    result_start = the_graph.GetY()[0]
+                    result_max   = max(list(the_graph.GetY()[i] for i in range(the_graph.GetN())))
+                    result_tid   = the_graph.GetY()[tid_index]
+                    result_eol   = the_graph.GetY()[the_graph.GetN()-1]
+                    if (result_max == result_start) or (result_max == result_eol) :
+                        endcap_total = result_tid
+                    elif result_max != result_tid :
+                        print 'Warning! Maximum does not correspond to maximum power! %.3g vs %.3g'%(result_max,result_tid)
+                        endcap_total = result_max
+                    else :
+                        endcap_total = result_tid
 
         table = TableUtils.PrintLatexTable(the_lists,caption=caption)
+        result_dicts[0][quantity_name+'caption'] = caption
         # insert special headers
         import re
         i_start_of_data = re.search("data_below\n",table).end()
@@ -372,8 +406,10 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
         # convert to multiline
         table = re.sub('\npetal total\s+&','\hline\n\multicolumn{2}{|l|}{petal total}',table)
         if endcap_total != None :
+            if type(endcap_total) == type(1.1) :
+                endcap_total = '%.3g'%(endcap_total)
             table = re.sub('\nendcaps total\s+&','\hline\n\multicolumn{2}{|l|}{endcaps total}',table)
-            table = re.sub('\s+-\s+&\s+-\s+&\s+-\s+&\s+-\s+&\s+-\s+&\s+-','\multicolumn{6}{l|}{%.3g}'%(endcap_total),table)
+            table = re.sub('\s+-\s+&\s+-\s+&\s+-\s+&\s+-\s+&\s+-\s+&\s+-','\multicolumn{6}{l|}{%s}'%(endcap_total),table)
 
     if options.barrel :
         for layer in range(4,0,-1) :

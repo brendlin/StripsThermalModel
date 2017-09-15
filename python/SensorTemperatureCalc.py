@@ -109,6 +109,8 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
 
     thermal_runaway = False
     thermal_runaway_index = 0
+    thermal_runaway_year = 0
+    thermal_runaway_month = 0
 
     ts_sweep_list = []          # Ts sweep lists as a companion to the lists below
     ts_vs_qref = []             # Qref vs sensor temperature in microW/mm^2
@@ -183,6 +185,8 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
             if len(qref_rootsolve_list) and y < qref_rootsolve_list[-1] and (not y_gets_over_zero) :
                 if thermal_runaway == False :
                     thermal_runaway_index = i
+                    thermal_runaway_year = year
+                    thermal_runaway_month = month
                 thermal_runaway = True
                 if n_runaway_errors[0] <= 5 :
                     print 'WARNING! Probably hit thermal runaway! Year %d Month %2.0f'%(year,month)
@@ -402,7 +406,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     gr['ifeast']     = MakeGraph('FeastCurrent'           ,'FEAST current (load, per FEAST)'           ,xtitle,'I_{%s} [A]'%('FEAST,load')    ,x,ifeast    )
     gr['ifeast_in']  = MakeGraph('FeastCurrentInput'      ,'FEAST current (input)'                     ,xtitle,'I_{%s} [A]'%('FEAST,in')      ,x,ifeast_in )
     gr['efffeast']   = MakeGraph('FeastEfficiency'        ,'Feast efficiency'                          ,xtitle,'Efficiency [%]'               ,x,efffeast  )
-    gr['qsensor_headroom'] = MakeGraph('SensorQHeadroom'  ,'Sensor Q headroom factor'                  ,xtitle,'Power headroom factor, _{}Q_{S,crit}/Q_{S}',x,qsensor_headroom)
+    gr['qsensor_headroom'] = MakeGraph('SensorQHeadroom'  ,'Sensor Q headroom factor'                  ,xtitle,'Power headroom factor [_{}Q_{S,crit}/Q_{S}]',x,qsensor_headroom)
     gr['tcoolant']   = MakeGraph('CoolantTemperature'     ,'Coolant temperature'                       ,xtitle,'T_{%s} [#circ^{}C]'%('coolant'),x,CoolantTemperature.GetTimeStepTc())
     gr['tid_sf_abc'] = MakeGraph('ABCTidBumpScaleFactor'  ,'ABC TID bump scale factor'                 ,xtitle,'scale factor'                 ,x,tid_sf_abc)
     gr['tid_sf_hcc'] = MakeGraph('HCCTidBumpScaleFactor'  ,'HCC TID bump scale factor'                 ,xtitle,'scale factor'                 ,x,tid_sf_hcc)
@@ -823,5 +827,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
 
     # return all the graphs
     return_items = gr
+    return_items['thermal_runaway_year'] = thermal_runaway_year
+    return_items['thermal_runaway_month'] = thermal_runaway_month
 
     return return_items
