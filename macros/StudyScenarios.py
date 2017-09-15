@@ -52,7 +52,7 @@ ordering = [
 
 for i in reversed(ordering) :
     scenarios.sort(key = lambda x: (i+'_' not in x))
-for i in ['m15','m20','m25','m30','m35'] :
+for i in reversed(['flat_m35','flat_m30','flat_m25','flat_m20','flat_m15','ramp_m35']) :
     scenarios.sort(key = lambda x: (i not in x))
 
 # scenarios = [
@@ -101,7 +101,7 @@ def GetSixScenarioParamters(a_list) :
     if 'flat' in cooling :
         cooling = cooling.replace('flat','').replace('-','$-$')+' flat'
     if 'ramp' in cooling :
-        cooling = cooling.replace('flat','').replace('-','$-$')+' ramp'
+        cooling = cooling.replace('ramp','').replace('-','$-$')+' ramp'
     the_lists[-1].append(cooling)
     return
 
