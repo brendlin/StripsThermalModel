@@ -2,6 +2,7 @@
 
 import os,sys
 import re
+import ROOT
 the_path = ('/').join(os.getcwd().split('/')[:-1]) 
 print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
@@ -75,12 +76,16 @@ for scenario in scenarios :
     all_results[scenario] = np.load('%s/%s/Results.npy'%(inputpath,scenario))
     all_configs[scenario] = np.load('%s/%s/Config.npy'%(inputpath,scenario)).item()
 
+header = '\n\multicolumn{4}{|c|}{%s} & $V_{bias}$ & Cooling & Endcaps max & Endcaps max & Min sensor \\\\'%('Safety factor')
+
 the_lists = []
 the_lists.append(['Fluence','$R_{T}$','$I_D$','$I_A$',
                   '[V]',
                   '[$^\circ$C]',
                   '\multicolumn{1}{l}{power [kW]}',
-                  '\multicolumn{1}{l|}{HV [kW]}'])
+                  '\multicolumn{1}{l}{HV [kW]}',
+                  '\multicolumn{1}{l|}{headroom}',
+                  ])
 
 structure_names = []
 for ring in range(6) :
@@ -137,19 +142,39 @@ for scenario in scenarios :
             maxval = maxval/1000.
         the_lists[-1].append(StringWithNSigFigs(maxval,3))
 
+    # maximum (or minimum) module value in full system
+    for quantity_name in ['qsensor_headroom'] :
+        if all_results[scenario][0]['thermal_runaway_yeartotal'] :
+            the_lists[-1].append('{\\bf Year %d}'%(all_results[scenario][0]['thermal_runaway_yeartotal']))
+            continue
+        maxval_endcap = float('inf') if quantity_name in ['qsensor_headroom'] else None
+        for ring in range(6) :
+            for disk in range(6) :
+                index = structure_names.index('R%dD%d'%(ring,disk))
+                graph = all_results[scenario][index][quantity_name]
+                nstep = graph.GetN()
+                if quantity_name in ['qsensor_headroom'] :
+                    maxval_module = min(list(graph.GetY()[i] for i in range(nstep)))
+                    maxval_endcap = min(maxval_endcap,maxval_module)
+                else :
+                    maxval_module = max(list(graph.GetY()[i] for i in range(nstep)))
+                    maxval_endcap = max(maxval_endcap,maxval_module)
+        the_lists[-1].append(StringWithNSigFigs(maxval_endcap,3))
+
 scenario0 = scenarios[0]
-header = '\n\multicolumn{4}{|c|}{%s} & $V_{bias}$ & Cooling & Endcaps max & Endcaps max \\\\'%('Safety factor')
 table = TableUtils.PrintLatexTable(the_lists,caption='Summary of all safety factor scenarios.',hlines=hlines)
 i_start_of_data = re.search("data_below\n",table).end()
 table = table[:i_start_of_data] + header + table[i_start_of_data:]
-table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|','|cccc|cc|rr|',table)
+table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|r\|','|cccc|cc|rrr|',table)
 f.write(table)
 
 #
 # Units
 #
 units_dict = dict()
-for quantity_name in ['pmodule','itape','phv_wleakage'] :
+for quantity_name in all_results[scenario0][0].keys() :
+    if not issubclass(type(all_results[scenario0][0][quantity_name]),ROOT.TGraph) :
+        continue
     graph0  = all_results[scenario0][0][quantity_name]
     if '[' in graph0.GetYaxis().GetTitle() :
         units = graph0.GetYaxis().GetTitle().split('[')[1].split(']')[0]
@@ -202,7 +227,7 @@ for quantity_name in ['pmodule','itape'] :
 #
 f.write('\clearpage\n')
 f.write('\subsubsection{Worst-case ring modules}\n')
-for quantity_name in ['phv_wleakage'] :
+for quantity_name in ['phv_wleakage','tsensor','tfeast','qsensor_headroom'] :
     the_lists = []
     the_lists.append(['Fluence','$R_{T}$','$I_D$','$I_A$','[V]','[$^\circ$C]',
                       'R0','R1','R2','R3','R4','R5'])
@@ -214,13 +239,17 @@ for quantity_name in ['phv_wleakage'] :
             if all_results[scenario][index]['thermal_runaway_yearmodule'] :
                 the_lists[-1].append('{\\bf Y%d}'%(all_results[scenario][index]['thermal_runaway_yearmodule']))
                 continue
-            maxval_ring = 0
+            maxval_ring = float('inf') if quantity_name in ['qsensor_headroom'] else None
             for disk in range(6) :
                 index = structure_names.index('R%dD%d'%(ring,disk))
                 graph = all_results[scenario][index][quantity_name]
                 nstep = graph.GetN()
-                maxval_module = max(list(graph.GetY()[i] for i in range(nstep)))
-                maxval_ring = max(maxval_ring,maxval_module)
+                if quantity_name in ['qsensor_headroom'] :
+                    maxval_module = min(list(graph.GetY()[i] for i in range(nstep)))
+                    maxval_ring = min(maxval_ring,maxval_module)
+                else :
+                    maxval_module = max(list(graph.GetY()[i] for i in range(nstep)))
+                    maxval_ring = max(maxval_ring,maxval_module)
             the_lists[-1].append(maxval_ring)
 
     graph0  = all_results[scenario0][0][quantity_name]
@@ -232,7 +261,7 @@ for quantity_name in ['phv_wleakage'] :
     caption = caption.replace(' due to items on module','')
 
     label_short = graph0.GetYaxis().GetTitle().split('[')[0]
-    disk_label = '\multicolumn{4}{|c|}{%s} & $V_{bias}$ & Cooling & \multicolumn{6}{c|}{Max $%s$ for module of type R$n$ (1 side) %s} \\\\\n'%('Safety factor',label_short,units_dict[quantity_name])
+    disk_label = '\multicolumn{4}{|c|}{%s} & $V_{bias}$ & Cooling & \multicolumn{6}{c|}{Max $%s$ for module of type R$n$ %s} \\\\\n'%('Safety factor',label_short,units_dict[quantity_name])
     table = TableUtils.PrintLatexTable(the_lists,caption=caption,hlines=hlines)
     # insert special headers
     i_start_of_data = re.search("data_below\n",table).end()

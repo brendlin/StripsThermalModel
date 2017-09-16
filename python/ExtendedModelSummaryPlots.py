@@ -69,6 +69,9 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
     if not hasattr(options,'endcap') :
         options.endcap = False
+
+    if not hasattr(options,'barrel') :
+        options.barrel = False
     
     # Write plots
     c = ROOT.TCanvas('ExtendedModelSummaryPlotsCanvas','blah',600,500)
@@ -229,6 +232,9 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
             index = names.index('R%dD%d'%(ring,0))
             result_dicts[index]['thermal_runaway_yearmodule'] = thermal_runaway_yearmodule
+
+    if not options.endcap and not options.barrel :
+        return
 
     #
     # Process Totals
