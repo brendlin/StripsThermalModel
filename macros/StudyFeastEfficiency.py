@@ -32,11 +32,15 @@ def main(options,args) :
     feast_data['v01'] = dict()
     feast_data['v01']['data'] = open('%s/data/FeastEfficiencyData_v01.txt'%(the_path),'r')
 
-    # Collect data at T=10C and T=60C separately, for plotting.
+    # Collect data at T=10C and T=60C separately, for plotting. Also for fixed currents.
     for k in feast_data.keys() :
-        feast_data[k]['vsCurrent'] = dict()
-        feast_data[k]['vsCurrent'][10] = {'x':[],'y':[]}
-        feast_data[k]['vsCurrent'][60] = {'x':[],'y':[]}
+        feast_data[k]['isoTemp'] = dict()
+        feast_data[k]['isoTemp'][10] = {'x':[],'y':[]}
+        feast_data[k]['isoTemp'][60] = {'x':[],'y':[]}
+
+        feast_data[k]['isoCurr'] = dict()
+        for i in [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0] :
+            feast_data[k]['isoCurr'][i] = {'x':[],'y':[]}
 
     for k in feast_data.keys() :
         for line in feast_data[k]['data'] :
@@ -48,23 +52,29 @@ def main(options,args) :
 
             # separate data collected at 10C and 60C
             if math.fabs(float(datapoint[1]) - 10) < 1.0 :
-                feast_data[k]['vsCurrent'][10]['x'].append(float(datapoint[0]))
-                feast_data[k]['vsCurrent'][10]['y'].append(float(datapoint[2]))
+                feast_data[k]['isoTemp'][10]['x'].append(float(datapoint[0]))
+                feast_data[k]['isoTemp'][10]['y'].append(float(datapoint[2]))
 
             # separate data collected at 10C and 60C
             if math.fabs(float(datapoint[1]) - 60) < 10.0 :
-                feast_data[k]['vsCurrent'][60]['x'].append(float(datapoint[0]))
-                feast_data[k]['vsCurrent'][60]['y'].append(float(datapoint[2]))
+                feast_data[k]['isoTemp'][60]['x'].append(float(datapoint[0]))
+                feast_data[k]['isoTemp'][60]['y'].append(float(datapoint[2]))
+
+            # separate by current
+            for i in [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0] :
+                if math.fabs(float(datapoint[0]) - i) < 0.01 :
+                    feast_data[k]['isoCurr'][i]['x'].append(float(datapoint[1]))
+                    feast_data[k]['isoCurr'][i]['y'].append(float(datapoint[2]))
 
     c = ROOT.TCanvas('feast_fit_function','Feast Efficiency fit function',600,500)
     
-    # Drawing the fit 10 C + overlay data points:        
+    # Iso-temperature plots
     for i,k in enumerate(feast_data.keys()) :
         for j,temp in enumerate([10,60]) :
-            graph = MakeGraph('FeastEfficiency_Data_t10',
+            graph = MakeGraph('FeastEfficiencyData',
                               '%s, T=%d#circ C'%(k,temp),'I_{load} [A]','FEAST efficiency [%]',
-                              feast_data[k]['vsCurrent'][temp]['x'],
-                              feast_data[k]['vsCurrent'][temp]['y'])
+                              feast_data[k]['isoTemp'][temp]['x'],
+                              feast_data[k]['isoTemp'][temp]['y'])
             graph.SetMarkerColor(ROOT.kBlue)
             if temp == 60 :
                 graph.SetMarkerColor(ROOT.kOrange+8)
@@ -73,25 +83,28 @@ def main(options,args) :
             if k == 'v01' :
                 graph.SetMarkerStyle(24)
             graph.Draw('p' if (i+j) else 'ap')
-            feast_data[k]['vsCurrent'][temp]['graph'] = graph
+            feast_data[k]['isoTemp'][temp]['graph'] = graph
 
     for func in PoweringEfficiency.feast_func_fixedTemp.keys() :
-        PoweringEfficiency.feast_func_fixedTemp[func].SetLineColor(ROOT.kGray)
-        if func == 10 :
-            PoweringEfficiency.feast_func_fixedTemp[func].SetLineColor(ROOT.kBlue)
-        if func == 60 :
-            PoweringEfficiency.feast_func_fixedTemp[func].SetLineColor(ROOT.kOrange+8)
+        colors = {10:ROOT.kBlue,60:ROOT.kOrange+8}
+        PoweringEfficiency.feast_func_fixedTemp[func].SetLineColor(colors.get(func,ROOT.kGray))
         PoweringEfficiency.feast_func_fixedTemp[func].Draw('same')
 
+    for func in PoweringEfficiency.feast_func_fixedTemp_new.keys() :
+        colors = {10:ROOT.kBlue,60:ROOT.kOrange+8}
+        PoweringEfficiency.feast_func_fixedTemp_new[func].SetLineColor(colors.get(func,ROOT.kGray))
+        PoweringEfficiency.feast_func_fixedTemp_new[func].Draw('same')
+
+    # Re-draw to put them on top
     for i,k in enumerate(feast_data.keys()) :
         for j,temp in enumerate([10,60]) :
-            feast_data[k]['vsCurrent'][temp]['graph'].Draw('p')
+            feast_data[k]['isoTemp'][temp]['graph'].Draw('p')
 
-    # Legending
+    # plot
     leg= ROOT.TLegend(0.68,0.74,0.95,0.92)
     for k in feast_data.keys() :
         for t in [10,60] :
-            gr = feast_data[k]['vsCurrent'][t]['graph']
+            gr = feast_data[k]['isoTemp'][t]['graph']
             leg.AddEntry(gr,gr.GetTitle(),'p')
     for func in PoweringEfficiency.feast_func_fixedTemp.keys() :
         if func not in [10,60] :
@@ -103,6 +116,52 @@ def main(options,args) :
     TAxisFunctions.SetXaxisRanges(c,0.25,4.25)
 
     c.Print('%s/plots/FeastEfficiency/FeastEfficiency.eps'%(the_path))
+
+    # Iso-current plots
+    c.Clear()
+    leg= ROOT.TLegend(0.65,0.74,0.90,0.94)
+    leg.SetNColumns(2)
+    PlotUtils.SetStyleLegend(leg)
+    # versus temperature now:
+    for i,k in enumerate(['v01']) :
+        for j,curr in enumerate([0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0]) :
+            if not feast_data[k]['isoCurr'][curr]['x'] :
+                continue
+            graph = MakeGraph('FeastEfficiencyData_isoCurr_%0.1f'%(curr),
+                              'I^{ }=^{ }%0.1f A'%(curr),'T [#circ C]','FEAST efficiency [%]',
+                              feast_data[k]['isoCurr'][curr]['x'],
+                              feast_data[k]['isoCurr'][curr]['y'])
+
+            graph.SetMarkerColor(PlotUtils.ColorGradient(j,8))
+            graph.GetHistogram().GetYaxis().SetRangeUser(60,85)
+            graph.GetHistogram().GetXaxis().SetRangeUser(-50,65)
+            if k == 'v00' :
+                graph.SetMarkerStyle(24)
+            feast_data[k]['isoCurr'][curr]['graph'] = graph
+
+        for j,curr in enumerate([0.5,2.5,1.0,3.0,1.5,3.5,2.0,4.0]) :
+            if not feast_data[k]['isoCurr'][curr]['x'] :
+                continue
+            graph = feast_data[k]['isoCurr'][curr]['graph']
+            graph.Draw('p' if (i+j) else 'ap')
+            if k == 'v01' :
+                leg.AddEntry(graph,graph.GetTitle(),'p')
+
+    for j,func in enumerate([0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0]) :
+        # tf1 = PoweringEfficiency.feast_func_fixedCurr[func]
+        # tf1.SetLineColor(PlotUtils.ColorGradient(j,8))
+        # tf1.Draw('same')
+        tf1 = PoweringEfficiency.feast_func_fixedCurr_new[func]
+        tf1.SetLineColor(PlotUtils.ColorGradient(j,8))
+        tf1.Draw('same')
+
+    # dummy_v00 = ROOT.TGraph(1,array('d',[0]),array('d',[0]))
+    # dummy_v00.SetMarkerStyle(24)
+    # dummy_v00.SetTitle('Old data')
+    # leg.AddEntry(dummy_v00,dummy_v00.GetTitle(),'p')
+    TAxisFunctions.SetXaxisRanges(c,-50,65)
+    leg.Draw()
+    c.Print('%s/plots/FeastEfficiency/FeastEfficiency_isoCurrent.eps'%(the_path))
     
     return
 

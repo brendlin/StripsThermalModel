@@ -176,6 +176,18 @@ def ColorPalette() :
             ,21,22,23,24,25,26,27,28,29,30
             ]
 
+def ColorGradient(i,ntotal) :
+    import ROOT
+    from array import array
+    NRGBs = 3
+    stops = array('d',[ 0.00, 0.50, 1.00 ])
+    red   = array('d',[ 0.00, 0.50, 1.00 ])
+    green = array('d',[ 0.00, 1.00, 0.00 ])
+    blue  = array('d',[ 1.00, 0.50, 0.00 ])
+    ROOT.TColor.CreateGradientColorTable(NRGBs, stops, red, green, blue, ntotal+1)
+    ROOT.gStyle.SetNumberContours(ntotal+1)
+    return ROOT.gStyle.GetColorPalette(i+1)
+
 def AddToStack(stack,leg,h) :
     h.SetFillColor(ColorPalette()[stack.GetNhists()+1])
     h.SetLineWidth(2)

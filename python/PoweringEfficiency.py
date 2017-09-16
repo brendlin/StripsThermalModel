@@ -17,15 +17,42 @@ feastfitconstants.append(  1.40142)
 # y is temperature
 # f(x,y) is efficiency
 feast_fit_function = ROOT.TF2("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*y",0,5,5,65)
-feast_fit_function.SetParameter(0,feastfitconstants[0])
-feast_fit_function.SetParameter(1,feastfitconstants[1])
-feast_fit_function.SetParameter(2,feastfitconstants[2])
-feast_fit_function.SetParameter(3,feastfitconstants[3])
+for i,constant in enumerate(feastfitconstants) :
+    feast_fit_function.SetParameter(i,constant)
 
 feast_func_fixedTemp = dict()
 for ti in [10,20,30,40,50,60] :
     feast_func_fixedTemp[ti] = ROOT.TF1("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*%d"%(ti),0,5)
     feast_func_fixedTemp[ti].SetParameters(*feastfitconstants)
+
+feast_func_fixedCurr = dict()
+for i in [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0] :
+    feast_func_fixedCurr[i] = ROOT.TF1("feast_fit_function","[0] + [1]*%0.1f + [2]*%0.2f + [3]*%0.3f - (2./25.)*x"%(i,i*i,i*i*i),-35,65)
+    feast_func_fixedCurr[i].SetParameters(*feastfitconstants)
+
+
+# New parameterization
+feast_fit_function_new = ROOT.TF2("feast_fit_function_new","[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*y + [6]*y",0,5,5,65)
+feastfitconstants_new = []
+feastfitconstants_new.append( 45.4342   )
+feastfitconstants_new.append( 42.3338   )
+feastfitconstants_new.append(-22.9184   )
+feastfitconstants_new.append(  5.33573  )
+feastfitconstants_new.append( -0.469755 )
+feastfitconstants_new.append( -0.0153943)
+feastfitconstants_new.append( -0.0193996)
+for i,constant in enumerate(feastfitconstants_new) :
+    feast_fit_function_new.SetParameter(i,constant)
+
+feast_func_fixedTemp_new = dict()
+for ti in [10,20,30,40,50,60] :
+    feast_func_fixedTemp_new[ti] = ROOT.TF1("feast_fit_function_new","[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*%d + [6]*%d"%(ti,ti),0,5)
+    feast_func_fixedTemp_new[ti].SetParameters(*feastfitconstants_new)
+
+feast_func_fixedCurr_new = dict()
+for i in [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0] :
+    feast_func_fixedCurr_new[i] = ROOT.TF1("feast_fit_function_new","[0] + [1]*%0.1f + [2]*%0.2f + [3]*%0.3f + [4]*%0.4f + [5]*%0.1f*x + [6]*x"%(i,i*i,i*i*i,i*i*i*i,i),-35,65)
+    feast_func_fixedCurr_new[i].SetParameters(*feastfitconstants_new)
 
 descr_Vfeast = 'Feast input voltage'
 Vfeast = Config.GetDouble('PoweringEfficiency.Vfeast',10.5,unit='V',description=descr_Vfeast)
