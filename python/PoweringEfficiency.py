@@ -22,18 +22,10 @@ feast_fit_function.SetParameter(1,feastfitconstants[1])
 feast_fit_function.SetParameter(2,feastfitconstants[2])
 feast_fit_function.SetParameter(3,feastfitconstants[3])
 
-feast_fit_function_T10 = ROOT.TF1("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*10",0,5)
-feast_fit_function_T10.SetParameters(*feastfitconstants)
-feast_fit_function_T20 = ROOT.TF1("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*20",0,5)
-feast_fit_function_T20.SetParameters(*feastfitconstants)
-feast_fit_function_T30 = ROOT.TF1("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*30",0,5)
-feast_fit_function_T30.SetParameters(*feastfitconstants)
-feast_fit_function_T40 = ROOT.TF1("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*40",0,5)
-feast_fit_function_T40.SetParameters(*feastfitconstants)
-feast_fit_function_T50 = ROOT.TF1("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*50",0,5)
-feast_fit_function_T50.SetParameters(*feastfitconstants)
-feast_fit_function_T60 = ROOT.TF1("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*60",0,5)
-feast_fit_function_T60.SetParameters(*feastfitconstants)
+feast_func_fixedTemp = dict()
+for ti in [10,20,30,40,50,60] :
+    feast_func_fixedTemp[ti] = ROOT.TF1("feast_fit_function","[0] + [1]*x + [2]*x*x + [3]*x*x*x - (2./25.)*%d"%(ti),0,5)
+    feast_func_fixedTemp[ti].SetParameters(*feastfitconstants)
 
 descr_Vfeast = 'Feast input voltage'
 Vfeast = Config.GetDouble('PoweringEfficiency.Vfeast',10.5,unit='V',description=descr_Vfeast)
