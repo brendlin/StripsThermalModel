@@ -1,3 +1,6 @@
+2017-09-17 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Add Vfeast and R3 config files as default (these have been used since ITK in June)
+
 2017-09-15 Kurt Brendlinger <kurt.brendlinger@cern.ch>
    * Automatic hlines... also propagate thermal runaway info vs module
    * Propagate thermal runaway all the way through to output tables
