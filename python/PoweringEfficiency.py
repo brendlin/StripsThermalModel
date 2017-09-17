@@ -61,8 +61,16 @@ Vfeast = Config.GetDouble('PoweringEfficiency.Vfeast',10.5,unit='V',description=
 descr_DCDC2eff = 'Efficiency of EOS DCDC2 converter'
 DCDC2eff = Config.GetDouble('PoweringEfficiency.DCDC2eff',0.88,description=descr_DCDC2eff)
 
-n_errors = [0]
+ModelVersion = Config.GetStr('PoweringEfficiency.ModelVersion','v01',description='Feast Efficiency Model Version')
+if ModelVersion == 'v00' :
+    function_used_in_model = feast_fit_function
+elif ModelVersion == 'v01' :
+    function_used_in_model = feast_fit_function_new
+else :
+    print 'Error! FEAST function ModelVersion %s is unknown! Exiting.'%(ModelVersion)
+    import sys; sys.exit()
 
+n_errors = [0]
 def feasteff(tsensor,iload) :
     if iload > 4 :
         if n_errors[0] <= 5 :
@@ -70,7 +78,7 @@ def feasteff(tsensor,iload) :
         if n_errors[0] == 5 :
             print '(Suppressing additional FEAST efficiency errors)'
         n_errors[0] += 1
-        return max(feast_fit_function.Eval(4,tsensor),30)
-    return max(feast_fit_function.Eval(iload,tsensor),30)
+        return max(function_used_in_model.Eval(4,tsensor),30)
+    return max(function_used_in_model.Eval(iload,tsensor),30)
 
 # Scale factor for the current at a specific collected dose

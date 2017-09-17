@@ -2,6 +2,7 @@
 import ROOT
 import FluxAndTidParameterization
 import TableUtils
+import subprocess
 
 internal_config = ROOT.TEnv()
 confname = ['None']
@@ -26,6 +27,9 @@ def SetConfigFile(filepath,doprint=True) :
     if loaded != 0 :
         print 'Error! Failed to load config file %s -- Exiting.'%(configname)
         import sys; sys.exit()
+
+    label = subprocess.check_output(["git", "describe",'--always']).replace('\n','')
+    githash = GetStr('StripsThermalModel.GitHash',label,description='Git hash (for internal use)')
 
     if doprint :
         print 'Loaded config file %s:'%(configname)
