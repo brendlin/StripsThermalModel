@@ -14,9 +14,13 @@ import python.FluxAndTidParameterization as FluxAndTidParameterization
 import python.Config as Config
     
 #-----------------------------------------------
-def FindAutoLabel(config,nom) :
+def FindAutoLabel(config,nom,changed='') :
     env_config = ROOT.TEnv('%s/data/%s'%(the_path,config))
     nom = ROOT.TEnv('%s/data/%s'%(the_path,nom))
+
+    if changed :
+        for ci in changed.split(',') :
+            env_config.SetValue(ci.split(':')[0],ci.split(':')[1])
 
     name = ''
 
@@ -33,6 +37,7 @@ def FindAutoLabel(config,nom) :
                         'ThermalImpedances.rfeast'            :'R_{FEAST}',
                         'NominalPower.nfeast'                 :'_{}n_{FEAST}',
                         'NominalPower.nabc'                   :'nabc',
+                        'SensorProperties.Rhvmux'             :'R_{HVMUX}',
                         }.get(tenvrec.GetName(),tenvrec.GetName())
             value = tenvrec.GetValue()
             if tenvrec.GetName() in ['SafetyFactors.safetyfluence',
@@ -41,6 +46,8 @@ def FindAutoLabel(config,nom) :
                                      'SafetyFactors.safetycurrenta',
                                      ] :
                 value = str(float(value) + 1.0)
+            if tenvrec.GetName() == 'SensorProperties.Rhvmux' :
+                value = '%s M#Omega'%(float(value)/1000000.)
             name += '%s^{ }=^{ }%s'%(variable,value)
 
     return name
@@ -81,16 +88,26 @@ def main(options,args):
     
 
     for i,conf in enumerate(options.configs.split(',')) :
+        changed = ''
+        if i and options.change :
+            changed = options.change
+            if '::' in options.change :
+                changed = options.change.split('::')[i-1]
+
         if options.autolabel :
             if i == 0 :
                 name = 'nominal'
             else :
-                name = FindAutoLabel(conf,nominal_config)
+                name = FindAutoLabel(conf,nominal_config,changed=changed)
         if len(options.labels.split(',')) > i and options.labels.split(',')[i] :
             name = options.labels.split(',')[i]
 
         Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
         Config.SetMissingConfigsUsingCommandLine(options,conf)
+        if changed :
+            for ci in changed.split(',') :
+                Config.SetValue(ci.split(':')[0],ci.split(':')[1])
+
         print 'CALCULATING scenario \"%s\" (%s):'%(name,Config.GetName())
 
         Config.ReloadAllPythonModules()
@@ -128,6 +145,11 @@ if __name__ == '__main__':
     p.add_option('--labels',type='string',default='',dest='labels',help='Configuration labels (comma-separated)')
     p.add_option('--outdir',type='string',default='Comparison',dest='outdir',help='Output directory')
     p.add_option('--autolabel',action='store_true',default=False,dest='autolabel',help='Auto-labeling')
+    # Syntax for using "change" option: comma-separate changes within a config file. Separate by "::" options intended for different config files.
+    # You should specify 2x the same config file in the --config option.
+    # python CompareScenarios.py --outdir Compare --configs C1.config,C1.config --autolabel --change "SafetyFactors.vbias:500,SafetyFactors.safetyfluence:0.5"
+    # python CompareScenarios.py --outdir Compare --configs C1.config,C1.config,C1.config --autolabel --change "SafetyFactors.vbias:500::SafetyFactors.vbias:600::SafetyFactors.vbias:700"
+    p.add_option('--change',type='string',default='',dest='change',help='Individual configs to change (e.g. \"cooling:ramp-30\"')
     Config.AddConfigurationOptions(p)
 
     options,args = p.parse_args()
