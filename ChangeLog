@@ -1,4 +1,5 @@
 2017-09-17 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Change default HVMUX to 10M ohms (from 1M)
    * Improve CompareScenarios.py
    * Add Vfeast and R3 config files as default (these have been used since ITK in June)
 
