@@ -41,6 +41,11 @@ def ApplyGlobalStyle() :
     mystyle.SetLineStyleString(13,'30 10');
     mystyle.SetLineStyleString(14,'20 10');
 
+    mystyle.SetLineStyleString(15,'30 10');
+    mystyle.SetLineStyleString(16,'20 10');
+    mystyle.SetLineStyleString(17,'10 10');
+    mystyle.SetLineStyleString(18, '5 10');
+
     ROOT.gROOT.SetStyle("mystyle")
 
 def SetStyleTitles(tobject, title, xtitle, ytitle) :
@@ -179,14 +184,43 @@ def ColorPalette() :
 def ColorGradient(i,ntotal) :
     import ROOT
     from array import array
-    NRGBs = 3
-    stops = array('d',[ 0.00, 0.50, 1.00 ])
-    red   = array('d',[ 0.00, 0.50, 1.00 ])
-    green = array('d',[ 0.00, 1.00, 0.00 ])
-    blue  = array('d',[ 1.00, 0.50, 0.00 ])
-    ROOT.TColor.CreateGradientColorTable(NRGBs, stops, red, green, blue, ntotal+1)
-    ROOT.gStyle.SetNumberContours(ntotal+1)
-    return ROOT.gStyle.GetColorPalette(i+1)
+    NCont = 255
+    # Blue -> Green -> Red
+#     NRGBs = 3
+#     stops = array('d',[ 0.00, 0.50, 1.00 ])
+#     red   = array('d',[ 0.00, 0.50, 1.00 ])
+#     green = array('d',[ 0.00, 1.00, 0.00 ])
+#     blue  = array('d',[ 1.00, 0.50, 0.00 ])
+#     ROOT.TColor.CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont)
+
+    # Some weird default
+#     NRGBs = 5
+#     stops = array('d',[  0.00, 0.34, 0.61, 0.84, 1.00 ])
+#     red   = array('d',[  0.00, 0.00, 0.87, 1.00, 0.51 ])
+#     green = array('d',[  0.00, 0.81, 1.00, 0.20, 0.00 ])
+#     blue  = array('d',[  0.51, 1.00, 0.12, 0.00, 0.00 ])
+#     ROOT.TColor.CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont)
+
+    # Green -> Red
+#     NRGBs = 2
+#     stops = array('d',[ 0.00,1.00 ])
+#     red   = array('d',[ 0.50,1.00 ])
+#     green = array('d',[ 1.00,0.00 ])
+#     blue  = array('d',[ 0.50,0.00 ])
+#     ROOT.TColor.CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont)
+
+    # Blue -> Red (but it doesn't go through white)
+    NRGBs = 2
+    stops = array('d',[ 0.00,1.00 ])
+    red   = array('d',[ 0.10,0.90 ])
+    green = array('d',[ 0.10,0.10 ])
+    blue  = array('d',[ 1.00,0.10 ])
+    ROOT.TColor.CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont)
+
+    #ROOT.gStyle.SetPalette(ROOT.kThermometer)
+    ROOT.gStyle.SetNumberContours(255)
+    the_int = int(254*i/float(ntotal-1))
+    return ROOT.gStyle.GetColorPalette(the_int)
 
 def AddToStack(stack,leg,h) :
     h.SetFillColor(ColorPalette()[stack.GetNhists()+1])

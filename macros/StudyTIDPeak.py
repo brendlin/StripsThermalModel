@@ -7,9 +7,11 @@ from array import array
 the_path = ('/').join(os.getcwd().split('/')[:-1]) 
 print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
+ROOT.gROOT.SetMacroPath(the_path)
 
 import python.AbcTidBump as AbcTidBump
 import python.PlotUtils as PlotUtils
+import python.TAxisFunctions as TAxisFunctions
 
 #-----------------------------------------------
 def main(options,args) :
@@ -44,7 +46,7 @@ def main(options,args) :
             data_m25['z'].append(float(datapoint[2]))  
             
         # all points
-        print "Datapoint %.2f, %.2f, %.2f" % (float(datapoint[0]), float(datapoint[1]), float(datapoint[2]))
+        #print "Datapoint %.2f, %.2f, %.2f" % (float(datapoint[0]), float(datapoint[1]), float(datapoint[2]))
         data_all['x'].append(float(datapoint[0]))
         data_all['y'].append(float(datapoint[1]))
         data_all['z'].append(float(datapoint[2]))
@@ -118,7 +120,7 @@ def main(options,args) :
     #-------------------------
     # Overall 3D plot 
     #-------------------------
-    c3 = ROOT.TCanvas("tid_scale_overall_fit_function","TID Overall scale factor",0,0,600,400);
+    c3 = ROOT.TCanvas("tid_scale_overall_fit_function_3d","TID Overall scale factor",0,0,600,400);
     AbcTidBump.tid_scale_overall_fit_function.SetLineWidth(1)
     AbcTidBump.tid_scale_overall_fit_function.SetLineColor(12) # grey
     AbcTidBump.tid_scale_overall_fit_function.Draw("surf1")
@@ -180,6 +182,76 @@ def main(options,args) :
     leg5.AddEntry(gCombp10, "T = +10 #circ C", "l")
     leg5.Draw()
     
+    c5.Print('%s/plots/AbcTidBump/AbcTidBumpCombinedSF.eps'%(the_path))
+
+    ##
+    # Overal * shape, temperature and doserate grid
+    ##
+
+    c5.Clear()
+    time = []
+    fT_and_DR = dict()
+    versions = ['v00','v01']
+    temps = [-20.,10]
+    rates = [1.,3.]
+
+    for v in versions :
+        fT_and_DR[v] = dict()
+        for temp in temps :
+            fT_and_DR[v][temp] = dict()
+            for rate in rates :
+                fT_and_DR[v][temp][rate] = []
+
+    for t,temp in enumerate(temps) :
+        for r,rate in enumerate(rates) :
+            for i in range(140) :
+                i = i/10.
+                if not t+r :
+                    time.append(i)
+                Dose = float(i) # year
+                Dose = Dose * (180. / 1.) * (24. / 1.) * (0.3) # hours = year * (d/y) * (h/d) * efficiency
+                Dose = Dose / float(rate) # kRad = hours * (kRad/hr)
+                fT_and_DR['v00'][temp][rate].append(AbcTidBump.tid_scale_combined_factor(temp,rate,Dose))
+                fT_and_DR['v01'][temp][rate].append(AbcTidBump.tid_scale_combined_factor_new(temp,rate,Dose))
+
+    dummy = dict()
+    for j,rate in enumerate(rates) :
+        gr = ROOT.TGraph(1,array('d',[0]),array('d',[0]))
+        gr.SetTitle('D = %0.1f kRad/hr'%(rate))
+        gr.SetLineStyle([1,15,16,17,18][j])
+        gr.SetLineWidth(3)
+        dummy[rate] = gr
+
+    dummy_old = ROOT.TGraph(1,array('d',[0]),array('d',[0]))
+    dummy_old.SetTitle('Old TID function')
+    dummy_old.SetLineWidth(1)
+
+    gComb = dict()
+    leg5 = ROOT.TLegend(0.47,0.73,0.84,0.94)
+    leg5.SetNColumns(2)
+    PlotUtils.SetStyleLegend(leg5)
+    for v,version in enumerate(['v00','v01']) :
+        gComb[version] = dict()
+        for i,temp in enumerate(temps) :
+            gComb[version][temp] = dict()
+            for j,rate in enumerate(rates) :
+                title = ('T = %3d#circ C'%(temp)).replace('-','#minus')
+                gr = PlotUtils.MakeGraph('TIDScaleCombined',title,'Time [year]','Scale factor',time,fT_and_DR[version][temp][rate])
+                gr.SetLineColor(PlotUtils.ColorGradient(i,len(temps)))
+                gr.SetLineStyle([1,15,16,17,18][j])
+                gr.SetLineWidth(2*v+1)
+                gr.Draw('l' if i+j+v else 'al')
+                if (not j) and v :
+                    leg5.AddEntry(gr,'^{ }'+gr.GetTitle(), "l")
+                    if i < len(rates) :
+                        leg5.AddEntry(dummy[rates[i]],'^{ }'+dummy[rates[i]].GetTitle(), "l")
+                gComb[version][temp][rate] = gr
+
+    leg5.AddEntry(dummy_old,'^{ }'+dummy_old.GetTitle(),'l')
+    leg5.Draw()
+    TAxisFunctions.AutoFixYaxis(c5)
+    TAxisFunctions.SetXaxisRanges(c5,0,9)
+
     c5.Print('%s/plots/AbcTidBump/AbcTidBumpCombinedSF.eps'%(the_path))
     
 

@@ -1,3 +1,7 @@
+2017-09-18 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Add first iteration of new TID parameterization from Kyle (not the default)
+   * A plot to compare the new and old parameterization
+
 2017-09-17 Kurt Brendlinger <kurt.brendlinger@cern.ch>
    * Add PoweringEfficiency.ModelVersion configuration (v00,v01)
    * Save GitHash information to configuration list
