@@ -183,6 +183,8 @@ def ColorPalette() :
 
 def ColorGradient(i,ntotal) :
     import ROOT
+    if ntotal == 1 :
+        return ROOT.kBlack
     from array import array
     NCont = 255
     # Blue -> Green -> Red

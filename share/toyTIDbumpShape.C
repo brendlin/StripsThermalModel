@@ -4,6 +4,8 @@
 #include <TF1.h>
 #include <TRandom3.h>
 #include <TString.h>
+#include <TAxis.h>
+
 #include <algorithm>
 #include <math.h>
 
@@ -53,6 +55,7 @@ Double_t getBumpHeightScale(Double_t doseRate, Double_t temperature, bool pessim
     //incFact=1.47 --> 0.030+
     if (random!=NULL)
       scale *= random->Gaus(1.,getHeightStdDev(pessimistic));
+    scale = fmax(0.001, scale);
     
     return scale;
 }
@@ -101,6 +104,7 @@ void toyTIDbumpShape(Double_t doseRate=2.5, Double_t temperature=-10., bool pess
       double high = (fTot->GetMaximum() - getBaselineCurr())*(1+(getHeightStdDev(pessimistic)*(0.3*log10(maxIt)+1))) + getBaselineCurr();
       fTot->GetYaxis()->SetRangeUser(low, high);
       fTot->Draw();
+      fTot->GetYaxis()->SetRangeUser(0.,0.1);
     } else if(iT == (maxIt-1)){
       fTot->SetLineColorAlpha(4,1);
       fTot->SetLineWidth(1);

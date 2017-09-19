@@ -130,8 +130,8 @@ def ReloadPythonModule(name) :
 def ReloadAllPythonModules() :
     #                   Module                               Dependencies
     ReloadPythonModule('python.GlobalSettings'           ) # none
-    ReloadPythonModule('python.AbcTidBump'               ) # none
     ReloadPythonModule('python.CableLosses'              ) # none
+    ReloadPythonModule('python.AbcTidBump'               ) # Config
     ReloadPythonModule('python.PoweringEfficiency'       ) # Config
     ReloadPythonModule('python.Layout'                   ) # Config
     ReloadPythonModule('python.SafetyFactors'            ) # Config

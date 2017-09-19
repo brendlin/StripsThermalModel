@@ -309,14 +309,14 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
 
         # ABC Power (all n ABCs)
         pabc.append(NominalPower.Pabc(tabc[i],doserate_i,tid_dose_i))
-        tid_sf_abc.append(AbcTidBump.tid_scale_overall_fit_function.Eval(tabc[i],doserate_i))
-        tid_bump_abc.append(AbcTidBump.tid_scale_combined_factor(tabc[i],doserate_i,tid_dose_i))
-        tid_shape.append(1+AbcTidBump.tid_scale_shape(tid_dose_i)*0.45)
+        tid_sf_abc.append(AbcTidBump.tid_scalefactor(tabc[i],doserate_i,tid_dose_i))
+        tid_bump_abc.append(AbcTidBump.tid_scalePlusShape(tabc[i],doserate_i,tid_dose_i))
+        tid_shape.append(1+AbcTidBump.tid_shape(tabc[i],doserate_i,tid_dose_i)*0.45)
 
         # HCC power (all n HCCs)
         phcc.append(NominalPower.Phcc(thcc[i],doserate_i,tid_dose_i))
-        tid_sf_hcc.append(AbcTidBump.tid_scale_overall_fit_function.Eval(thcc[i],doserate_i))
-        tid_bump_hcc.append(AbcTidBump.tid_scale_combined_factor(thcc[i],doserate_i,tid_dose_i))
+        tid_sf_hcc.append(AbcTidBump.tid_scalefactor(thcc[i],doserate_i,tid_dose_i))
+        tid_bump_hcc.append(AbcTidBump.tid_scalePlusShape(thcc[i],doserate_i,tid_dose_i))
 
         # EOS Power
         peos.append(NominalPower.eosP(teos[i]))
@@ -412,6 +412,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     gr['tid_sf_hcc'] = MakeGraph('HCCTidBumpScaleFactor'  ,'HCC TID bump scale factor'                 ,xtitle,'scale factor'                 ,x,tid_sf_hcc)
     gr['tid_bump_abc'] = MakeGraph('ABCTidBump'           ,'ABC TID bump'                              ,xtitle,'scale factor #times shape'    ,x,tid_bump_abc)
     gr['tid_bump_hcc'] = MakeGraph('HCCTidBump'           ,'HCC TID bump'                              ,xtitle,'scale factor #times shape'    ,x,tid_bump_hcc)
+    gr['doserate']   = MakeGraph('DoseRate'               ,'Dose rate'                                 ,xtitle,'dose rate [kRad/hr]'          ,x,OperationalProfiles.doserate)
 
     dosave = (not hasattr(options,'save') or options.save)
 

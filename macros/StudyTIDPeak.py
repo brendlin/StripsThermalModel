@@ -54,12 +54,12 @@ def main(options,args) :
     #-------------------------
     # Projections for 3 Temps
     #-------------------------
-    c = ROOT.TCanvas('tid_scale_overall_fit_function', 'TID Overall scale factor',500,500)
+    c = ROOT.TCanvas('tid_scalefactor_GeorgGraham_tf2', 'TID Overall scale factor',500,500)
     
     # Caveat: hardcoded temp splits + need to plot T=-15 first 
     # 1D projection for data points T = -15
-    AbcTidBump.tid_scale_overall_fit_function_Tm15.SetLineColor(8) # green
-    AbcTidBump.tid_scale_overall_fit_function_Tm15.Draw()
+    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-15].SetLineColor(8) # green
+    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-15].Draw()
     
     tid_overall_Tm15 = ROOT.TGraph(len(data_m15['y']),array('d',data_m15['y']),array('d',data_m15['z']))
     tid_overall_Tm15.SetMarkerSize(1)
@@ -68,8 +68,8 @@ def main(options,args) :
     tid_overall_Tm15.Draw('same p') 
     
     # 1D projection for data points T = -10
-    AbcTidBump.tid_scale_overall_fit_function_Tm10.SetLineColor(96) # red
-    AbcTidBump.tid_scale_overall_fit_function_Tm10.Draw('same')
+    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-10].SetLineColor(96) # red
+    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-10].Draw('same')
     
     tid_overall_Tm10 = ROOT.TGraph(len(data_m10['y']),array('d',data_m10['y']),array('d',data_m10['z']))
     tid_overall_Tm10.SetMarkerSize(1)
@@ -78,8 +78,8 @@ def main(options,args) :
     tid_overall_Tm10.Draw('same p')
 
     # 1D projection for data points T = -25
-    AbcTidBump.tid_scale_overall_fit_function_Tm25.SetLineColor(62) # blue
-    AbcTidBump.tid_scale_overall_fit_function_Tm25.Draw('same')
+    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-25].SetLineColor(62) # blue
+    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-25].Draw('same')
     
     tid_overall_Tm25 = ROOT.TGraph(len(data_m25['y']),array('d',data_m25['y']),array('d',data_m25['z']))
     tid_overall_Tm25.SetMarkerSize(1)
@@ -93,17 +93,17 @@ def main(options,args) :
     PlotUtils.SetStyleLegend(leg)
     leg.SetNColumns(2)
     #leg.AddEntry(tid_overall_Tm10, "Data points, T = -10 C", "p")
-    #leg.AddEntry(AbcTidBump.tid_scale_overall_fit_function_Tm10,"Fit result,   T = -10 C","l")
+    #leg.AddEntry(AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-10],"Fit result,   T = -10 C","l")
     leg.AddEntry(tid_overall_Tm10, "Data", "p")
-    leg.AddEntry(AbcTidBump.tid_scale_overall_fit_function_Tm10,"Fit result, T = -10 C","l")
+    leg.AddEntry(AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-10],"Fit result, T = -10 C","l")
     leg.AddEntry(tid_overall_Tm15, "Data", "p")
-    leg.AddEntry(AbcTidBump.tid_scale_overall_fit_function_Tm15,"Fit result, T = -15 C","l") 
+    leg.AddEntry(AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-15],"Fit result, T = -15 C","l")
     leg.AddEntry(tid_overall_Tm25, "Data", "p")
-    leg.AddEntry(AbcTidBump.tid_scale_overall_fit_function_Tm25,"Fit result, T = -25 C","l")
+    leg.AddEntry(AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-25],"Fit result, T = -25 C","l")
        
     leg.Draw()
     
-    PlotUtils.SetStyleTitles(AbcTidBump.tid_scale_overall_fit_function_Tm15, "TID overall scale factor", "Dose rate [kRad/hr]", "TID scale factor")
+    PlotUtils.SetStyleTitles(AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-15], "TID overall scale factor", "Dose rate [kRad/hr]", "TID scale factor")
     
     #c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_Tm10.eps'%(the_path))
     c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_factor_vs_d.eps'%(the_path))
@@ -113,24 +113,24 @@ def main(options,args) :
     #c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_factor_vs_d_log.eps'%(the_path))
     
     # Let's remove that -15 point at d = 62
-    AbcTidBump.tid_scale_overall_fit_function_Tm15.GetXaxis().SetRangeUser(0.,4.)
+    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-15].GetXaxis().SetRangeUser(0.,4.)
     c.Update()
     c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_factor_vs_d_restr.eps'%(the_path))
     
     #-------------------------
     # Overall 3D plot 
     #-------------------------
-    c3 = ROOT.TCanvas("tid_scale_overall_fit_function_3d","TID Overall scale factor",0,0,600,400);
-    AbcTidBump.tid_scale_overall_fit_function.SetLineWidth(1)
-    AbcTidBump.tid_scale_overall_fit_function.SetLineColor(12) # grey
-    AbcTidBump.tid_scale_overall_fit_function.Draw("surf1")
+    c3 = ROOT.TCanvas("tid_scalefactor_3d","TID Overall scale factor",0,0,600,400);
+    AbcTidBump.tid_scalefactor_GeorgGraham_tf2.SetLineWidth(1)
+    AbcTidBump.tid_scalefactor_GeorgGraham_tf2.SetLineColor(12) # grey
+    AbcTidBump.tid_scalefactor_GeorgGraham_tf2.Draw("surf1")
         
     g2D = ROOT.TGraph2D(len(data_all['x']), array('d',data_all['x']), array('d',data_all['y']),array('d',data_all['z']))
     g2D.SetMarkerSize(1)
     g2D.SetMarkerStyle(20)
     g2D.SetMarkerColor(1)
     
-    PlotUtils.Set2DStyleTitles(AbcTidBump.tid_scale_overall_fit_function, "TID overall scale factor", "T [#circ C]", "Dose rate [kRad/hr]", "TID scale factor")
+    PlotUtils.Set2DStyleTitles(AbcTidBump.tid_scalefactor_GeorgGraham_tf2, "TID overall scale factor", "T [#circ C]", "Dose rate [kRad/hr]", "TID scale factor")
     
     g2D.Draw('same p')
     
@@ -145,7 +145,7 @@ def main(options,args) :
     shapeArray = []
     for i in range(0, 10000, 10) :
         dose.append(float(i))
-        shapeArray.append(AbcTidBump.tid_scale_shape(i))
+        shapeArray.append(AbcTidBump.tid_shape_GeorgGraham(-999,-999,i)) # no dependence on T or doserate
     gShape = PlotUtils.MakeGraph('TIDShape','TID shape vs collected dose','Dose [kRad]','Scale factor',dose,shapeArray)
     gShape.SetLineColor(3)
     gShape.Draw('al')
@@ -162,8 +162,8 @@ def main(options,args) :
     fTp10 = []
     for i in range(0,2200, 10) :
         D.append(i)
-        fTm10.append(AbcTidBump.tid_scale_combined_factor(-10., 1.1, i))
-        fTp10.append(AbcTidBump.tid_scale_combined_factor(10., 1.1, i))
+        fTm10.append(AbcTidBump.tid_scalePlusShape_GeorgGraham(-10., 1.1, i))
+        fTp10.append(AbcTidBump.tid_scalePlusShape_GeorgGraham( 10., 1.1, i))
     
     gCombm10 = PlotUtils.MakeGraph('TIDScaleCombined','TID scaling for 1.1 kRad/h','Dose [kRad]','Scale factor',D,fTm10)
     gCombm10.SetLineColor(4)
@@ -192,8 +192,8 @@ def main(options,args) :
     time = []
     fT_and_DR = dict()
     versions = ['v00','v01']
-    temps = [-20.,10]
-    rates = [1.,3.]
+    temps = [-24,-18]
+    rates = [1.,2.,3.]
 
     for v in versions :
         fT_and_DR[v] = dict()
@@ -204,15 +204,17 @@ def main(options,args) :
 
     for t,temp in enumerate(temps) :
         for r,rate in enumerate(rates) :
-            for i in range(140) :
-                i = i/10.
+            #print 'Time     Dose     Rate     Temp'
+            for i in range(300) :
+                i = i/100.
                 if not t+r :
                     time.append(i)
                 Dose = float(i) # year
                 Dose = Dose * (180. / 1.) * (24. / 1.) * (0.3) # hours = year * (d/y) * (h/d) * efficiency
-                Dose = Dose / float(rate) # kRad = hours * (kRad/hr)
-                fT_and_DR['v00'][temp][rate].append(AbcTidBump.tid_scale_combined_factor(temp,rate,Dose))
-                fT_and_DR['v01'][temp][rate].append(AbcTidBump.tid_scale_combined_factor_new(temp,rate,Dose))
+                Dose = Dose * float(rate) # kRad = hours * (kRad/hr)
+                #print '%8.1f %8.1f %8.1f %8.1f'%(i,Dose,rate,temp)
+                fT_and_DR['v00'][temp][rate].append(AbcTidBump.tid_scalePlusShape_GeorgGraham(temp,rate,Dose))
+                fT_and_DR['v01'][temp][rate].append(AbcTidBump.tid_scalePlusShape_Kyle(temp,rate,Dose))
 
     dummy = dict()
     for j,rate in enumerate(rates) :
@@ -227,7 +229,7 @@ def main(options,args) :
     dummy_old.SetLineWidth(1)
 
     gComb = dict()
-    leg5 = ROOT.TLegend(0.47,0.73,0.84,0.94)
+    leg5 = ROOT.TLegend(0.47,0.83,0.84,0.94)
     leg5.SetNColumns(2)
     PlotUtils.SetStyleLegend(leg5)
     for v,version in enumerate(['v00','v01']) :
@@ -247,12 +249,18 @@ def main(options,args) :
                         leg5.AddEntry(dummy[rates[i]],'^{ }'+dummy[rates[i]].GetTitle(), "l")
                 gComb[version][temp][rate] = gr
 
+    if len(temps) < len(rates) :
+        for j,rate in enumerate(rates) :
+            if j < len(temps) :
+                continue
+            leg5.AddEntry('','','')
+            leg5.AddEntry(dummy[rates[j]],'^{ }'+dummy[rates[j]].GetTitle(), "l")
+
     leg5.AddEntry(dummy_old,'^{ }'+dummy_old.GetTitle(),'l')
     leg5.Draw()
     TAxisFunctions.AutoFixYaxis(c5)
-    TAxisFunctions.SetXaxisRanges(c5,0,9)
 
-    c5.Print('%s/plots/AbcTidBump/AbcTidBumpCombinedSF.eps'%(the_path))
+    c5.Print('%s/plots/AbcTidBump/AbcTidBumpCombinedSF_1.eps'%(the_path))
     
 
 #-----------------------------------------------

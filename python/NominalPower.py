@@ -45,7 +45,7 @@ nfeast = Config.GetInt('NominalPower.nfeast',1,description='Number of FEAST chip
 # module Short strip
 
 def Iabc_digital(Tabc,d,D) :
-    return nabc * (AbcTidBump.tid_scale_combined_factor(Tabc, d, D) * FrontEndComponents.abcId)
+    return nabc * (AbcTidBump.tid_scalePlusShape(Tabc, d, D) * FrontEndComponents.abcId)
 
 def Iabc(Tabc,d,D) :
     return Iabc_digital(Tabc,d,D) + (nabc * FrontEndComponents.abcIa)
@@ -54,7 +54,7 @@ def Pabc(Tabc,d,D) :
     return FrontEndComponents.hybridV * Iabc(Tabc, d, D)
 
 def Ihcc_digital(Thcc,d,D) :
-    return nhcc * (AbcTidBump.tid_scale_combined_factor(Thcc, d, D) * FrontEndComponents.hccId)
+    return nhcc * (AbcTidBump.tid_scalePlusShape(Thcc, d, D) * FrontEndComponents.hccId)
 
 def Ihcc(Thcc,d,D) :
     return Ihcc_digital(Thcc,d,D) + (nhcc * FrontEndComponents.hccIa)
