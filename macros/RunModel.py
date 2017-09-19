@@ -33,6 +33,9 @@ def main(options,args):
     # Config must be loaded before loading any other module.
     Config.SetConfigFile('%s/data/%s'%(the_path,options.config),doprint=False)
     Config.SetMissingConfigsUsingCommandLine(options)
+    if options.change :
+        for ci in options.change.split(',') :
+            Config.SetValue(ci.split(':')[0],ci.split(':')[1])
 
     print 'importing modules'
     import python.GlobalSettings      as GlobalSettings
@@ -87,6 +90,7 @@ if __name__ == '__main__':
     p = OptionParser()
     p.add_option('--config' ,type='string',default='Barrel_SS_B1.config',dest='config',help='Configuration file -- please make sure it is put in the data/ directory')
     p.add_option('--outdir',type='string',default='',dest='outdir',help='Output directory')
+    p.add_option('--change',type='string',default='',dest='change',help='Individual configs to change (e.g. \"cooling:ramp-30\"')
     Config.AddConfigurationOptions(p)
 
     options,args = p.parse_args()

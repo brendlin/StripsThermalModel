@@ -1,3 +1,6 @@
+2017-09-19 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Improve RunModel.py
+
 2017-09-18 Kurt Brendlinger <kurt.brendlinger@cern.ch>
    * Add first iteration of new TID parameterization from Kyle (not the default)
    * A plot to compare the new and old parameterization
