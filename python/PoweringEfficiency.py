@@ -67,7 +67,7 @@ if ModelVersion == 'v00' :
 elif ModelVersion == 'v01' :
     function_used_in_model = feast_fit_function_new
 else :
-    print 'Error! FEAST function ModelVersion %s is unknown! Exiting.'%(ModelVersion)
+    print 'Error! FEAST function PoweringEfficiency.ModelVersion %s is unknown! Exiting.'%(ModelVersion)
     import sys; sys.exit()
 
 n_errors = [0]

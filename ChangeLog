@@ -1,4 +1,5 @@
 2017-09-19 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Improve Feast efficiency plots
    * Improve RunModel.py
 
 2017-09-18 Kurt Brendlinger <kurt.brendlinger@cern.ch>

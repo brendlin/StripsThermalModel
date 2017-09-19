@@ -72,7 +72,7 @@ def main(options,args) :
     for i,k in enumerate(feast_data.keys()) :
         for j,temp in enumerate([10,60]) :
             graph = MakeGraph('FeastEfficiencyData',
-                              '%s, T=%d#circ C'%(k,temp),'I_{load} [A]','FEAST efficiency [%]',
+                              'T^{ }=^{ }%d#circ C data'%(temp),'I_{load} [A]','FEAST efficiency [%]',
                               feast_data[k]['isoTemp'][temp]['x'],
                               feast_data[k]['isoTemp'][temp]['y'])
             graph.SetMarkerColor(ROOT.kBlue)
@@ -80,7 +80,7 @@ def main(options,args) :
                 graph.SetMarkerColor(ROOT.kOrange+8)
             graph.GetHistogram().GetYaxis().SetRangeUser(58,82)
             graph.GetHistogram().GetXaxis().SetRangeUser(0.25,4.25)
-            if k == 'v01' :
+            if k == 'v00' :
                 graph.SetMarkerStyle(24)
             graph.Draw('p' if (i+j) else 'ap')
             feast_data[k]['isoTemp'][temp]['graph'] = graph
@@ -88,6 +88,7 @@ def main(options,args) :
     for func in PoweringEfficiency.feast_func_fixedTemp.keys() :
         colors = {10:ROOT.kBlue,60:ROOT.kOrange+8}
         PoweringEfficiency.feast_func_fixedTemp[func].SetLineColor(colors.get(func,ROOT.kGray))
+        PoweringEfficiency.feast_func_fixedTemp[func].SetLineStyle(7)
         PoweringEfficiency.feast_func_fixedTemp[func].Draw('same')
 
     for func in PoweringEfficiency.feast_func_fixedTemp_new.keys() :
@@ -101,17 +102,29 @@ def main(options,args) :
             feast_data[k]['isoTemp'][temp]['graph'].Draw('p')
 
     # plot
-    leg= ROOT.TLegend(0.68,0.74,0.95,0.92)
+    leg= ROOT.TLegend(0.68,0.70,0.95,0.94)
     for k in feast_data.keys() :
         for t in [10,60] :
             gr = feast_data[k]['isoTemp'][t]['graph']
-            leg.AddEntry(gr,gr.GetTitle(),'p')
-    for func in PoweringEfficiency.feast_func_fixedTemp.keys() :
+            if k == 'v01' :
+                leg.AddEntry(gr,gr.GetTitle(),'p')
+    for func in PoweringEfficiency.feast_func_fixedTemp_new.keys() :
         if func not in [10,60] :
             continue
-        gr = PoweringEfficiency.feast_func_fixedTemp[func]
+        gr = PoweringEfficiency.feast_func_fixedTemp_new[func]
         leg.AddEntry(gr,"Fit, T = %d#circ C"%(func),"l")
     PlotUtils.SetStyleLegend(leg)
+
+    dummy1 = ROOT.TGraph(1,array('d',[0]),array('d',[0]))
+    dummy1.SetMarkerStyle(24)
+    dummy1.SetTitle('Old data')
+    dummy2 = ROOT.TGraph(1,array('d',[0]),array('d',[0]))
+    dummy2.SetTitle('Old function')
+    dummy2.SetLineStyle(7)
+    dummy2.SetLineWidth(2)
+    leg.AddEntry(dummy1,dummy1.GetTitle(),'p')
+    leg.AddEntry(dummy2,dummy2.GetTitle(),'l')
+
     leg.Draw()
     TAxisFunctions.SetXaxisRanges(c,0.25,4.25)
 
@@ -119,7 +132,7 @@ def main(options,args) :
 
     # Iso-current plots
     c.Clear()
-    leg= ROOT.TLegend(0.65,0.74,0.90,0.94)
+    leg = ROOT.TLegend(0.65,0.74,0.94,0.94)
     leg.SetNColumns(2)
     PlotUtils.SetStyleLegend(leg)
     # versus temperature now:
@@ -128,7 +141,7 @@ def main(options,args) :
             if not feast_data[k]['isoCurr'][curr]['x'] :
                 continue
             graph = MakeGraph('FeastEfficiencyData_isoCurr_%0.1f'%(curr),
-                              'I^{ }=^{ }%0.1f A'%(curr),'T [#circ C]','FEAST efficiency [%]',
+                              'I^{ }=^{ }%0.1f A'%(curr),'T [#circ^{}C]','FEAST efficiency [%]',
                               feast_data[k]['isoCurr'][curr]['x'],
                               feast_data[k]['isoCurr'][curr]['y'])
 
@@ -155,10 +168,10 @@ def main(options,args) :
         tf1.SetLineColor(PlotUtils.ColorGradient(j,8))
         tf1.Draw('same')
 
-    # dummy_v00 = ROOT.TGraph(1,array('d',[0]),array('d',[0]))
-    # dummy_v00.SetMarkerStyle(24)
-    # dummy_v00.SetTitle('Old data')
-    # leg.AddEntry(dummy_v00,dummy_v00.GetTitle(),'p')
+    dummy = ROOT.TGraph(1,array('d',[0]),array('d',[0]))
+    dummy.SetLineWidth(2)
+    dummy.SetTitle('Fit')
+    leg.AddEntry(dummy,dummy.GetTitle(),'l')
     TAxisFunctions.SetXaxisRanges(c,-50,65)
     leg.Draw()
     c.Print('%s/plots/FeastEfficiency/FeastEfficiency_isoCurrent.eps'%(the_path))
