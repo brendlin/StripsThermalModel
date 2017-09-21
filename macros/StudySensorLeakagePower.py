@@ -42,16 +42,16 @@ def main(options,args) :
         pts['old500V'].append(timesMicroAmp* SensorLeakage.oldiref(f*10**14))
     
     label = {'700V': '700 V','new500V': 'new 500 V','old500V': 'old 500 V'}
-    colors = {'700V':ROOT.kGreen,'new500V':ROOT.kOrange,'old500V':ROOT.kBlue}
+    #colors = {'700V':ROOT.kGreen,'new500V':ROOT.kOrange,'old500V':ROOT.kBlue}
     leg = ROOT.TLegend(0.2,0.7,0.5,0.9)
     PlotUtils.SetStyleLegend(leg)
     
     firstPlot = True
     drawOption = 'al'
     
-    for p in ['700V', 'new500V', 'old500V'] :
+    for i,p in enumerate(['700V', 'new500V', 'old500V']) :
         gr[p] = PlotUtils.MakeGraph(p, 'Sensor Leakage Power', 'Fluence [10^{14} n_{eq} /cm^{2}]', 'I_{ref} [#muA/cm^{2}]', pts['fluence'], pts[p])
-        gr[p].SetLineColor(colors[p])
+        gr[p].SetLineColor(PlotUtils.ColorPalette()[i])
         leg.AddEntry(gr[p], label[p], 'l')
         
         gr[p].Draw(drawOption)
