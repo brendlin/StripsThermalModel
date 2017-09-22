@@ -1,3 +1,6 @@
+2017-09-22 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * First attempt to run full barrel on a module-by-module basis (some bugs remain)
+
 2017-09-19 Kurt Brendlinger <kurt.brendlinger@cern.ch>
    * Rewrite TID module to accommodate multiple TID parameterizations
    * Improve Feast efficiency plots

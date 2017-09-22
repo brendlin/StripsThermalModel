@@ -46,6 +46,9 @@ def ApplyGlobalStyle() :
     mystyle.SetLineStyleString(17,'10 10');
     mystyle.SetLineStyleString(18, '5 10');
 
+    # For intermediate modules
+    mystyle.SetLineStyleString(19, '5 5');
+
     ROOT.gROOT.SetStyle("mystyle")
 
 def SetStyleTitles(tobject, title, xtitle, ytitle) :
@@ -256,3 +259,11 @@ def GetOutputPath(modulename,options) :
 
     # print '%s output written to %s'%(modulename,outputpath)
     return outputpath
+
+# A quick, useful helper function
+def GetResultDictIndex(names,ring_mod,disk_layer) :
+    try :
+        index = names.index('R%dD%d'%(ring_mod,disk_layer))
+    except ValueError :
+        index = names.index('L%dM%d'%(disk_layer,ring_mod))
+    return index

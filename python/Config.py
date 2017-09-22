@@ -2,6 +2,7 @@
 import ROOT
 import FluxAndTidParameterization
 import TableUtils
+import PlotUtils
 import subprocess
 
 internal_config = ROOT.TEnv()
@@ -180,15 +181,22 @@ def SetMissingConfigsUsingCommandLine(options,config='') :
             SetValue(k,value_to_set[k])
 
     if not Defined('OperationalProfiles.totalflux') :
-        SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(config))
+        if GetStr('Layout.Detector') == 'Barrel' :
+            SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFluxBarrel(config))
+        elif GetStr('Layout.Detector') == 'Endcap' :
+            SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFluxEndcap(config))
 
     if not Defined('OperationalProfiles.tid_in_3000fb') :
-        SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(config))
+        if GetStr('Layout.Detector') == 'Barrel' :
+            SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTIDBarrel(config))
+        elif GetStr('Layout.Detector') == 'Endcap' :
+            SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTIDEndcap(config))
 
     return
 
 # --------------------------------
 def FancyPrintLatexTables_Endcap(saved_configs,structure_names) :
+    import Layout
     config_text = ''
 
     config_list_general = []
@@ -225,12 +233,12 @@ def FancyPrintLatexTables_Endcap(saved_configs,structure_names) :
             disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}\n'
             the_list = []
             the_list.append(['','','0','1','2','3','4','5'])
-            for ring in range(5,-1,-1) :
+            for ring_mod in range(Layout.nmodules_or_rings-1,-1,-1) :
                 the_list.append([])
                 the_list[-1].append('')
-                the_list[-1].append('%d'%(ring))
-                for disk in range(6) :
-                    index = structure_names.index('R%dD%d'%(ring,disk))
+                the_list[-1].append('%d'%(ring_mod))
+                for disk_layer in range(Layout.nlayers_or_disks) :
+                    index = PlotUtils.GetResultDictIndex(structure_names,ring_mod,disk_layer)
                     the_list[-1].append(saved_configs[index][item]['value'])
             table = TableUtils.PrintLatexTable(the_list,caption=caption)
             # insert special headers

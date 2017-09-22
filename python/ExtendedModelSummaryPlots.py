@@ -11,10 +11,10 @@ import Layout
 import CableLosses
 from array import array
 
-colors = {'B1':ROOT.kGreen,
-          'B2':ROOT.kBlue+1,
-          'B3':ROOT.kRed+1,
-          'B4':ROOT.kCyan+1,
+colors = {'L0':ROOT.kGreen,
+          'L1':ROOT.kBlue+1,
+          'L2':ROOT.kRed+1,
+          'L3':ROOT.kCyan+1,
           'R0':ROOT.kGreen,
           'R1':ROOT.kBlue+1,
           'R2':ROOT.kRed+1,
@@ -50,6 +50,37 @@ def SetEndcapLegendSpecial(leg,graphs,doDisks=True,doRings=True) :
 
     return dummy_graphs
 
+def SetBarrelLegendSpecial(leg,graphs,doLayers=True,doModules=True) :
+    leg.Clear()
+    if doLayers and doModules :
+        leg.SetNColumns(2)
+    leg.SetMargin(.3)
+
+    dummy_graphs = []
+    for i in range(Layout.nlayers_or_disks) :
+        if doLayers :
+            # Rings
+            dummy_graphs.append(ROOT.TGraph(1,array('d',[1]),array('d',[1])))
+            dummy_graphs[-1].SetLineColor(colors['R%d'%(i)])
+            dummy_graphs[-1].SetLineWidth(2)
+            print 'Layer %d'%(i)
+            leg.AddEntry(dummy_graphs[-1],'^{ }Layer %d'%(i),'l')
+
+        if doModules and (i < 3) :
+            dummy_graphs.append(ROOT.TGraph(1,array('d',[1]),array('d',[1])))
+            dummy_graphs[-1].SetLineWidth(2)
+            dummy_graphs[-1].SetLineStyle([1,19,14][i])
+            if doLayers :
+                dummy_graphs[-1].SetLineColor(ROOT.kGray+1)
+            if i == 0 :
+                leg.AddEntry(dummy_graphs[-1],'^{ }Module 0','l')
+            if i == 1 :
+                leg.AddEntry(dummy_graphs[-1],'^{ }Modules 1-12','l')
+            if i == 2 :
+                leg.AddEntry(dummy_graphs[-1],'^{ }Module 13','l')
+
+    return dummy_graphs
+
 
 def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegend=False) :
     # result_dicts: a list of dictionaries with results that we saved from CalculateSensorTemperature
@@ -67,6 +98,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         structure_name = 'Barrel'  if options.barrel else 'Endcap'
         barrel_endcap  = 'Barrel_' if options.barrel else 'Endcap_'
 
+    full_system = hasattr(options,'endcap') or hasattr(options,'barrel')
+
     if not hasattr(options,'endcap') :
         options.endcap = False
 
@@ -79,7 +112,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     xtitle = 'Time [years]'
     x = GlobalSettings.time_step_list[1:]
 
-    styles = {'D0':1,'D1':10,'D2':11,'D3':12,'D4':13,'D5':14}
+    styles = {'D0':1,'D1':10,'D2':11,'D3':12,'D4':13,'D5':14,
+              'M0':1,'M13':14}
 
     list_of_plots = list(result_dicts[0].keys())
 
@@ -103,6 +137,9 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         gr_average.SetLineWidth(4)
 
         leg = ROOT.TLegend(0.57,0.69,0.91,0.93)
+        if options.barrel :
+            leg = ROOT.TLegend(0.57,0.69,0.95,0.93)
+
         PlotUtils.SetStyleLegend(leg)
         for i,g in enumerate(graphs) :
             if i :
@@ -110,14 +147,19 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             g.SetLineColor(colors.get(names[i][:2],PlotUtils.ColorPalette()[i]))
             if options.endcap :
                 g.SetLineStyle(styles.get(names[i][2:],1))
+            if options.barrel :
+                g.SetLineStyle(styles.get(names[i][2:],19))
             g.SetLineWidth(2)
             g.Draw('l' if i else 'al')
             leg.AddEntry(g,names[i],'l')
 
         # special legend for endcap
         if speciallegend :
-            # save dummy graphs so they do not go out of scope
-            dummy_graphs = SetEndcapLegendSpecial(leg,graphs)
+            if options.endcap :
+                # save dummy graphs so they do not go out of scope
+                dummy_graphs = SetEndcapLegendSpecial(leg,graphs)
+            elif options.barrel :
+                dummy_graphs = SetBarrelLegendSpecial(leg,graphs)
 
         if plotaverage :
             gr_average.Draw('l')
@@ -137,12 +179,6 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         PlotUtils.AddRunParameterLabels(text,[graphs[0].GetTitle()],wrap=True)
         text.Draw()
 
-        if False :
-            text_endcap_warning = ROOT.TLegend(0.32,0.63,0.67,0.69)
-            PlotUtils.SetStyleLegend(text_endcap_warning)
-            text_endcap_warning.AddEntry(0,'DUMMY VALUES - NOT REAL NUMBERS','')
-            text_endcap_warning.Draw()
-
         minzero = PlotUtils.MakePlotMinimumZero(plotname)
         forcemin = PlotUtils.GetPlotForcedMinimum(plotname)
 
@@ -161,18 +197,20 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     #
     # Process stave / petal totals. One dict per petal -- a list of 6 dicts.
     #
+    if not full_system :
+        return
 
-    if options.endcap :
+    if True :
         result_dicts_petals = [] # endcap
 
-        for disk in range(6) :
+        for disk_layer in range(Layout.nlayers_or_disks) :
             result_dicts_petals.append(dict())
             ppetal,qsensorpetal,phvpetal,itapepetal,isensorpetal = [],[],[],[],[]
 
             for i in range(GlobalSettings.nstep) :
                 ppetal.append(0); qsensorpetal.append(0); phvpetal.append(0); itapepetal.append(0); isensorpetal.append(0)
-                for ring in range(6) :
-                    index = names.index('R%dD%d'%(ring,disk))
+                for ring_mod in range(Layout.nmodules_or_rings) :
+                    index = PlotUtils.GetResultDictIndex(names,ring_mod,disk_layer)
                     ppetal[i] += result_dicts[index]['pmodule'].GetY()[i]
                     ppetal[i] += result_dicts[index]['peos'   ].GetY()[i] # peos should be 0 for R0-R4
                     qsensorpetal[i] += result_dicts[index]['qsensor'].GetY()[i]
@@ -181,24 +219,24 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
                     itapepetal[i] += result_dicts[index]['itape_eos'].GetY()[i]
                     isensorpetal[i] += result_dicts[index]['isensor'].GetY()[i]
 
-            result_dicts_petals[disk]['pmodulepetal']      = MakeGraph('PetalPowerDisk%d'  %(disk),'Total Power in petal (with EOS) (one side)',xtitle,'P_{%s} [W]'%('Petal'),x,ppetal)
-            result_dicts_petals[disk]['qsensorpetal']      = MakeGraph('PetalSensorQDisk%d'%(disk),'Total Sensor Q in petal (one side)'        ,xtitle,'P [W]'               ,x,qsensorpetal)
-            result_dicts_petals[disk]['phv_wleakagepetal'] = MakeGraph('PetalHVPowerDisk%d'%(disk),'HV Power in petal (one side)'              ,xtitle,'P [W]'               ,x,phvpetal)
-            result_dicts_petals[disk]['itapepetal']        = MakeGraph('PetalTapeCurrentLVDisk%d'%(disk),'LV tape current in petal (with EOS) (one side)',xtitle,'I [A]'     ,x,itapepetal)
-            result_dicts_petals[disk]['isensorpetal']      = MakeGraph('PetalSensorCurrentDisk%d'%(disk),'Total Sensor (leakage) current (one side)',xtitle,'I [mA]'         ,x,isensorpetal)
+            result_dicts_petals[disk_layer]['pmodulepetal']      = MakeGraph('PetalPowerDisk%d'  %(disk_layer),'Total Power in petal (with EOS) (one side)',xtitle,'P_{%s} [W]'%('Petal'),x,ppetal)
+            result_dicts_petals[disk_layer]['qsensorpetal']      = MakeGraph('PetalSensorQDisk%d'%(disk_layer),'Total Sensor Q in petal (one side)'        ,xtitle,'P [W]'               ,x,qsensorpetal)
+            result_dicts_petals[disk_layer]['phv_wleakagepetal'] = MakeGraph('PetalHVPowerDisk%d'%(disk_layer),'HV Power in petal (one side)'              ,xtitle,'P [W]'               ,x,phvpetal)
+            result_dicts_petals[disk_layer]['itapepetal']        = MakeGraph('PetalTapeCurrentLVDisk%d'%(disk_layer),'LV tape current in petal (with EOS) (one side)',xtitle,'I [A]'     ,x,itapepetal)
+            result_dicts_petals[disk_layer]['isensorpetal']      = MakeGraph('PetalSensorCurrentDisk%d'%(disk_layer),'Total Sensor (leakage) current (one side)',xtitle,'I [mA]'         ,x,isensorpetal)
 
             thermal_runaway_yearpetal = 999
-            for ring in range(6) :
-                index = names.index('R%dD%d'%(ring,disk))
+            for ring_mod in range(Layout.nmodules_or_rings) :
+                index = PlotUtils.GetResultDictIndex(names,ring_mod,disk_layer)
                 if result_dicts[index]['thermal_runaway_year'] :
                     thermal_runaway_yearpetal = min(thermal_runaway_yearpetal,result_dicts[index]['thermal_runaway_year'])
             if thermal_runaway_yearpetal == 999 :
                 thermal_runaway_yearpetal = 0
 
             # Append to result_dicts for further use in ProcessSummaryTables
-            index = names.index('R%dD%d'%(0,disk))
+            index = PlotUtils.GetResultDictIndex(names,0,disk_layer)
             for i in ['pmodulepetal','qsensorpetal','phv_wleakagepetal','itapepetal','isensorpetal'] :
-                result_dicts[index][i] = result_dicts_petals[disk][i]
+                result_dicts[index][i] = result_dicts_petals[disk_layer][i]
             result_dicts[index]['thermal_runaway_yearpetal'] = thermal_runaway_yearpetal
 
         for plotname in result_dicts_petals[0].keys() :
@@ -208,9 +246,9 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             PlotUtils.SetStyleLegend(leg)
             dummy_graphs = SetEndcapLegendSpecial(leg,graphs,doRings=False)
 
-            for disk in range(6) :
-                result_dicts_petals[disk][plotname].SetLineStyle(styles.get('D%d'%disk,1))
-                result_dicts_petals[disk][plotname].Draw('l' if disk else 'al')
+            for disk_layer in range(Layout.nlayers_or_disks) :
+                result_dicts_petals[disk_layer][plotname].SetLineStyle(styles.get('D%d'%disk_layer,1))
+                result_dicts_petals[disk_layer][plotname].Draw('l' if disk_layer else 'al')
             text.Clear()
             PlotUtils.AddRunParameterLabels(text,additionalinfo=[result_dicts_petals[0][plotname].GetTitle()])
             text.Draw()
@@ -221,16 +259,16 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             c.Print('%s/%s%s.eps'%(outputpath,barrel_endcap,result_dicts_petals[0][plotname].GetName().replace('Disk0','')))
 
         # Endcap totals, if necessary.
-        for ring in range(6) :
+        for ring_mod in range(Layout.nmodules_or_rings) :
             thermal_runaway_yearmodule = 999
-            for disk in range(6) :
-                index = names.index('R%dD%d'%(ring,disk))
+            for disk_layer in range(Layout.nlayers_or_disks) :
+                index = PlotUtils.GetResultDictIndex(names,ring_mod,disk_layer)
                 if result_dicts[index]['thermal_runaway_year'] :
                     thermal_runaway_yearmodule = min(thermal_runaway_yearmodule,result_dicts[index]['thermal_runaway_year'])
             if thermal_runaway_yearmodule == 999 :
                 thermal_runaway_yearmodule = 0
 
-            index = names.index('R%dD%d'%(ring,0))
+            index = PlotUtils.GetResultDictIndex(names,ring_mod,0)
             result_dicts[index]['thermal_runaway_yearmodule'] = thermal_runaway_yearmodule
 
     if not options.endcap and not options.barrel :
@@ -253,19 +291,19 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
             phvtotal[i] += result_dict['phv_wleakage' ].GetY()[i]
 
-        # endcap          2              1/petal       npetals/ring     nEndcaps (2)
-        # barrel          2              14/stave      nstaves/side     nSides (2)
-        powertotal[i] *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors * (1+CableLosses.losstype1) * (1+CableLosses.lossouter))
-        phvtotal[i]   *= (nModuleSides * Layout.nmod * Layout.nstaves * nDetectors)
+        # endcap          2              npetals/ring     nEndcaps (2)
+        # barrel          2              nstaves/side     nSides (2)
+        powertotal[i] *= (nModuleSides * Layout.nstaves_petals * nDetectors * (1+CableLosses.losstype1) * (1+CableLosses.lossouter))
+        phvtotal[i]   *= (nModuleSides * Layout.nstaves_petals * nDetectors)
 
     gr = dict()
     gr['pmoduletotal']      = MakeGraph('TotalPower'  ,'Total Power in both %ss (including cable losses)'%(structure_name),xtitle,'P_{%s} [W]'%('Total'),x,powertotal)
     gr['phv_wleakagetotal'] = MakeGraph('TotalHVPower','Total HV Power (sensor + resistors) in %ss'%(structure_name),xtitle,'P_{%s} [W]'%('HV')   ,x,phvtotal  )
 
     thermal_runaway_yeartotal = 999
-    for disk in range(6) :
-        for ring in range(6) :
-            index = names.index('R%dD%d'%(ring,disk))
+    for disk_layer in range(Layout.nlayers_or_disks) :
+        for ring_mod in range(Layout.nmodules_or_rings) :
+            index = PlotUtils.GetResultDictIndex(names,ring_mod,disk_layer)
             if result_dicts[index]['thermal_runaway_year'] :
                 thermal_runaway_yeartotal = min(thermal_runaway_yeartotal,result_dicts[index]['thermal_runaway_year'])
     if thermal_runaway_yeartotal == 999 :
@@ -311,7 +349,8 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
     ring_label = '\multirow{6}{*}{Ring}'
     the_lists = []
 
-    if options.endcap :
+    # used to be for endcap only :
+    if True :
         the_lists.append(['','','0','1','2','3','4','5'])
         endcap_total = None
 
@@ -321,11 +360,11 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
             the_lists.append([])
             the_lists[-1].append('')
             the_lists[-1].append('EOS')
-            for disk in range(6) :
+            for disk_layer in range(Layout.nlayers_or_disks) :
                 quantity_name_eos = {'pmodule':'peos',
                                      'itape':'itape_eos',
                                      }.get(quantity_name)
-                index = structure_names.index('R%dD%d'%(5,disk))
+                index = PlotUtils.GetResultDictIndex(structure_names,Layout.nmodules_or_rings-1,disk_layer)
                 the_graph = result_dicts[index][quantity_name_eos]
                 idig = list(result_dicts[index]['idig'].GetY()[i] for i in range(result_dicts[index]['idig'].GetN()))
                 time_index = {'start':0,
@@ -335,12 +374,12 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                 the_lists[-1].append(the_graph.GetY()[time_index])
 
         # Individual modules on rings / disks
-        for ring in range(5,-1,-1) :
+        for ring_mod in range(Layout.nmodules_or_rings-1,-1,-1) :
             the_lists.append([])
-            the_lists[-1].append(ring_label if ring == 5 else '')
-            the_lists[-1].append('%d'%(ring))
-            for disk in range(6) :
-                index = structure_names.index('R%dD%d'%(ring,disk))
+            the_lists[-1].append(ring_label if ring_mod == Layout.nmodules_or_rings else '')
+            the_lists[-1].append('%d'%(ring_mod))
+            for disk_layer in range(Layout.nlayers_or_disks) :
+                index = PlotUtils.GetResultDictIndex(structure_names,ring_mod,disk_layer)
                 if result_dicts[index]['thermal_runaway_year'] :
                     the_lists[-1].append('{\\bf Y%d}'%(result_dicts[index]['thermal_runaway_year']))
                     continue
@@ -357,8 +396,8 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
             caption += ' The ``petal total\'\' corresponds to one petal side.'
             the_lists.append([])
             the_lists[-1] += ['petal total','']
-            for disk in range(6) :
-                index = structure_names.index('R%dD%d'%(0,disk))
+            for disk_layer in range(Layout.nlayers_or_disks) :
+                index = PlotUtils.GetResultDictIndex(structure_names,0,disk_layer)
                 if result_dicts[index]['thermal_runaway_yearpetal'] :
                     the_lists[-1].append('{\\bf Y%d}'%(result_dicts[index]['thermal_runaway_yearpetal']))
                     continue
@@ -429,21 +468,6 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                 endcap_total = '%.3g'%(endcap_total)
             table = re.sub('\nendcaps total\s+&','\hline\n\multicolumn{2}{|l|}{endcaps total}',table)
             table = re.sub('\s+-\s+&\s+-\s+&\s+-\s+&\s+-\s+&\s+-\s+&\s+-','\multicolumn{6}{l|}{%s}'%(endcap_total),table)
-
-    if options.barrel :
-        for layer in range(4,0,-1) :
-            the_lists.append([])
-            the_lists[-1].append('B%d'%(layer))
-            index = structure_names.index('B%d'%(layer))
-            the_graph = result_dicts[index][quantity_name]
-            idig = list(result_dicts[index]['idig'].GetY()[i] for i in range(result_dicts[index]['idig'].GetN()))
-            time_index = {'start':0,
-                          'tid'  :idig.index(max(idig)),
-                          'eol'  :the_graph.GetN()-1,
-                          }.get(target_index)
-            the_lists[-1].append(the_graph.GetY()[time_index])
-
-        table = TableUtils.PrintLatexTable(the_lists,caption=caption)
 
     outtext += table
     outtext += '\n'
