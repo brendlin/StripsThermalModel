@@ -227,17 +227,18 @@ def FancyPrintLatexTables(saved_configs,structure_names) :
 
         elif module_specific_config :
             caption = '%s [%s]'%(saved_configs[0][item]['description'],saved_configs[0][item]['units'].replace('\t','\\t'))
-            disk_ring_labels = '  & & \multicolumn{%d}{c|}{%s} \\\\\n\multirow{6}{*}{%s}\n'%(Layout.nmodules_or_disks,
-                                                                                             'Disk' if Layout.isEndcap else 'Module',
-                                                                                             'Ring' if Layout.isEndcap else 'Layer')
+            disk_ring_labels = '  & & \multicolumn{%d}{c|}{%s} \\\\\n\multirow{%d}{*}{%s}\n'%(Layout.nlayers_or_disks,
+                                                                                             'Disk' if Layout.isEndcap else 'Layer',
+                                                                                              Layout.nmodules_or_rings,
+                                                                                             'Ring' if Layout.isEndcap else 'Module')
             the_list = []
-            the_list.append(['',''] + range(Layout.nmodules_or_disks))
-            for ring_lay in range(Layout.nlayers_or_rings-1,-1,-1) :
+            the_list.append(['',''] + range(Layout.nlayers_or_disks))
+            for ring_mod in range(Layout.nmodules_or_rings-1,-1,-1) :
                 the_list.append([])
                 the_list[-1].append('')
-                the_list[-1].append('%d'%(ring_lay))
-                for disk_mod in range(Layout.nmodules_or_disks) :
-                    index = PlotUtils.GetResultDictIndexInverted(structure_names,ring_lay,disk_mod,Layout.isEndcap)
+                the_list[-1].append('%d'%(ring_mod))
+                for disk_lay in range(Layout.nlayers_or_disks) :
+                    index = PlotUtils.GetResultDictIndex(structure_names,ring_mod,disk_lay)
                     the_list[-1].append(saved_configs[index][item]['value'])
             table = TableUtils.PrintLatexTable(the_list,caption=caption)
             # insert special headers
