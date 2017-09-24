@@ -63,7 +63,6 @@ def SetBarrelLegendSpecial(leg,graphs,doLayers=True,doModules=True) :
             dummy_graphs.append(ROOT.TGraph(1,array('d',[1]),array('d',[1])))
             dummy_graphs[-1].SetLineColor(colors['R%d'%(i)])
             dummy_graphs[-1].SetLineWidth(2)
-            print 'Layer %d'%(i)
             leg.AddEntry(dummy_graphs[-1],'^{ }Layer %d'%(i),'l')
 
         if doModules and (i < 3) :
@@ -337,7 +336,6 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                   'eol':'Year %d'%(GlobalSettings.nyears),
                   }.get(target_index)
 
-    ncolumns = 8 if options.endcap else 2
     units = ''
     if '[' in result_dicts[0][quantity_name].GetYaxis().GetTitle() :
         units = result_dicts[0][quantity_name].GetYaxis().GetTitle().split('[')[1].split(']')[0]
@@ -345,13 +343,15 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
         units = units.replace('_{}Q_{S,crit}/Q_{S}','$Q_{S,crit}/Q_{S}$')
         units = '[%s]'%(units)
     caption = '%s at {\\bf %s} %s.'%(result_dicts[0][quantity_name].GetTitle(),time_label,units)
-    disk_label = '\multirow{2}{*}{%s} & & \multicolumn{6}{c|}{Disk} \\\\\n'%(units)
-    ring_label = '\multirow{6}{*}{Ring}'
+    column_label = '\multirow{2}{*}{%s} & & \multicolumn{%d}{c|}{%s} \\\\\n'%(units,
+                                                                              Layout.nlayers_or_disks,
+                                                                              'Disk' if Layout.isEndcap else 'Layer')
+    row_label = '\multirow{%d}{*}{%s}'%(Layout.nmodules_or_rings,'Ring' if Layout.isEndcap else 'Module')
     the_lists = []
 
     # used to be for endcap only :
     if True :
-        the_lists.append(['','','0','1','2','3','4','5'])
+        the_lists.append(['',''] + list('%d'%(i) for i in range(Layout.nlayers_or_disks)))
         endcap_total = None
 
         # EOS (if applicable)
@@ -376,7 +376,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
         # Individual modules on rings / disks
         for ring_mod in range(Layout.nmodules_or_rings-1,-1,-1) :
             the_lists.append([])
-            the_lists[-1].append(ring_label if ring_mod == Layout.nmodules_or_rings else '')
+            the_lists[-1].append(row_label if ring_mod == Layout.nmodules_or_rings-1 else '')
             the_lists[-1].append('%d'%(ring_mod))
             for disk_layer in range(Layout.nlayers_or_disks) :
                 index = PlotUtils.GetResultDictIndex(structure_names,ring_mod,disk_layer)
@@ -391,11 +391,12 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                               }.get(target_index)
                 the_lists[-1].append(the_graph.GetY()[time_index])
 
-        # Petal totals
+        # Petal / stave totals
+        str_petal_stave = 'petal' if Layout.isEndcap else 'stave'
         if quantity_name in ['qsensor','pmodule','phv_wleakage','itape','isensor'] :
-            caption += ' The ``petal total\'\' corresponds to one petal side.'
+            caption += ' The ``%s total\'\' corresponds to one %s side.'%(str_petal_stave,str_petal_stave)
             the_lists.append([])
-            the_lists[-1] += ['petal total','']
+            the_lists[-1] += ['%s total'%(str_petal_stave),'']
             for disk_layer in range(Layout.nlayers_or_disks) :
                 index = PlotUtils.GetResultDictIndex(structure_names,0,disk_layer)
                 if result_dicts[index]['thermal_runaway_yearpetal'] :
@@ -423,12 +424,13 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                     else :
                         the_lists[-1].append(result_tid)
 
-        # Endcap system totals
+        # Endcap / barrel system totals
+        str_ec_barrel = 'endcap' if Layout.isEndcap else 'barrel side'
         if quantity_name in ['pmodule','phv_wleakage'] :
-            caption += ' The ``endcaps total\'\' corresponds to both petal sides, all petals, 2 endcaps.'
+            caption += ' The ``%ss total\'\' corresponds to both %s sides, all %ss, 2 %ss.'%(str_ec_barrel,str_petal_stave,str_petal_stave,str_ec_barrel)
             the_lists.append([])
-            the_lists[-1] += ['endcaps total','']
-            the_lists[-1] += ['-','-','-','-','-','-'] # this is a placeholder
+            the_lists[-1] += ['%ss total'%(str_ec_barrel),'']
+            the_lists[-1] += ['-']*Layout.nlayers_or_disks # this is a placeholder
             if result_dicts[0]['thermal_runaway_yeartotal'] :
                 endcap_total = '{\\\\bf Y%d}'%(result_dicts[0]['thermal_runaway_yeartotal'])
 
@@ -460,14 +462,14 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
         # insert special headers
         import re
         i_start_of_data = re.search("data_below\n",table).end()
-        table = table[:i_start_of_data] + disk_label + table[i_start_of_data:]
+        table = table[:i_start_of_data] + column_label + table[i_start_of_data:]
         # convert to multiline
-        table = re.sub('\npetal total\s+&','\hline\n\multicolumn{2}{|l|}{petal total}',table)
+        table = re.sub('\n%s total\s+&'%(str_petal_stave),'\hline\n\multicolumn{2}{|l|}{%s total}'%(str_petal_stave),table)
         if endcap_total != None :
             if type(endcap_total) == type(1.1) :
                 endcap_total = '%.3g'%(endcap_total)
-            table = re.sub('\nendcaps total\s+&','\hline\n\multicolumn{2}{|l|}{endcaps total}',table)
-            table = re.sub('\s+-\s+&\s+-\s+&\s+-\s+&\s+-\s+&\s+-\s+&\s+-','\multicolumn{6}{l|}{%s}'%(endcap_total),table)
+            table = re.sub('\n%ss total\s+&'%(str_ec_barrel),'\hline\n\multicolumn{2}{|l|}{%ss total}'%(str_ec_barrel),table)
+            table = re.sub(('\s+-\s+&'*Layout.nlayers_or_disks).rstrip('&'),'\multicolumn{%d}{l|}{%s}'%(Layout.nlayers_or_disks,endcap_total),table)
 
     outtext += table
     outtext += '\n'
