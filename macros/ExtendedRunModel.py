@@ -86,8 +86,7 @@ def main(options,args):
             Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
 
             # Loop over the endcap disks or barrel modules
-            n_disk_mod = Layout.nlayers_or_disks if options.endcap else Layout.nmodules_or_rings
-            for disk_mod in range(n_disk_mod) :
+            for disk_mod in range(Layout.nmodules_or_disks) :
                 # Some tricky re-indexing, because the way we loop is not the same way the config files are organized.
                 ring_mod   = ring_lay if options.endcap else disk_mod
                 disk_layer = disk_mod if options.endcap else ring_lay
@@ -95,8 +94,8 @@ def main(options,args):
                 Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetFlux(ring_mod,disk_layer,isEndcap=options.endcap))
                 Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetTID(ring_mod,disk_layer,isEndcap=options.endcap))
                 Config.SetMissingConfigsUsingCommandLine(options,conf)
-                print 'CALCULATING %s %d %s %d (%s):'%('Module' if options.barrel else 'Ring',ring_mod,
-                                                       'Layer' if options.barrel else 'Disk',disk_layer,Config.GetName())
+                print 'CALCULATING %s %2d %s %d (%s):'%('Module' if options.barrel else 'Ring',ring_mod,
+                                                        'Layer' if options.barrel else 'Disk',disk_layer,Config.GetName())
                 Config.ReloadAllPythonModules()
                 # config_text += '%% Ring %d Disk %d (%s):\n'%(ring,disk,Config.GetName())
                 # config_text += Config.Print() + '\n'
@@ -117,7 +116,7 @@ def main(options,args):
 
             # config_text += '\n\\clearpage\n\n'
 
-        config_text += Config.FancyPrintLatexTables_Endcap(saved_configs,structure_names)
+        config_text += Config.FancyPrintLatexTables(saved_configs,structure_names)
         config_text += '\n\n\\clearpage\n'
 
     # Add some output directory specifications

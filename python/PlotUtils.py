@@ -267,3 +267,13 @@ def GetResultDictIndex(names,ring_mod,disk_layer) :
     except ValueError :
         index = names.index('L%dM%d'%(disk_layer,ring_mod))
     return index
+
+# A quick, useful helper function
+def GetResultDictIndexInverted(names,ring_lay,disk_mod,isEndcap) :
+    ring_mod   = ring_lay if isEndcap else disk_mod
+    disk_layer = disk_mod if isEndcap else ring_lay
+    try :
+        index = names.index('R%dD%d'%(ring_mod,disk_layer))
+    except ValueError :
+        index = names.index('L%dM%d'%(disk_layer,ring_mod))
+    return index

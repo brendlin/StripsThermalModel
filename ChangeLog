@@ -1,3 +1,6 @@
+2017-09-24 Kurt Brendlinger <kurt.brendlinger@cern.ch>
+   * Fixing module-by-module barrel treatment for config printing
+
 2017-09-22 Kurt Brendlinger <kurt.brendlinger@cern.ch>
    * First attempt to run full barrel on a module-by-module basis (some bugs remain)
 
