@@ -94,7 +94,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
     barrel_endcap = ''
     if hasattr(options,'barrel') :
-        structure_name = 'Barrel'  if options.barrel else 'Endcap'
+        structure_name = 'barrel side'  if options.barrel else 'endcap'
         barrel_endcap  = 'Barrel_' if options.barrel else 'Endcap_'
 
     full_system = hasattr(options,'endcap') or hasattr(options,'barrel')
@@ -218,11 +218,13 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
                     itapepetal[i] += result_dicts[index]['itape_eos'].GetY()[i]
                     isensorpetal[i] += result_dicts[index]['isensor'].GetY()[i]
 
-            result_dicts_petals[disk_layer]['pmodulepetal']      = MakeGraph('PetalPowerDisk%d'  %(disk_layer),'Total Power in petal (with EOS) (one side)',xtitle,'P_{%s} [W]'%('Petal'),x,ppetal)
-            result_dicts_petals[disk_layer]['qsensorpetal']      = MakeGraph('PetalSensorQDisk%d'%(disk_layer),'Total Sensor Q in petal (one side)'        ,xtitle,'P [W]'               ,x,qsensorpetal)
-            result_dicts_petals[disk_layer]['phv_wleakagepetal'] = MakeGraph('PetalHVPowerDisk%d'%(disk_layer),'HV Power in petal (one side)'              ,xtitle,'P [W]'               ,x,phvpetal)
-            result_dicts_petals[disk_layer]['itapepetal']        = MakeGraph('PetalTapeCurrentLVDisk%d'%(disk_layer),'LV tape current in petal (with EOS) (one side)',xtitle,'I [A]'     ,x,itapepetal)
-            result_dicts_petals[disk_layer]['isensorpetal']      = MakeGraph('PetalSensorCurrentDisk%d'%(disk_layer),'Total Sensor (leakage) current (one side)',xtitle,'I [mA]'         ,x,isensorpetal)
+            str_pet_stv = 'petal' if Layout.isEndcap else 'stave'
+            aa,bb,cc = ['Petal','Disk',disk_layer] if Layout.isEndcap else ['Stave','Layer',disk_layer]
+            result_dicts_petals[disk_layer]['pmodulepetal']      = MakeGraph('%sPower%s%d'  %(aa,bb,cc),'Total power in %s (with EOS) (one side)'%(str_pet_stv),xtitle,'P_{%s} [W]'%(str_pet_stv),x,ppetal)
+            result_dicts_petals[disk_layer]['qsensorpetal']      = MakeGraph('%sSensorQ%s%d'%(aa,bb,cc),'Total sensor Q in %s (one side)'        %(str_pet_stv),xtitle,'P [W]'              ,x,qsensorpetal)
+            result_dicts_petals[disk_layer]['phv_wleakagepetal'] = MakeGraph('%sHVPower%s%d'%(aa,bb,cc),'HV power in %s (one side)'              %(str_pet_stv),xtitle,'P [W]'              ,x,phvpetal)
+            result_dicts_petals[disk_layer]['itapepetal']        = MakeGraph('%sTapeCurrentLV%s%d'%(aa,bb,cc),'LV tape current in %s (with EOS) (one side)'%(str_pet_stv),xtitle,'I [A]'    ,x,itapepetal)
+            result_dicts_petals[disk_layer]['isensorpetal']      = MakeGraph('%sSensorCurrent%s%d'%(aa,bb,cc),'Total sensor (leakage) current in %s (one side)'%(str_pet_stv),xtitle,'I [mA]',x,isensorpetal)
 
             thermal_runaway_yearpetal = 999
             for ring_mod in range(Layout.nmodules_or_rings) :
@@ -243,10 +245,16 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
             leg = ROOT.TLegend(0.74,0.69,0.91,0.93)
             PlotUtils.SetStyleLegend(leg)
-            dummy_graphs = SetEndcapLegendSpecial(leg,graphs,doRings=False)
+            if options.endcap :
+                dummy_graphs = SetEndcapLegendSpecial(leg,graphs,doRings=False)
+            else :
+                dummy_graphs = SetBarrelLegendSpecial(leg,graphs,doModules=False)
 
             for disk_layer in range(Layout.nlayers_or_disks) :
-                result_dicts_petals[disk_layer][plotname].SetLineStyle(styles.get('D%d'%disk_layer,1))
+                if options.endcap :
+                    result_dicts_petals[disk_layer][plotname].SetLineStyle(styles.get('D%d'%disk_layer,1))
+                else :
+                    result_dicts_petals[disk_layer][plotname].SetLineColor(colors.get('L%d'%disk_layer,1))
                 result_dicts_petals[disk_layer][plotname].Draw('l' if disk_layer else 'al')
             text.Clear()
             PlotUtils.AddRunParameterLabels(text,additionalinfo=[result_dicts_petals[0][plotname].GetTitle()])
@@ -255,7 +263,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             minzero = PlotUtils.MakePlotMinimumZero(plotname)
             forcemin = PlotUtils.GetPlotForcedMinimum(plotname)
             taxisfunc.AutoFixYaxis(c,minzero=minzero,forcemin=forcemin)
-            c.Print('%s/%s%s.eps'%(outputpath,barrel_endcap,result_dicts_petals[0][plotname].GetName().replace('Disk0','')))
+            c.Print('%s/%s%s.eps'%(outputpath,barrel_endcap,result_dicts_petals[0][plotname].GetName().replace('Disk0','').replace('Layer0','')))
 
         # Endcap totals, if necessary.
         for ring_mod in range(Layout.nmodules_or_rings) :
@@ -269,9 +277,6 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
             index = PlotUtils.GetResultDictIndex(names,ring_mod,0)
             result_dicts[index]['thermal_runaway_yearmodule'] = thermal_runaway_yearmodule
-
-    if not options.endcap and not options.barrel :
-        return
 
     #
     # Process Totals
@@ -296,8 +301,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         phvtotal[i]   *= (nModuleSides * Layout.nstaves_petals * nDetectors)
 
     gr = dict()
-    gr['pmoduletotal']      = MakeGraph('TotalPower'  ,'Total Power in both %ss (including cable losses)'%(structure_name),xtitle,'P_{%s} [W]'%('Total'),x,powertotal)
-    gr['phv_wleakagetotal'] = MakeGraph('TotalHVPower','Total HV Power (sensor + resistors) in %ss'%(structure_name),xtitle,'P_{%s} [W]'%('HV')   ,x,phvtotal  )
+    gr['pmoduletotal']      = MakeGraph('TotalPower'  ,'Total power in both %ss (including cable losses)'%(structure_name),xtitle,'P_{%s} [W]'%('Total'),x,powertotal)
+    gr['phv_wleakagetotal'] = MakeGraph('TotalHVPower','Total HV power (sensor + resistors) in both %ss'%(structure_name),xtitle,'P_{%s} [W]'%('HV')   ,x,phvtotal  )
 
     thermal_runaway_yeartotal = 999
     for disk_layer in range(Layout.nlayers_or_disks) :
@@ -318,9 +323,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         text.Clear()
         PlotUtils.AddRunParameterLabels(text,additionalinfo=[gr[g].GetTitle()])
         text.Draw()
-        minzero = PlotUtils.MakePlotMinimumZero(g)
-        forcemin = PlotUtils.GetPlotForcedMinimum(g)
-        taxisfunc.AutoFixYaxis(c,minzero=minzero,forcemin=forcemin)
+        taxisfunc.AutoFixYaxis(c,minzero=True,forcemin=False)
         c.Print('%s/%s%s.eps'%(outputpath,barrel_endcap,gr[g].GetName()))
 
     return
