@@ -2,6 +2,7 @@
 import ROOT
 import FluxAndTidParameterization
 import TableUtils
+import PlotUtils
 import subprocess
 
 internal_config = ROOT.TEnv()
@@ -180,57 +181,64 @@ def SetMissingConfigsUsingCommandLine(options,config='') :
             SetValue(k,value_to_set[k])
 
     if not Defined('OperationalProfiles.totalflux') :
-        SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFlux(config))
+        if GetStr('Layout.Detector') == 'Barrel' :
+            SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFluxBarrel(config))
+        elif GetStr('Layout.Detector') == 'Endcap' :
+            SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetMaxFluxEndcap(config))
 
     if not Defined('OperationalProfiles.tid_in_3000fb') :
-        SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTID(config))
+        if GetStr('Layout.Detector') == 'Barrel' :
+            SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTIDBarrel(config))
+        elif GetStr('Layout.Detector') == 'Endcap' :
+            SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetMaxTIDEndcap(config))
 
     return
 
 # --------------------------------
-def FancyPrintLatexTables_Endcap(saved_configs,structure_names) :
+def FancyPrintLatexTables(saved_configs,structure_names) :
+    import Layout
     config_text = ''
+    isEndcap = GetStr('Layout.Detector') == 'Endcap'
 
     config_list_general = []
     config_list_general.append(['Configurable Item','Description','Value','Unit'])
-    config_list_ring_specific = []
-    config_list_ring_specific.append(['Configurable Item','Description','R0','R1','R2','R3','R4','R5','Unit'])
+    config_list_ring_lay_specific = []
+    rings_layers_header = ['R0','R1','R2','R3','R4','R5']
+    if Layout.isBarrel :
+        rings_layers_header = ['L0','L1','L2','L3']
+    config_list_ring_lay_specific.append(['Configurable Item','Description']+rings_layers_header+['Unit'])
     config_text_modulespecific = ''
     for item in sorted(saved_configs[0].keys()) :
         module_specific_config = False in list(saved_configs[0][item]['value'] == saved_configs[i][item]['value'] for i in range(len(saved_configs)))
-        ring_specific_config = module_specific_config
-        ring_specific_config = ring_specific_config and not (False in list(saved_configs[ 0][item]['value'] == saved_configs[i][item]['value'] for i in range( 1, 6)))
-        ring_specific_config = ring_specific_config and not (False in list(saved_configs[ 6][item]['value'] == saved_configs[i][item]['value'] for i in range( 7,12)))
-        ring_specific_config = ring_specific_config and not (False in list(saved_configs[12][item]['value'] == saved_configs[i][item]['value'] for i in range(13,18)))
-        ring_specific_config = ring_specific_config and not (False in list(saved_configs[18][item]['value'] == saved_configs[i][item]['value'] for i in range(19,24)))
-        ring_specific_config = ring_specific_config and not (False in list(saved_configs[24][item]['value'] == saved_configs[i][item]['value'] for i in range(25,30)))
-        ring_specific_config = ring_specific_config and not (False in list(saved_configs[30][item]['value'] == saved_configs[i][item]['value'] for i in range(31,36)))
+        ring_lay_specific_config = module_specific_config
+        for ring_lay in range(Layout.nlayers_or_rings) :
+            first_one = Layout.nmodules_or_disks*ring_lay
+            range_to_compare = list(range(first_one+1,Layout.nmodules_or_disks*(ring_lay+1)))
+            different_in_some_disk_or_modnumber = False in list(saved_configs[first_one][item]['value'] == saved_configs[i][item]['value'] for i in range_to_compare)
+            ring_lay_specific_config = ring_lay_specific_config and not different_in_some_disk_or_modnumber
 
-        # print item,module_specific_config,ring_specific_config
-
-        if ring_specific_config :
-            config_list_ring_specific.append([])
-            config_list_ring_specific[-1].append(item)
-            config_list_ring_specific[-1].append(saved_configs[0][item]['description'])
-            config_list_ring_specific[-1].append(saved_configs[ 0][item]['value'])
-            config_list_ring_specific[-1].append(saved_configs[ 6][item]['value'])
-            config_list_ring_specific[-1].append(saved_configs[12][item]['value'])
-            config_list_ring_specific[-1].append(saved_configs[18][item]['value'])
-            config_list_ring_specific[-1].append(saved_configs[24][item]['value'])
-            config_list_ring_specific[-1].append(saved_configs[30][item]['value'])
-            config_list_ring_specific[-1].append(saved_configs[0][item]['units'])
+        if ring_lay_specific_config :
+            config_list_ring_lay_specific.append([])
+            config_list_ring_lay_specific[-1].append(item)
+            config_list_ring_lay_specific[-1].append(saved_configs[0][item]['description'])
+            for i in range(Layout.nlayers_or_disks) :
+                config_list_ring_lay_specific[-1].append(saved_configs[i*Layout.nmodules_or_rings][item]['value'])
+            config_list_ring_lay_specific[-1].append(saved_configs[0][item]['units'])
 
         elif module_specific_config :
             caption = '%s [%s]'%(saved_configs[0][item]['description'],saved_configs[0][item]['units'].replace('\t','\\t'))
-            disk_ring_labels = '  & & \multicolumn{6}{c|}{Disk} \\\\\n\multirow{6}{*}{Ring}\n'
+            disk_ring_labels = '  & & \multicolumn{%d}{c|}{%s} \\\\\n\multirow{%d}{*}{%s}\n'%(Layout.nlayers_or_disks,
+                                                                                             'Disk' if Layout.isEndcap else 'Layer',
+                                                                                              Layout.nmodules_or_rings,
+                                                                                             'Ring' if Layout.isEndcap else 'Module')
             the_list = []
-            the_list.append(['','','0','1','2','3','4','5'])
-            for ring in range(5,-1,-1) :
+            the_list.append(['',''] + range(Layout.nlayers_or_disks))
+            for ring_mod in range(Layout.nmodules_or_rings-1,-1,-1) :
                 the_list.append([])
                 the_list[-1].append('')
-                the_list[-1].append('%d'%(ring))
-                for disk in range(6) :
-                    index = structure_names.index('R%dD%d'%(ring,disk))
+                the_list[-1].append('%d'%(ring_mod))
+                for disk_lay in range(Layout.nlayers_or_disks) :
+                    index = PlotUtils.GetResultDictIndex(structure_names,ring_mod,disk_lay)
                     the_list[-1].append(saved_configs[index][item]['value'])
             table = TableUtils.PrintLatexTable(the_list,caption=caption)
             # insert special headers
@@ -246,12 +254,12 @@ def FancyPrintLatexTables_Endcap(saved_configs,structure_names) :
             config_list_general[-1].append(saved_configs[0][item]['value'])
             config_list_general[-1].append(saved_configs[0][item]['units'])
 
-    config_text += '\\subsection{Inputs, common to all endcap modules}\n'
+    config_text += '\\subsection{Inputs, common to all %s modules}\n'%(Layout.detectorname)
     config_text += TableUtils.PrintLatexTable(config_list_general,justs='llrl')
-    config_text += '\\subsection{Inputs, specific to endcap module type (R0, R1, etc.)}\n'
-    config_text += TableUtils.PrintLatexTable(config_list_ring_specific,justs='llrrrrrrl')
+    config_text += '\\subsection{Inputs, specific to %s}\n'%('endcap module type (R0, R1, etc.)' if Layout.isEndcap else 'barrel layer')
+    config_text += TableUtils.PrintLatexTable(config_list_ring_lay_specific,justs='llrrrrrrl')
     config_text += '\n\\clearpage\n\n'
-    config_text += '\\subsection{Inputs, specific to endcap module position (ring, disk)}\n'
+    config_text += '\\subsection{Inputs, specific to %s module position (%s)}\n'%(Layout.detectorname,'ring, disk' if Layout.isEndcap else 'layer, module 0-13')
     config_text += config_text_modulespecific
 
     return config_text

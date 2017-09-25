@@ -30,12 +30,11 @@ def main(options,args):
     PlotUtils.ApplyGlobalStyle()
 
     if options.barrel :
-        config_files = ['Barrel_SS_B1.config',
-                        'Barrel_SS_B2.config',
-                        'Barrel_LS_B3.config',
-                        'Barrel_LS_B4.config'
+        config_files = ['Barrel_B0.config',
+                        'Barrel_B1.config',
+                        'Barrel_B2.config',
+                        'Barrel_B3.config'
                         ]
-        structure_names = ['B1','B2','B3','B4']
 
     else :
         config_files = ['Endcap_R0.config',
@@ -45,8 +44,9 @@ def main(options,args):
                         'Endcap_R4.config',
                         'Endcap_R5.config'
                         ]
-        structure_names = []
-        saved_configs = []
+
+    structure_names = []
+    saved_configs = []
 
     # Config must be loaded before loading any other module.
     Config.SetConfigFile('%s/data/%s'%(the_path,config_files[0]),doprint=False)
@@ -69,60 +69,54 @@ def main(options,args):
     import python.SensorLeakage       as SensorLeakage
     import python.SensorTemperatureCalc as SensorTemperatureCalc
     import python.CoolantTemperature  as CoolantTemperature
+    import python.ExtendedModelSummaryPlots as ExtendedModelSummaryPlots
     print 'importing modules done.'
 
     results = []
     config_text = ''
 
     #
-    # Barrel configuration:
+    # All configurations :
     #
-    if options.barrel :
+    if True :
 
-        # Loop over the layers:
-        for conf in config_files :
-            Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
-            Config.SetMissingConfigsUsingCommandLine(options,conf)
-            Config.ReloadAllPythonModules()
-            config_text += '%% %s:\n'%(Config.GetName())
-            config_text += Config.Print() + '\n'
-
-            results.append(SensorTemperatureCalc.CalculateSensorTemperature(options))
-
-    #
-    # Endcap configuration:
-    #
-    if options.endcap :
-
-        # Loop over the rings (config files)
-        for ring,conf in enumerate(config_files) :
+        # Loop over the endcap rings or barrel layers (config files)
+        for ring_lay,conf in enumerate(config_files) :
 
             Config.SetConfigFile('%s/data/%s'%(the_path,conf),doprint=False)
 
-            # Loop over the disks
-            for disk in range(6) :
-                Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetFlux(ring,disk))
-                Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetTID(ring,disk))
+            # Loop over the endcap disks or barrel modules
+            for disk_mod in range(Layout.nmodules_or_disks) :
+                # Some tricky re-indexing, because the way we loop is not the same way the config files are organized.
+                ring_mod   = ring_lay if options.endcap else disk_mod
+                disk_layer = disk_mod if options.endcap else ring_lay
+
+                Config.SetValue('OperationalProfiles.totalflux',FluxAndTidParameterization.GetFlux(ring_mod,disk_layer,isEndcap=options.endcap))
+                Config.SetValue('OperationalProfiles.tid_in_3000fb',FluxAndTidParameterization.GetTID(ring_mod,disk_layer,isEndcap=options.endcap))
                 Config.SetMissingConfigsUsingCommandLine(options,conf)
-                print 'CALCULATING Ring %d Disk %d (%s):'%(ring,disk,Config.GetName())
+                print 'CALCULATING %s %2d %s %d (%s):'%('Module' if options.barrel else 'Ring',ring_mod,
+                                                        'Layer' if options.barrel else 'Disk',disk_layer,Config.GetName())
                 Config.ReloadAllPythonModules()
                 # config_text += '%% Ring %d Disk %d (%s):\n'%(ring,disk,Config.GetName())
                 # config_text += Config.Print() + '\n'
 
                 itape_previous_list = []
-                if ring :
-                    index_previousmodule = structure_names.index('R%dD%d'%(ring-1,disk))
+                if ring_mod :
+                    index_previousmodule = PlotUtils.GetResultDictIndex(structure_names,ring_mod-1,disk_layer)
                     tmp_gr = results[index_previousmodule]['itape_cumulative']
                     for tmp_i in range(tmp_gr.GetN()) :
                         itape_previous_list.append(tmp_gr.GetY()[tmp_i])
 
                 results.append(SensorTemperatureCalc.CalculateSensorTemperature(options,itape_previous_list=itape_previous_list))
-                structure_names.append('R%dD%d'%(ring,disk))
+                if options.endcap :
+                    structure_names.append('R%dD%d'%(ring_mod,disk_layer))
+                else :
+                    structure_names.append('L%dM%d'%(disk_layer,ring_mod))
                 saved_configs.append(Config.SaveSnapshot())
 
             # config_text += '\n\\clearpage\n\n'
 
-        config_text += Config.FancyPrintLatexTables_Endcap(saved_configs,structure_names)
+        config_text += Config.FancyPrintLatexTables(saved_configs,structure_names)
         config_text += '\n\n\\clearpage\n'
 
     # Add some output directory specifications
@@ -130,8 +124,7 @@ def main(options,args):
     coolingtag = PlotUtils.GetCoolingOutputTag(CoolantTemperature.cooling)
     options.outdir = '_'.join([barrel_endcap,options.outdir,coolingtag]).lstrip('_').replace('__','_')
 
-    import python.ExtendedModelSummaryPlots as ExtendedModelSummaryPlots
-    ExtendedModelSummaryPlots.ProcessSummaryPlots(results,structure_names,options,speciallegend=options.endcap,plotaverage=False)
+    ExtendedModelSummaryPlots.ProcessSummaryPlots(results,structure_names,options,speciallegend=True,plotaverage=False)
 
     outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
 
@@ -180,7 +173,7 @@ if __name__ == '__main__':
     from optparse import OptionParser
     p = OptionParser()
     p.add_option('--barrel',action='store_true',default=False,dest='barrel',help='Run the barrel')
-    p.add_option('--endcap',action='store_true',default=False,dest='endcap',help='Run the barrel')
+    p.add_option('--endcap',action='store_true',default=False,dest='endcap',help='Run the endcap')
     p.add_option('--outdir',type='string',default='',dest='outdir',help='Output directory')
     Config.AddConfigurationOptions(p)
 
