@@ -239,7 +239,7 @@ def MakePlotMinimumZero(plotname) :
     return plotname in ['tc_headroom','idig','ifeast','ifeast_in',
                         'phv_wleakage','phvr','phvmux','hv_power_resistors','pmodule_noHV',
                         'pmodule','powertotal','itape','itape_cumulative','itape_eos','ptape','ptape_cumulative','pstave',
-                        'phvtotal','ppetal']
+                        'phvtotal','ppetal','pmodulepetal']
 
 def GetPlotForcedMinimum(plotname) :
     return {'qsensor_headroom': 0.09}.get(plotname,None)
