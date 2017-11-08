@@ -58,6 +58,7 @@ def tid_scalePlusShape_GeorgGraham(T, doserate, collecteddose,pess):
 
 # Get the model version:
 ModelVersion = Config.GetStr('AbcTidBump.ModelVersion','v01',description='TID parameterization Model Version')
+# Can access only Pessimistic or Optimistic in a given RunModel run - cannot access both (would need to reload).
 PessimisticBool = Config.GetBool('SafetyFactors.TIDpessimistic',description='TID is pessimistic parameterization?')
 
 ##
@@ -116,10 +117,10 @@ else :
     print 'Error! TID parameterization AbcTidBump.ModelVersion %s is unknown! Exiting.'%(ModelVersion)
     import sys; sys.exit()
 
-def SaveAndReturn(function,a,b,c,d,the_dict) :
+def SaveAndReturn(function,a,b,c,the_dict) :
     if (a in the_dict.keys()) and (b in the_dict[a].keys()) and (c in the_dict[a][b].keys()) :
         return the_dict[a][b][c]
-    result = function(a,b,c,PessimisticBool)
+    result = function(a,b,c,PessimisticBool) # pessimistic bool should not change inside a run.
     if a not in the_dict      .keys() : the_dict[a]       = dict()
     if b not in the_dict[a]   .keys() : the_dict[a][b]    = dict()
     if c not in the_dict[a][b].keys() : the_dict[a][b][c] = result
@@ -129,11 +130,11 @@ saved_scalefactor = dict()
 saved_shape = dict()
 saved_scalePlusShape = dict()
 
-def tid_scalefactor(T,doserate,collecteddose,pess) :
-    return SaveAndReturn(scalefactor_used_in_model,T,doserate,collecteddose,pess,saved_scalefactor)
+def tid_scalefactor(T,doserate,collecteddose) :
+    return SaveAndReturn(scalefactor_used_in_model,T,doserate,collecteddose,saved_scalefactor)
 
-def tid_shape(T,doserate,collecteddose,pess) :
-    return SaveAndReturn(shape_used_in_model,T,doserate,collecteddose,pess,saved_shape)
+def tid_shape(T,doserate,collecteddose) :
+    return SaveAndReturn(shape_used_in_model,T,doserate,collecteddose,saved_shape)
 
-def tid_scalePlusShape(T, doserate, collecteddose,pess) :
-    return SaveAndReturn(parameterization_used_in_model,T,doserate,collecteddose,pess,saved_scalePlusShape)
+def tid_scalePlusShape(T, doserate, collecteddose) :
+    return SaveAndReturn(parameterization_used_in_model,T,doserate,collecteddose,saved_scalePlusShape)

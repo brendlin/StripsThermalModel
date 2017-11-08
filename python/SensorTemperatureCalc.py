@@ -25,8 +25,6 @@ import os
 
 n_runaway_errors = [0]
 
-PessimisticBool = Config.GetBool('SafetyFactors.TIDpessimistic',description='TID is pessimistic parameterization?')
-
 def GraphToHist(gr) :
     name = gr.GetName()+'_Hist'
     i = 1
@@ -311,14 +309,14 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
 
         # ABC Power (all n ABCs)
         pabc.append(NominalPower.Pabc(tabc[i],doserate_i,tid_dose_i))
-        tid_sf_abc.append(AbcTidBump.tid_scalefactor(tabc[i],doserate_i,tid_dose_i,PessimisticBool))
-        tid_bump_abc.append(AbcTidBump.tid_scalePlusShape(tabc[i],doserate_i,tid_dose_i,PessimisticBool))
-        tid_shape.append(1+AbcTidBump.tid_shape(tabc[i],doserate_i,tid_dose_i,PessimisticBool)*0.45)
+        tid_sf_abc.append(AbcTidBump.tid_scalefactor(tabc[i],doserate_i,tid_dose_i))
+        tid_bump_abc.append(AbcTidBump.tid_scalePlusShape(tabc[i],doserate_i,tid_dose_i))
+        tid_shape.append(1+AbcTidBump.tid_shape(tabc[i],doserate_i,tid_dose_i)*0.45)
 
         # HCC power (all n HCCs)
         phcc.append(NominalPower.Phcc(thcc[i],doserate_i,tid_dose_i))
-        tid_sf_hcc.append(AbcTidBump.tid_scalefactor(thcc[i],doserate_i,tid_dose_i,PessimisticBool))
-        tid_bump_hcc.append(AbcTidBump.tid_scalePlusShape(thcc[i],doserate_i,tid_dose_i,PessimisticBool))
+        tid_sf_hcc.append(AbcTidBump.tid_scalefactor(thcc[i],doserate_i,tid_dose_i))
+        tid_bump_hcc.append(AbcTidBump.tid_scalePlusShape(thcc[i],doserate_i,tid_dose_i))
 
         # EOS Power
         peos.append(NominalPower.eosP(teos[i]))
