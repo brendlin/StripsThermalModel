@@ -118,9 +118,9 @@ void toyTIDbumpShape(Double_t doseRate=2.5, Double_t temperature=-10., bool pess
   c1.SaveAs("/tmp/Test.pdf");
 }
 
-double tid_new(Double_t temperature, Double_t doseRate, Double_t collecteddose) {
-  double res = getBumpShape(doseRate,temperature)->Eval(collecteddose/1000.); // krad -> mrad
-  double norm = getBumpShape(doseRate,temperature)->Eval(99999); // Normalize shape.
-  // std::cout << Form("DoseRate: %2.2f Temperature: %2.2f CollectedDose: %2.2f Result: %2.2f",doseRate,temperature,collecteddose/1000.,res) << std::endl;
+double tid_new(Double_t temperature, Double_t doseRate, Double_t collecteddose,bool pessimistic) {
+  double res = getBumpShape(doseRate,temperature,pessimistic)->Eval(collecteddose/1000.); // krad -> mrad
+  double norm = getBumpShape(doseRate,temperature,pessimistic)->Eval(99999); // Normalize shape.
+  //std::cout << Form("OLD DoseRate: %2.2f Temperature: %2.2f CollectedDose: %2.2f Result: %2.4f",doseRate,temperature,collecteddose/1000.,res) << std::endl;
   return res/norm;
 }

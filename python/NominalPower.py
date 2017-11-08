@@ -41,11 +41,13 @@ ngbtia = Config.GetInt('NominalPower.ngbtia',description='Number of GBTIAs on th
 # nfeast in the module. To be used in determining the FEAST efficiency due to possible reduction in current
 nfeast = Config.GetInt('NominalPower.nfeast',1,description='Number of FEAST chips on the hybrid')
 
+PessimisticBool = Config.GetBool('SafetyFactors.TIDpessimistic',description='TID is pessimistic parameterization?')
+
 # Short strip module
 # module Short strip
 
 def Iabc_digital(Tabc,d,D) :
-    return nabc * (AbcTidBump.tid_scalePlusShape(Tabc, d, D) * FrontEndComponents.abcId)
+    return nabc * (AbcTidBump.tid_scalePlusShape(Tabc, d, D, PessimisticBool) * FrontEndComponents.abcId)
 
 def Iabc(Tabc,d,D) :
     return Iabc_digital(Tabc,d,D) + (nabc * FrontEndComponents.abcIa)
@@ -54,7 +56,7 @@ def Pabc(Tabc,d,D) :
     return FrontEndComponents.hybridV * Iabc(Tabc, d, D)
 
 def Ihcc_digital(Thcc,d,D) :
-    return nhcc * (AbcTidBump.tid_scalePlusShape(Thcc, d, D) * FrontEndComponents.hccId)
+    return nhcc * (AbcTidBump.tid_scalePlusShape(Thcc, d, D, PessimisticBool) * FrontEndComponents.hccId)
 
 def Ihcc(Thcc,d,D) :
     return Ihcc_digital(Thcc,d,D) + (nhcc * FrontEndComponents.hccIa)

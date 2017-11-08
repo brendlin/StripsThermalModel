@@ -70,6 +70,11 @@ def GetInt(key,ValueIfNotInConfig=None,unit=None,description=None) :
     EnsureDefined(key)
     return internal_config.GetValue(key,1)
 
+def GetBool(key,ValueIfNotInConfig=None,unit=None,description=None) :
+    ProcessExtraDetails(key,ValueIfNotInConfig=ValueIfNotInConfig,unit=unit,description=description)
+    EnsureDefined(key)
+    return internal_config.GetValue(key,True)
+
 def GetStr(key,ValueIfNotInConfig=None,unit=None,description=None) :
     ProcessExtraDetails(key,ValueIfNotInConfig=ValueIfNotInConfig,unit=unit,description=description)
     EnsureDefined(key)
@@ -158,6 +163,7 @@ def AddConfigurationOptions(opt_parser) :
     opt_parser.add_option('--safetyia',type='float',default=None,dest='safetyia',help='Current analog safety factor (default is 0.0)')
     opt_parser.add_option('--safetyr',type='float' ,default=None,dest='safetyr',help='Thermal resistance safety factor (default is 0.0)')
     opt_parser.add_option('--safetyf',type='float' ,default=None,dest='safetyf',help='Flux safety factor (default is 0.0)')
+    opt_parser.add_option('--tidpess',action='store_true',default=False,dest='tidpess',help='TID pessimistic scenario (optimistic is False)')
     opt_parser.add_option('--vbias'  ,type='float' ,default=None,dest='vbias'  ,help='Vbias (default is 500V)')
     return
 
@@ -174,6 +180,7 @@ def SetMissingConfigsUsingCommandLine(options,config='') :
                     'SafetyFactors.safetythermalimpedance' : options.safetyr,
                     'SafetyFactors.safetyfluence'          : options.safetyf,
                     'SafetyFactors.vbias'                  : options.vbias,
+                    'SafetyFactors.TIDpessimistic'         : options.tidpess,
                     }
 
     for k in value_to_set.keys() :

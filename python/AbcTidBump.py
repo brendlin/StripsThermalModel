@@ -47,54 +47,79 @@ coeff2 = 0.4
 def norm(c1, c2):
     return (1 - exp(-c1*(log(c2/c1)/(c2-c1)))) - (1 - exp(-c2*(log(c2/c1)/(c2-c1))))
     
-def tid_scalefactor_GeorgGraham(T, doserate, collecteddose) :
+def tid_scalefactor_GeorgGraham(T, doserate, collecteddose,pess) :
     return tid_scalefactor_GeorgGraham_tf2.Eval(T,doserate)
 
-def tid_shape_GeorgGraham(T, doserate, collecteddose):
+def tid_shape_GeorgGraham(T, doserate, collecteddose,pess):
     return max( (1-exp(-coeff1 * (collecteddose - 400)/1000.)) - (1-exp(-coeff2 * (collecteddose-400)/1000.)), 0 )/float(norm(coeff1, coeff2))
 
-def tid_scalePlusShape_GeorgGraham(T, doserate, collecteddose):
+def tid_scalePlusShape_GeorgGraham(T, doserate, collecteddose,pess):
     return 1 + (tid_scalefactor_GeorgGraham_tf2.Eval(T, doserate)-1)*tid_shape_GeorgGraham(T, doserate, collecteddose)
 
+# Get the model version:
+ModelVersion = Config.GetStr('AbcTidBump.ModelVersion','v01',description='TID parameterization Model Version')
+PessimisticBool = Config.GetBool('SafetyFactors.TIDpessimistic',description='TID is pessimistic parameterization?')
+
+##
+# New TID parameterization, Oct 2017
+##
+ROOT.gROOT.LoadMacro('share/toyTIDbumpShape_Oct2017.C')
+def tid_scalefactor_Kyle_Oct2017(T, doserate, collecteddose,pess) :
+    return 1+ROOT.getNewBumpHeightScale(doserate,T,pess)
+
+def tid_shape_Kyle_Oct2017(T, dosereate, collecteddose,pess) :
+    # these numbers (0.8) are taken from toyTIDbumpShape_Oct2017, method getNewBumpShape
+    # Our collected dose is in kRad, but theirs is in MRad
+    value = ROOT.getNewShape(1.,0.8).Eval(collecteddose/1000.)
+    norm = ROOT.getNewShape(1.,0.8).Eval(999999.)
+    return value/float(norm) - 1.
+
+def tid_scalePlusShape_Kyle_Oct2017(T, doserate, collecteddose,pess) :
+    return ROOT.tid_new_oct(T,doserate,collecteddose,pess)
 
 ##
 # New TID parameterization
 ##
 ROOT.gROOT.LoadMacro('share/toyTIDbumpShape.C')
-def tid_scalefactor_Kyle(T, doserate, collecteddose) :
-    return 1+ROOT.getBumpHeightScale(doserate,T)
 
-def tid_shape_Kyle(T, dosereate, collecteddose) :
+def tid_scalefactor_Kyle(T, doserate, collecteddose,pess) :
+    return 1+ROOT.getBumpHeightScale(doserate,T,pess)
+
+def tid_shape_Kyle(T, dosereate, collecteddose,pess) :
     # these numbers (0.47 tailspeed, 0.2 peak position) are taken from toyTIDbumpShape
     # Our collected dose is in kRad, but theirs is in MRad
     value = ROOT.getShape(1.,0.47,0.2).Eval(collecteddose/1000.)
     norm = ROOT.getShape(1.,0.47,0.2).Eval(999999.)
     return value/float(norm) - 1.
 
-def tid_scalePlusShape_Kyle(T, doserate, collecteddose) :
-    return ROOT.tid_new(T,doserate,collecteddose)
+def tid_scalePlusShape_Kyle(T, doserate, collecteddose,pess) :
+    return ROOT.tid_new(T,doserate,collecteddose,pess)
+
 
 ##
 # Interface with rest of program:
 ##
 
-ModelVersion = Config.GetStr('AbcTidBump.ModelVersion','v00',description='TID parameterization Model Version')
 if ModelVersion == 'v00' :
     scalefactor_used_in_model = tid_scalefactor_GeorgGraham
     shape_used_in_model = tid_shape_GeorgGraham
     parameterization_used_in_model = tid_scalePlusShape_GeorgGraham
-elif ModelVersion == 'v01' :
+elif (ModelVersion == 'v01') :
     scalefactor_used_in_model = tid_scalefactor_Kyle
     shape_used_in_model = tid_shape_Kyle
     parameterization_used_in_model = tid_scalePlusShape_Kyle
+elif (ModelVersion == 'v02') :
+    scalefactor_used_in_model = tid_scalefactor_Kyle_Oct2017
+    shape_used_in_model = tid_shape_Kyle_Oct2017
+    parameterization_used_in_model = tid_scalePlusShape_Kyle_Oct2017
 else :
     print 'Error! TID parameterization AbcTidBump.ModelVersion %s is unknown! Exiting.'%(ModelVersion)
     import sys; sys.exit()
 
-def SaveAndReturn(function,a,b,c,the_dict) :
+def SaveAndReturn(function,a,b,c,d,the_dict) :
     if (a in the_dict.keys()) and (b in the_dict[a].keys()) and (c in the_dict[a][b].keys()) :
         return the_dict[a][b][c]
-    result = function(a,b,c)
+    result = function(a,b,c,PessimisticBool)
     if a not in the_dict      .keys() : the_dict[a]       = dict()
     if b not in the_dict[a]   .keys() : the_dict[a][b]    = dict()
     if c not in the_dict[a][b].keys() : the_dict[a][b][c] = result
@@ -104,11 +129,11 @@ saved_scalefactor = dict()
 saved_shape = dict()
 saved_scalePlusShape = dict()
 
-def tid_scalefactor(T,doserate,collecteddose) :
-    return SaveAndReturn(scalefactor_used_in_model,T,doserate,collecteddose,saved_scalefactor)
+def tid_scalefactor(T,doserate,collecteddose,pess) :
+    return SaveAndReturn(scalefactor_used_in_model,T,doserate,collecteddose,pess,saved_scalefactor)
 
-def tid_shape(T,doserate,collecteddose) :
-    return SaveAndReturn(shape_used_in_model,T,doserate,collecteddose,saved_shape)
+def tid_shape(T,doserate,collecteddose,pess) :
+    return SaveAndReturn(shape_used_in_model,T,doserate,collecteddose,pess,saved_shape)
 
-def tid_scalePlusShape(T, doserate, collecteddose) :
-    return SaveAndReturn(parameterization_used_in_model,T,doserate,collecteddose,saved_scalePlusShape)
+def tid_scalePlusShape(T, doserate, collecteddose,pess) :
+    return SaveAndReturn(parameterization_used_in_model,T,doserate,collecteddose,pess,saved_scalePlusShape)
