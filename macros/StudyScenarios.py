@@ -26,7 +26,7 @@ all_configs = dict()
 def StringWithNSigFigs(the_float,nsigfig) :
     the_string = '%.*g'%(nsigfig,the_float)
     n = 1
-    while len(the_string.replace('.','')) < 3 :
+    while len(the_string.lstrip('0').replace('.','')) < nsigfig :
         the_string = '%.*f'%(n,the_float)
         n += 1
     return the_string
@@ -44,17 +44,24 @@ ordering = [
     'Base_assumptions',
     'BasePlusASICOldCurrent',
     'BasePlusASIC',
+    'BasePlusBumpParam'
     'BasePlusThermal',
     'BasePlusThermalTight',
     'BasePlusBias',
     'BasePlusASICPlusBiasPlusThermal',
     'BasePlusASICPlusBiasPlusThermalTight',
+    'BasePlusBumpASICThermalBias',
     ]
 
 for i in reversed(ordering) :
     scenarios.sort(key = lambda x: (i+'_' not in x))
 for i in reversed(['flat_m35','flat_m30','flat_m25','flat_m20','flat_m15','ramp_m35']) :
     scenarios.sort(key = lambda x: (i not in x))
+
+# different ordering
+scenarios_o2 = list(a for a in scenarios)
+for i in reversed(ordering) :
+    scenarios_o2.sort(key = lambda x: (i+'_' not in x))
 
 # scenarios = [
 #     'Official_No_Safety_flat_m30',
@@ -69,23 +76,35 @@ for i in reversed(['flat_m35','flat_m30','flat_m25','flat_m20','flat_m15','ramp_
 #     ]
 # scenarios = list('ExtendedModelEndcap_'+i for i in scenarios)
 
-for scenario in scenarios :
+two_main_scenarios = []
+find_two_main_scenarios = ['No_Safety_','BasePlusBumpASICThermalBias_']
+for scenario in scenarios_o2 :
     print scenario
+    if find_two_main_scenarios[0] in scenario :
+        two_main_scenarios.append(scenario)
+    if find_two_main_scenarios[1] in scenario :
+        two_main_scenarios.append(scenario)
+
     # Load the saved numpy dictionary
     import numpy as np
     all_results[scenario] = np.load('%s/%s/Results.npy'%(inputpath,scenario))
     all_configs[scenario] = np.load('%s/%s/Config.npy'%(inputpath,scenario)).item()
 
-header = '\n\multicolumn{4}{|c|}{%s} & $V_{bias}$ & Cooling & Endcaps max & Endcaps max & Min sensor \\\\'%('Safety factor')
+if len(two_main_scenarios) < 2 :
+    print 'Need the two main scenarios'
+    sys.exit()
+
+safety_factor_list = ['Fluence','$R_{T}$','$I_D$','$I_A$','TID']
+other_parameters = ['[V]','[$^\circ$C]']
+header = '\n\multicolumn{%d}{|c|}{%s} & $V_{bias}$ & Cooling & Endcaps max & Endcaps max & Min sensor \\\\'%(len(safety_factor_list),'Safety factor')
 
 the_lists = []
-the_lists.append(['Fluence','$R_{T}$','$I_D$','$I_A$',
-                  '[V]',
-                  '[$^\circ$C]',
-                  '\multicolumn{1}{l}{power [kW]}',
-                  '\multicolumn{1}{l}{HV [kW]}',
-                  '\multicolumn{1}{l|}{headroom}',
-                  ])
+the_lists.append(list(a for a in safety_factor_list))
+the_lists[-1] += list(a for a in other_parameters)
+the_lists[-1] += list(a for a in ['\multicolumn{1}{l}{power [kW]}',
+                                  '\multicolumn{1}{l}{HV [kW]}',
+                                  '\multicolumn{1}{l|}{headroom}',
+                                  ])
 
 structure_names = []
 for ring in range(6) :
@@ -101,6 +120,7 @@ def GetSixScenarioParamters(a_list) :
     a_list.append(all_configs[scenario].GetValue('SafetyFactors.safetythermalimpedance',''))
     a_list.append(all_configs[scenario].GetValue('SafetyFactors.safetycurrentd',''))
     a_list.append(all_configs[scenario].GetValue('SafetyFactors.safetycurrenta',''))
+    a_list.append(all_configs[scenario].GetValue('SafetyFactors.TIDpessimistic','False'))
     a_list.append(all_configs[scenario].GetValue('SafetyFactors.vbias',''))
     cooling = all_configs[scenario].GetValue('cooling','')
     if 'flat' in cooling :
@@ -113,7 +133,7 @@ def GetSixScenarioParamters(a_list) :
 #
 # Automate hlines
 #
-hlines = []
+hlines = [0]
 scenario_last = scenarios[0]
 for s,scenario in enumerate(scenarios) :
     cooling      = all_configs[scenario     ].GetValue('cooling','')
@@ -121,6 +141,203 @@ for s,scenario in enumerate(scenarios) :
     if cooling != cooling_last :
         hlines.append(s)
     scenario_last = scenario
+
+def MaxTuple(tuple1,tuple2) :
+    return sorted([tuple1,tuple2],key=lambda x: x[0],reverse=True)[0]
+
+def MinTuple(tuple1,tuple2) :
+    return sorted([tuple1,tuple2],key=lambda x: x[0],reverse=False)[0]
+
+
+#
+# Make Calculations for summary tables
+#
+for scenario in scenarios :
+    tmp_dict = all_results[scenario][0]
+
+    runaway = False
+    if tmp_dict['thermal_runaway_yeartotal'] :
+        RunawayText = '{\\bf Y%d}'%(tmp_dict['thermal_runaway_yeartotal'])
+        runaway = True
+
+    #
+    # Calculate maximum total value (input to tables)
+    #
+    for quantity_name in ['pmodule','phv_wleakage'] :
+        if runaway :
+            tmp_dict['%s_maxval_str'%(quantity_name)] = RunawayText
+            tmp_dict['%s_minval_str'%(quantity_name)] = RunawayText
+            continue
+        nstep = tmp_dict[quantity_name+'total'].GetN()
+
+        maxval = max(list(tmp_dict[quantity_name+'total'].GetY()[i] for i in range(nstep)))
+        minval = min(list(tmp_dict[quantity_name+'total'].GetY()[i] for i in range(nstep)))
+
+        if quantity_name in ['pmodule','phv_wleakage'] :
+            maxval = maxval/1000.
+            minval = minval/1000.
+
+        tmp_dict['%s_maxval_str'%(quantity_name)] = StringWithNSigFigs(maxval,3)
+        tmp_dict['%s_minval_str'%(quantity_name)] = StringWithNSigFigs(minval,3)
+
+    #
+    # Minimum / Maximum Module Value
+    #
+    for quantity_name in ['tfeast','isensor','qsensor_headroom','tsensor'] :
+        if runaway :
+            tmp_dict['%s_minModule_str'%(quantity_name)] = (RunawayText,'')
+            tmp_dict['%s_maxModule_str'%(quantity_name)] = (RunawayText,'')
+            tmp_dict['%s_maxModuleY1_str' %(quantity_name)] = (RunawayText,'')
+            tmp_dict['%s_maxModuleY14_str'%(quantity_name)] = (RunawayText,'')
+            continue
+
+        minval_endcap = (float('inf'),None)
+        maxval_endcap = (None,None) # first is the value, 2nd is the corresponding ring
+        max_y1_endcap = (None,None)
+        max_y14_endcap = (None,None)
+
+        for ring in range(6) :
+            for disk in range(6) :
+                index = structure_names.index('R%dD%d'%(ring,disk))
+                graph = all_results[scenario][index][quantity_name]
+                nstep = graph.GetN()
+
+                # minval
+                minval_module = (min(list(graph.GetY()[i] for i in range(nstep))),'R%d'%(ring))
+                minval_endcap = MinTuple(minval_endcap,minval_module)
+
+                # maxval
+                maxval_module = (max(list(graph.GetY()[i] for i in range(nstep))),'R%d'%(ring))
+                maxval_endcap = MaxTuple(maxval_endcap,maxval_module)
+
+                # max in y1
+                max_y1_module = (graph.GetY()[0],'R%d'%(ring))
+                max_y1_endcap = MaxTuple(max_y1_endcap,max_y1_module)
+
+                # max in y14
+                max_y14_module = (graph.GetY()[nstep-1],'R%d'%(ring))
+                max_y14_endcap = MaxTuple(max_y14_endcap,max_y14_module)
+
+        tmp_dict['%s_minModule_str'%(quantity_name)] = (StringWithNSigFigs(minval_endcap[0],3),minval_endcap[1])
+        tmp_dict['%s_maxModule_str'%(quantity_name)] = (StringWithNSigFigs(maxval_endcap[0],3),maxval_endcap[1])
+
+        tmp_dict['%s_maxModuleY1_str' %(quantity_name)] = (StringWithNSigFigs(max_y1_endcap[0] ,3),max_y1_endcap[1])
+        tmp_dict['%s_maxModuleY14_str'%(quantity_name)] = (StringWithNSigFigs(max_y14_endcap[0],3),max_y14_endcap[1])
+
+    #
+    # Maximum Petal Value
+    #
+    tmp_dict = all_results[scenario]
+    for quantity_name in ['itapepetal','pmodulepetal'] :
+        if runaway :
+            all_results[scenario][0]['%s_maxPetal_str'%(quantity_name)] = RunawayText
+            continue
+        maxpetalval = None
+        for disk in range(6) :
+            index = structure_names.index('R%dD%d'%(0,disk))
+            graph = tmp_dict[index][quantity_name]
+            nstep = graph.GetN()
+            maxval_thispetal = max(list(graph.GetY()[i] for i in range(nstep)))
+            maxpetalval = max(maxpetalval,maxval_thispetal)
+        all_results[scenario][0]['%s_maxPetal_str'%(quantity_name)] = StringWithNSigFigs(maxpetalval,3)
+
+
+    #
+    # Maximum of Ring type Rn
+    #
+    for quantity_name in ['phv_wleakage','tsensor','tfeast','qsensor_headroom','isensor','ifeast','pmodule','pmodule_noHV'] :
+        for ring in range(6) :
+            index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
+            if runaway :
+                all_results[scenario][index_rXd0]['%s_minOfRtype'%(quantity_name)] = RunawayText
+                all_results[scenario][index_rXd0]['%s_maxOfRtype'%(quantity_name)] = RunawayText
+                continue
+
+            minval_ring = float('inf')
+            maxval_ring = None
+
+            for disk in range(6) :
+                index = structure_names.index('R%dD%d'%(ring,disk))
+                graph = all_results[scenario][index][quantity_name]
+                nstep = graph.GetN()
+
+                minval_module = min(list(graph.GetY()[i] for i in range(nstep)))
+                minval_ring = min(minval_ring,minval_module)
+
+                maxval_module = max(list(graph.GetY()[i] for i in range(nstep)))
+                maxval_ring = max(maxval_ring,maxval_module)
+
+            all_results[scenario][index_rXd0]['%s_minOfRtype'%(quantity_name)] = StringWithNSigFigs(minval_ring,3)
+            all_results[scenario][index_rXd0]['%s_maxOfRtype'%(quantity_name)] = StringWithNSigFigs(maxval_ring,3)
+
+#
+# Main Summary Table
+#
+#f.write('\\begin{landscape}\n')
+#f.write('\subsubsection{Main Summary Table 2}\n')
+lists_new = []
+hlines_new = [4,6,9,11,17,23,29,35]
+#
+lists_new.append(['','Fluence'    ]); lists_new[-1] += list(all_configs[scenario].GetValue('SafetyFactors.safetyfluence','')          for scenario in two_main_scenarios)
+lists_new[-1][0] = '\multirow{5}{*}{Safety Factors}'
+lists_new.append(['','$R_{T}$'    ]); lists_new[-1] += list(all_configs[scenario].GetValue('SafetyFactors.safetythermalimpedance','') for scenario in two_main_scenarios)
+lists_new.append(['','$I_D$'      ]); lists_new[-1] += list(all_configs[scenario].GetValue('SafetyFactors.safetycurrentd','')         for scenario in two_main_scenarios)
+lists_new.append(['','$I_A$'      ]); lists_new[-1] += list(all_configs[scenario].GetValue('SafetyFactors.safetycurrenta','')         for scenario in two_main_scenarios)
+lists_new.append(['','TID parameterization']);
+lists_new[-1] += list(all_configs[scenario].GetValue('SafetyFactors.TIDpessimistic','False').replace('False','nominal').replace('True','pessimistic') for scenario in two_main_scenarios)
+#
+lists_new.append(['','Voltage [V]']); lists_new[-1] += list(all_configs[scenario].GetValue('SafetyFactors.vbias','')                  for scenario in two_main_scenarios)
+lists_new[-1][0] = '\multirow{2}{*}{HV, Cooling}'
+lists_new.append(['','Cooling [$^\circ$C]']); lists_new[-1] += list(all_configs[scenario].GetValue('cooling','').replace('-',' $-$')  for scenario in two_main_scenarios)
+#
+lists_new.append(['','Minimum power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_maxval_str'] for scenario in two_main_scenarios)
+lists_new[-1][0] = '\multirow{3}{*}{Endcap System}'
+lists_new.append(['','Maximum power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_minval_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Maximum $P_\text{HV}$ [kW]']); lists_new[-1] += list(all_results[scenario][0]['phv_wleakage_maxval_str'] for scenario in two_main_scenarios)
+#
+lists_new.append(['','Max petal $I_\text{tape}$ [A]']); lists_new[-1] += list(all_results[scenario][0]['itapepetal_maxPetal_str'] for scenario in two_main_scenarios)
+lists_new[-1][0] = '\multirow{2}{*}{Petal-level}'
+lists_new.append(['','Max petal power [W]']); lists_new[-1] += list(all_results[scenario][0]['pmodulepetal_maxPetal_str'] for scenario in two_main_scenarios)
+#
+for ring in range(6) :
+    index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
+    title = 'Min/Max Power [W]' if not ring else ''
+    lists_new.append(['R%d'%(ring),''])
+    lists_new[-1] += list('%s / %s'%(all_results[scenario][index_rXd0]['pmodule_minOfRtype'],
+                                     all_results[scenario][index_rXd0]['pmodule_maxOfRtype']) for scenario in two_main_scenarios)
+    if not ring : lists_new[-1][1] = '\multirow{6}{*}{Min/Max Power [W]}'
+#
+for ring in range(6) :
+    index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
+    lists_new.append(['R%d'%(ring),''])
+    lists_new[-1] += list('%s / %s'%(all_results[scenario][index_rXd0]['pmodule_noHV_minOfRtype'],
+                                     all_results[scenario][index_rXd0]['pmodule_noHV_maxOfRtype']) for scenario in two_main_scenarios)
+    if not ring : lists_new[-1][1] = '\multirow{6}{*}{Min/Max LV power [W]}'
+#
+for ring in range(6) :
+    index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
+    lists_new.append(['R%d'%(ring),''])
+    lists_new[-1] += list('%s / %s'%(all_results[scenario][index_rXd0]['phv_wleakage_minOfRtype'],
+                                     all_results[scenario][index_rXd0]['phv_wleakage_maxOfRtype']) for scenario in two_main_scenarios)
+    if not ring : lists_new[-1][1] = '\multirow{6}{*}{Min/Max HV power [W]}'
+#
+for ring in range(6) :
+    index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
+    lists_new.append(['R%d'%(ring),''])
+    lists_new[-1] += list('%s / %s'%(all_results[scenario][index_rXd0]['ifeast_minOfRtype'],
+                                     all_results[scenario][index_rXd0]['ifeast_maxOfRtype']) for scenario in two_main_scenarios)
+    if not ring : lists_new[-1][1] = '\multirow{6}{*}{Min/Max Feast load [A]}'
+#
+lists_new.append(['','Max $I_{HV}$ per module [mA]']); lists_new[-1] += list('%s (%s)'%all_results[scenario][0]['isensor_maxModule_str'] for scenario in two_main_scenarios)
+lists_new[-1][0] = '\multirow{5}{*}{Components}'
+# Sensor temperatures
+lists_new.append(['','Max sensor T [$^\circ$C], Y1' ]); lists_new[-1] += list('%s (%s)'%all_results[scenario][0]['tsensor_maxModuleY1_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Max sensor T [$^\circ$C], Y14']); lists_new[-1] += list('%s (%s)'%all_results[scenario][0]['tsensor_maxModuleY14_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Max sensor T [$^\circ$C], Max']); lists_new[-1] += list('%s (%s)'%all_results[scenario][0]['tsensor_maxModule_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Max $T_\text{Feast}$']); lists_new[-1] += list('%s (%s)'%all_results[scenario][0]['tfeast_maxModule_str'] for scenario in two_main_scenarios)
+table = TableUtils.PrintLatexTable(lists_new,caption='Summary of nominal and worst-case safety factor scenarios.',hlines=hlines_new,justs=['l','l'])
+f.write(table)
+#f.write('\end{landscape}\n')
 
 #
 # Main Summary Table
@@ -132,40 +349,21 @@ for scenario in scenarios :
     the_lists.append([])
     GetSixScenarioParamters(the_lists[-1])
 
+    tmp_dict = all_results[scenario][0]
+
     for quantity_name in ['pmodule','phv_wleakage'] :
-        if all_results[scenario][0]['thermal_runaway_yeartotal'] :
-            the_lists[-1].append('{\\bf Year %d}'%(all_results[scenario][0]['thermal_runaway_yeartotal']))
-            continue
-        nstep = all_results[scenario][0][quantity_name+'total'].GetN()
-        maxval = max(list(all_results[scenario][0][quantity_name+'total'].GetY()[i] for i in range(nstep)))
-        if quantity_name in ['pmodule','phv_wleakage'] :
-            maxval = maxval/1000.
-        the_lists[-1].append(StringWithNSigFigs(maxval,3))
+        the_lists[-1].append(tmp_dict['%s_maxval_str'%(quantity_name)])
 
     # maximum (or minimum) module value in full system
     for quantity_name in ['qsensor_headroom'] :
-        if all_results[scenario][0]['thermal_runaway_yeartotal'] :
-            the_lists[-1].append('{\\bf Year %d}'%(all_results[scenario][0]['thermal_runaway_yeartotal']))
-            continue
-        maxval_endcap = float('inf') if quantity_name in ['qsensor_headroom'] else None
-        for ring in range(6) :
-            for disk in range(6) :
-                index = structure_names.index('R%dD%d'%(ring,disk))
-                graph = all_results[scenario][index][quantity_name]
-                nstep = graph.GetN()
-                if quantity_name in ['qsensor_headroom'] :
-                    maxval_module = min(list(graph.GetY()[i] for i in range(nstep)))
-                    maxval_endcap = min(maxval_endcap,maxval_module)
-                else :
-                    maxval_module = max(list(graph.GetY()[i] for i in range(nstep)))
-                    maxval_endcap = max(maxval_endcap,maxval_module)
-        the_lists[-1].append(StringWithNSigFigs(maxval_endcap,3))
+        the_lists[-1].append(tmp_dict['%s_minModule_str'%(quantity_name)][0])
 
 scenario0 = scenarios[0]
 table = TableUtils.PrintLatexTable(the_lists,caption='Summary of all safety factor scenarios.',hlines=hlines)
 i_start_of_data = re.search("data_below\n",table).end()
 table = table[:i_start_of_data] + header + table[i_start_of_data:]
-table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|r\|','|cccc|cc|rrr|',table)
+table = re.sub('\|l%s\|r\|r\|r\|'%('\\|r'*(len(safety_factor_list)-1)),
+               '|%s|cc|rrr|'%('c'*len(safety_factor_list)),table)
 f.write(table)
 
 #
@@ -191,8 +389,8 @@ for quantity_name in all_results[scenario0][0].keys() :
 f.write('\subsubsection{Petal Summaries}\n')
 for quantity_name in ['pmodule','itape'] :
     the_lists = []
-    the_lists.append(['Fluence','$R_{T}$','$I_D$','$I_A$','[V]','[$^\circ$C]',
-                      'disk 0','disk 1','disk 2','disk 3','disk 4','disk 5'])
+    the_lists.append(safety_factor_list + other_parameters)
+    the_lists[-1] += ['disk 0','disk 1','disk 2','disk 3','disk 4','disk 5']
     for scenario in scenarios :
         the_lists.append([])
         GetSixScenarioParamters(the_lists[-1])
@@ -214,12 +412,13 @@ for quantity_name in ['pmodule','itape'] :
     caption = caption.replace(' due to items on module','')
 
     label_short = graph0.GetYaxis().GetTitle().split('[')[0]
-    disk_label = '\multicolumn{4}{|c|}{%s} & $V_{bias}$ & Cooling & \multicolumn{6}{c|}{Max $%s$ for full petal (1 side) on disk $n$ %s} \\\\\n'%('Safety factor',label_short,units_dict[quantity_name])
+    disk_label = '\multicolumn{%d}{|c|}{%s} & $V_{bias}$ & Cooling & '%(len(safety_factor_list),'Safety factor')
+    disk_label += '\multicolumn{6}{c|}{Max $%s$ for full petal (1 side) on disk $n$ %s} \\\\\n'%(label_short,units_dict[quantity_name])
     table = TableUtils.PrintLatexTable(the_lists,caption=caption,hlines=hlines)
     # insert special headers
     i_start_of_data = re.search("data_below\n",table).end()
     table = table[:i_start_of_data] + disk_label + table[i_start_of_data:]
-    table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|','|cccc|cc|rrrrrr|',table)
+    table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|','|ccccc|cc|rrrrrr|',table)
     f.write(table)
 
 #
@@ -227,10 +426,10 @@ for quantity_name in ['pmodule','itape'] :
 #
 f.write('\clearpage\n')
 f.write('\subsubsection{Worst-case ring modules}\n')
-for quantity_name in ['phv_wleakage','tsensor','tfeast','qsensor_headroom'] :
+for quantity_name in ['phv_wleakage','tsensor','tfeast','qsensor_headroom','isensor'] :
     the_lists = []
-    the_lists.append(['Fluence','$R_{T}$','$I_D$','$I_A$','[V]','[$^\circ$C]',
-                      'R0','R1','R2','R3','R4','R5'])
+    the_lists.append(safety_factor_list + other_parameters)
+    the_lists[-1] += ['R0','R1','R2','R3','R4','R5']
     for scenario in scenarios :
         the_lists.append([])
         GetSixScenarioParamters(the_lists[-1])
@@ -260,13 +459,16 @@ for quantity_name in ['phv_wleakage','tsensor','tfeast','qsensor_headroom'] :
     caption += ' (1 side) for the worst-case module of a given type (typically located on Disk 5).'
     caption = caption.replace(' due to items on module','')
 
-    label_short = graph0.GetYaxis().GetTitle().split('[')[0]
-    disk_label = '\multicolumn{4}{|c|}{%s} & $V_{bias}$ & Cooling & \multicolumn{6}{c|}{Max $%s$ for module of type R$n$ %s} \\\\\n'%('Safety factor',label_short,units_dict[quantity_name])
+    label_short = graph0.GetYaxis().GetTitle().split('[')[0].rstrip()
+    label_short = '$%s$'%(label_short)
+    label_short = label_short.replace('$Power headroom factor$','headroom')
+    disk_label = '\multicolumn{%d}{|c|}{%s} & $V_{bias}$ & Cooling & '%(len(safety_factor_list),'Safety factor')
+    disk_label += '\multicolumn{6}{c|}{Max %s for module of type R$n$ %s} \\\\\n'%(label_short,units_dict[quantity_name])
     table = TableUtils.PrintLatexTable(the_lists,caption=caption,hlines=hlines)
     # insert special headers
     i_start_of_data = re.search("data_below\n",table).end()
     table = table[:i_start_of_data] + disk_label + table[i_start_of_data:]
-    table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|','|cccc|cc|rrrrrr|',table)
+    table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|','|ccccc|cc|rrrrrr|',table)
     f.write(table)
 
 f.close()

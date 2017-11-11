@@ -52,6 +52,8 @@ def PrintLatexTable(thing,justs=[],nsigfig=3,caption='',hlines=[]) :
             else :
                 if len(max_column_width) < j + 1 :
                     print 'Error in PrintLatexTable - column widths are not the same.'
+                    for th in thing :
+                        print th
                     import sys; sys.exit()
                 max_column_width[j] = max(max_column_width[j],len(y))
 
@@ -72,7 +74,7 @@ def PrintLatexTable(thing,justs=[],nsigfig=3,caption='',hlines=[]) :
 
             y = MakeTextReplacements(y)
             if j == len(x)-1 :
-                hline = '' if (i and i not in hlines) else '\\hline'
+                hline = '\\hline' if ( (i in hlines) or (not i and not hlines) ) else ''
                 text += '%s \\\\ %s\n'%(getattr(y,just)(max_column_width[j]),hline)
             elif j == 0 :
                 text += '%s & '%(getattr(y,just)(max_column_width[j]))

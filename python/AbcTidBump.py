@@ -57,7 +57,7 @@ def tid_scalePlusShape_GeorgGraham(T, doserate, collecteddose,pess):
     return 1 + (tid_scalefactor_GeorgGraham_tf2.Eval(T, doserate)-1)*tid_shape_GeorgGraham(T, doserate, collecteddose)
 
 # Get the model version:
-ModelVersion = Config.GetStr('AbcTidBump.ModelVersion','v01',description='TID parameterization Model Version')
+ModelVersion = Config.GetStr('AbcTidBump.ModelVersion','v02',description='TID parameterization Model Version')
 # Can access only Pessimistic or Optimistic in a given RunModel run - cannot access both (would need to reload).
 PessimisticBool = Config.GetBool('SafetyFactors.TIDpessimistic',description='TID is pessimistic parameterization?')
 
