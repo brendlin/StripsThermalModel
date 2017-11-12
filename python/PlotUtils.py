@@ -239,6 +239,7 @@ def MakePlotMinimumZero(plotname) :
     return plotname in ['tc_headroom','idig','ifeast','ifeast_in',
                         'phv_wleakage','phvr','phvmux','hv_power_resistors','pmodule_noHV',
                         'pmodule','powertotal','itape','itape_cumulative','itape_eos','ptape','ptape_cumulative','pstave',
+                        'ihybrid0','ihybrid1','ihybrid2','ihybrid3',
                         'phvtotal','ppetal','pmodulepetal']
 
 def GetPlotForcedMinimum(plotname) :

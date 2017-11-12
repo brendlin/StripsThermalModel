@@ -68,6 +68,10 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     ihcc_a     = list(NominalPower.nhcc*FrontEndComponents.hccIa for i in range(GlobalSettings.nstep)) # Analog HCC current
     iabc_dig   = [] # Digital ABC current (all ABCs)
     iabc_a     = list(NominalPower.nabc*FrontEndComponents.abcIa for i in range(GlobalSettings.nstep)) # Analog ABC current
+    ihybrid0   = []
+    ihybrid1   = []
+    ihybrid2   = []
+    ihybrid3   = []
     iamac_3v   = list(FrontEndComponents.amac3I for i in range(GlobalSettings.nstep)) # AMAC 3V
     iamac_1p5v = list(FrontEndComponents.amac15I for i in range(GlobalSettings.nstep)) # AMAC 1.5V
     ifeast     = [] # FEAST current (load)
@@ -211,7 +215,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
 
         if thermal_runaway :
             for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,ptape,ptape_cumulative,phv_wleakage,isensor,phvr,
-                           phvmux,itape,itape_cumulative,itape_eos,idig,ihcc_dig,iabc_dig,ifeast,ifeast_in,efffeast,qsensor,
+                           phvmux,itape,itape_cumulative,itape_eos,idig,ihcc_dig,iabc_dig,ihybrid0,ihybrid1,ihybrid2,ihybrid3,ifeast,ifeast_in,efffeast,qsensor,
                            tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
             qsensor_headroom.append(0.1)
@@ -363,6 +367,12 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
         # Digital current of (all) HCCs
         iabc_dig.append(NominalPower.Iabc_digital(tabc[i],doserate_i,tid_dose_i))
 
+        # Hybrid currents
+        ihybrid0.append( (iabc_dig[i] + iabc_a[i])*NominalPower.hybrid0_nabc/float(NominalPower.nabc) + (ihcc_dig[i] + ihcc_a[i])*NominalPower.hybrid0_nhcc/float(NominalPower.nhcc) )
+        ihybrid1.append( (iabc_dig[i] + iabc_a[i])*NominalPower.hybrid1_nabc/float(NominalPower.nabc) + (ihcc_dig[i] + ihcc_a[i])*NominalPower.hybrid1_nhcc/float(NominalPower.nhcc) )
+        ihybrid2.append( (iabc_dig[i] + iabc_a[i])*NominalPower.hybrid2_nabc/float(NominalPower.nabc) + (ihcc_dig[i] + ihcc_a[i])*NominalPower.hybrid2_nhcc/float(NominalPower.nhcc) )
+        ihybrid3.append( (iabc_dig[i] + iabc_a[i])*NominalPower.hybrid3_nabc/float(NominalPower.nabc) + (ihcc_dig[i] + ihcc_a[i])*NominalPower.hybrid3_nhcc/float(NominalPower.nhcc) )
+
         # FEAST current PER FEAST (in case there is more than one feast)
         ifeast.append(NominalPower.Ifeast(tabc[i],thcc[i],doserate_i,tid_dose_i) / float(NominalPower.nfeast))
 
@@ -403,6 +413,10 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     gr['itape_cumulative'] = MakeGraph('TapeCurrentLVCumulative','Cumulative LV tape current (one side)',xtitle,'I_{%s} [A]'%('tape')         ,x,itape_cumulative)
     gr['itape_eos']  = MakeGraph('TapeCurrentEOS'         ,'Tape current load for EOS (one side)'      ,xtitle,'I_{%s} [A]'%('tape')          ,x,itape_eos )
     gr['idig']       = MakeGraph('DigitalCurrent'         ,'ABC and HCC digital current'               ,xtitle,'I_{%s} [A]'%('digital')       ,x,idig      )
+    gr['ihybrid0']   = MakeGraph('Hybrid0Current'         ,'Hybrid 0 current'                          ,xtitle,'I [A]'                        ,x,ihybrid0  )
+    gr['ihybrid1']   = MakeGraph('Hybrid1Current'         ,'Hybrid 1 current'                          ,xtitle,'I [A]'                        ,x,ihybrid1  )
+    gr['ihybrid2']   = MakeGraph('Hybrid2Current'         ,'Hybrid 2 current'                          ,xtitle,'I [A]'                        ,x,ihybrid2  )
+    gr['ihybrid3']   = MakeGraph('Hybrid3Current'         ,'Hybrid 3 current'                          ,xtitle,'I [A]'                        ,x,ihybrid3  )
     gr['ifeast']     = MakeGraph('FeastCurrent'           ,'FEAST current (load, per FEAST)'           ,xtitle,'I_{%s} [A]'%('FEAST,load')    ,x,ifeast    )
     gr['ifeast_in']  = MakeGraph('FeastCurrentInput'      ,'FEAST current (input)'                     ,xtitle,'I_{%s} [A]'%('FEAST,in')      ,x,ifeast_in )
     gr['efffeast']   = MakeGraph('FeastEfficiency'        ,'Feast efficiency'                          ,xtitle,'Efficiency [%]'               ,x,efffeast  )

@@ -38,6 +38,16 @@ nlpgbt = Config.GetInt('NominalPower.nlpgbt',description='Number of lpGBTs on th
 ngbld  = Config.GetInt('NominalPower.ngbld',description='Number of GBLDs on this module\'s EOS')
 ngbtia = Config.GetInt('NominalPower.ngbtia',description='Number of GBTIAs on this module\'s EOS')
 
+hybrid0_nabc = Config.GetInt('NominalPower.Hybrid0.nabc',0)
+hybrid1_nabc = Config.GetInt('NominalPower.Hybrid1.nabc',0)
+hybrid2_nabc = Config.GetInt('NominalPower.Hybrid2.nabc',0)
+hybrid3_nabc = Config.GetInt('NominalPower.Hybrid3.nabc',0)
+
+hybrid0_nhcc = Config.GetInt('NominalPower.Hybrid0.nhcc',0)
+hybrid1_nhcc = Config.GetInt('NominalPower.Hybrid1.nhcc',0)
+hybrid2_nhcc = Config.GetInt('NominalPower.Hybrid2.nhcc',0)
+hybrid3_nhcc = Config.GetInt('NominalPower.Hybrid3.nhcc',0)
+
 # nfeast in the module. To be used in determining the FEAST efficiency due to possible reduction in current
 nfeast = Config.GetInt('NominalPower.nfeast',1,description='Number of FEAST chips on the hybrid')
 
