@@ -245,7 +245,8 @@ for scenario in scenarios :
     #
     # Maximum of Ring type Rn
     #
-    for quantity_name in ['phv_wleakage','tsensor','tfeast','qsensor_headroom','isensor','ifeast','pmodule','pmodule_noHV'] :
+    for quantity_name in ['phv_wleakage','tsensor','tfeast','qsensor_headroom','isensor','ifeast','pmodule','pmodule_noHV',
+                          'ihybrid0','ihybrid1','ihybrid2','ihybrid3'] :
         for ring in range(6) :
             index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
             if runaway :
@@ -276,7 +277,7 @@ for scenario in scenarios :
 #f.write('\\begin{landscape}\n')
 #f.write('\subsubsection{Main Summary Table 2}\n')
 lists_new = []
-hlines_new = [4,6,9,11,17,23,29,35]
+hlines_new = [4,6,9,11,17,23,29,35,48]
 #
 lists_new.append(['','Fluence'    ]); lists_new[-1] += list(all_configs[scenario].GetValue('SafetyFactors.safetyfluence','')          for scenario in two_main_scenarios)
 lists_new[-1][0] = '\multirow{5}{*}{Safety Factors}'
@@ -290,9 +291,9 @@ lists_new.append(['','Voltage [V]']); lists_new[-1] += list(all_configs[scenario
 lists_new[-1][0] = '\multirow{2}{*}{HV, Cooling}'
 lists_new.append(['','Cooling [$^\circ$C]']); lists_new[-1] += list(all_configs[scenario].GetValue('cooling','').replace('-',' $-$')  for scenario in two_main_scenarios)
 #
-lists_new.append(['','Minimum power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_maxval_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Minimum power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_minval_str'] for scenario in two_main_scenarios)
 lists_new[-1][0] = '\multirow{3}{*}{Endcap System}'
-lists_new.append(['','Maximum power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_minval_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Maximum power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_maxval_str'] for scenario in two_main_scenarios)
 lists_new.append(['','Maximum $P_\text{HV}$ [kW]']); lists_new[-1] += list(all_results[scenario][0]['phv_wleakage_maxval_str'] for scenario in two_main_scenarios)
 #
 lists_new.append(['','Max petal $I_\text{tape}$ [A]']); lists_new[-1] += list(all_results[scenario][0]['itapepetal_maxPetal_str'] for scenario in two_main_scenarios)
@@ -327,6 +328,18 @@ for ring in range(6) :
     lists_new[-1] += list('%s / %s'%(all_results[scenario][index_rXd0]['ifeast_minOfRtype'],
                                      all_results[scenario][index_rXd0]['ifeast_maxOfRtype']) for scenario in two_main_scenarios)
     if not ring : lists_new[-1][1] = '\multirow{6}{*}{Min/Max Feast load [A]}'
+#
+for ring in range(6) :
+    index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
+    for hybrid in range(4) :
+        name = 'R%dH%d'%(ring,hybrid)
+        if name not in ['R0H0','R0H1','R1H0','R1H1','R2H0','R3H0','R3H1','R3H2','R3H3','R4H0','R4H1','R5H0','R5H1'] :
+            continue
+        lists_new.append([name,''])
+        lists_new[-1] += list('%s / %s'%(all_results[scenario][index_rXd0]['ihybrid%d_minOfRtype'%(hybrid)],
+                                         all_results[scenario][index_rXd0]['ihybrid%d_maxOfRtype'%(hybrid)]) for scenario in two_main_scenarios)
+        if (not ring) and (not hybrid) :
+            lists_new[-1][1] = '\multirow{13}{*}{Min/Max Hybrid Current [A]}'
 #
 lists_new.append(['','Max $I_{HV}$ per module [mA]']); lists_new[-1] += list('%s (%s)'%all_results[scenario][0]['isensor_maxModule_str'] for scenario in two_main_scenarios)
 lists_new[-1][0] = '\multirow{5}{*}{Components}'
