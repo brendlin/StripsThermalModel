@@ -93,8 +93,8 @@ def main(options,args) :
 
         # Turn off AMAC for now
         if data_measured_item == 'AMAC' :
-            # has_amac = True
-            continue
+            has_amac = True
+            #continue
 
         xval = max(datapoint[0],datapoint[1],datapoint[2],datapoint[3])
 
@@ -221,13 +221,23 @@ def main(options,args) :
     # Skip EoS in plot
     measured_keys.pop(measured_keys.index('EoS'))
 
-    leg = ROOT.TLegend(0.60,0.16,0.87,0.41)
+    # Get number of power data points (just for the legend height)
+    nPowerSources = 0
     for k in power_keys :
+        if not sum(len(poweredby_tempmeas[k][a]['x']) for a in poweredby_tempmeas[k].keys()) :
+            continue
+        nPowerSources += 1
+
+    leg = ROOT.TLegend(0.60,0.16,0.87,0.16+0.25*(nPowerSources/6.))
+    for k in power_keys :
+        # If no data points for this source, then skip
+        if not sum(len(poweredby_tempmeas[k][a]['x']) for a in poweredby_tempmeas[k].keys()) :
+            continue
         leg.AddEntry(dummy_powered[k],"%s power source"%(k),"p")
     PlotUtils.SetStyleLegend(leg)
     leg.SetMargin(.15)
 
-    leg2 = ROOT.TLegend(0.20,0.70,0.47,0.91)
+    leg2 = ROOT.TLegend(0.20,0.91-0.21*(7+has_amac)/7.,0.47,0.91)
     for k in measured_keys :
         leg2.AddEntry(dummy_measured[k],"%s measured temperature"%(k),"f")
     PlotUtils.SetStyleLegend(leg2)

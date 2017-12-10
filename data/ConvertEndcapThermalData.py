@@ -1,14 +1,15 @@
 #
 # Usage: python ConvertEndcapThermalData.py R0
 # for i in {0..5}; do python ConvertEndcapThermalData.py R$i >& ThermalImpedances_R$i.txt; done
-# python ConvertEndcapThermalData.py EoS
+# DO NOT FORGET:
+# python ConvertEndcapThermalData.py EoP
 #
 
 import sys
 
-files = ['FEA_T-20170906_S-2.dat', # abc
-         'FEA_T-20170906_S-1.dat', # hcc
-         'FEA_T-20170906_S-3.dat', # feast
+files = ['[FEA][20171207][-30.0C][0.0Wm2C][DP1][ALL]S2.dat', # abc
+         '[FEA][20171207][-30.0C][0.0Wm2C][DP1][ALL]S1.dat', # hcc
+         '[FEA][20171207][-30.0C][0.0Wm2C][DP1][ALL]S3.dat', # feast
          ]
 
 nabc = {
@@ -37,10 +38,11 @@ module = other_modules.pop(other_modules.index(sys.argv[1]))
 name_type_rosetta = {
     'ABC':1,
     'HCC':2,
-    'ASIC':3, # feast
+    'FEAST':3, # feast
     'Sensor':4,
     'AMAC':5, # new
     'EoP':6, # new
+    'DCDC':7, # the EoP DCDC converter
     }
 
 #print other_modules
@@ -48,13 +50,14 @@ name_type_rosetta = {
 outtext = ''
 outtext += '{:>5} {:>5} {:>7} {:>6} {:>5} {:>7} {:>6}\n'.format('pabc','phcc','pfeast','prest','type','result','error')
 
+print '# Types: 1 ABC, 2 HCC, 3 FEAST, 4 Sensor, 5 AMAC, 6 EoP'
 for i,f in enumerate(files) :
     print '#',module,f
     a = open(f,'r')
 
-    powers = [0.149*nabc[module] * (f == 'FEA_T-20170906_S-2.dat'),
-              0.413*nhcc[module] * (f == 'FEA_T-20170906_S-1.dat'),
-              1.5                * (f == 'FEA_T-20170906_S-3.dat')] # feast
+    powers = [0.149*nabc[module] * (f == '[FEA][20171207][-30.0C][0.0Wm2C][DP1][ALL]S2.dat'),
+              0.413*nhcc[module] * (f == '[FEA][20171207][-30.0C][0.0Wm2C][DP1][ALL]S1.dat'),
+              1.5                * (f == '[FEA][20171207][-30.0C][0.0Wm2C][DP1][ALL]S3.dat')] # feast
 
     isCorrectModule = False
 
