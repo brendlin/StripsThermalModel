@@ -7,6 +7,8 @@
 \usepackage{multirow}
 \usepackage{datetime}
 \usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
 
 %% Use these lines for letter-sized paper
 \usepackage[paper=letterpaper,
@@ -21,12 +23,32 @@
 
 %% More layout: Get rid of indenting throughout entire document
 \setlength{\parindent}{0in}
+\setlength{\parskip}{2mm}
 
 \begin{document}
 \thispagestyle{empty}
 
 \today, \currenttime
 
+\section{Changes since the previous results}
+
+The following adjustments were made to results since the version immediately following ITK Week in
+November 2017:
+\begin{itemize}
+\item The total analog current of the ABC is now set to 70 mA, based on the advice of Paul Keener.
+(The ABC digital current is 42.5 mA.)
+\item The ASIC-to-hybrid glue was updated to the ``UV cure glue'' described in the TDR. The previous
+  glue used was tra-duct-2902.
+\item The thermal conductivity of the PCB (powerboard) underneath the FEAST was changed from 0.3 to
+3 Wm$^{-1}$K$^{-1}$, based on measurements and advice from Graham Beck. The barrel and endcap FEAST
+thermal impedance values calculated from FEA are now more compatible. The result is a reduced FEAST
+temperature in the model.
+\item The model now includes two AMACs on R3; previously only one AMAC was used.
+\item A 1.9 mA quiescent current is included in the LDOs providing power to the AMACs.
+\end{itemize}
+
+\input{Sections/Introduction.tex}
+\clearpage
 \input{Sections/Layout.tex}
 \clearpage
 \input{Sections/PowerInputs.tex}
