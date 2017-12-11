@@ -21,11 +21,14 @@ import AbcTidBump
 
 Rtape_descr = 'tape resistance is 0.01 $\Omega$ per module worst case'
 Rtape = Config.GetDouble('NominalPower.Rtape',0.01,unit='$\Omega$',description=Rtape_descr)
-Pamac = (FrontEndComponents.amac15V * FrontEndComponents.amac15I + FrontEndComponents.amac3V * FrontEndComponents.amac3I)
+
+# Total amac power given n amacs on the module
+namac  = Config.GetInt('NominalPower.namac',1,description='Number of AMACs on the hybrid')
+Pamac = (FrontEndComponents.amac15V * FrontEndComponents.amac15I + FrontEndComponents.amac3V * FrontEndComponents.amac3I) * namac
 
 # Power in the FEAST chip due to AMAC supply
-Pfamac  = (PoweringEfficiency.Vfeast - FrontEndComponents.amac15V) * FrontEndComponents.amac15I
-Pfamac += (PoweringEfficiency.Vfeast - FrontEndComponents.amac3V ) * FrontEndComponents.amac3I
+Pfamac  = (PoweringEfficiency.Vfeast - FrontEndComponents.amac15V) * (FrontEndComponents.amac15I + FrontEndComponents.ldoI) * namac
+Pfamac += (PoweringEfficiency.Vfeast - FrontEndComponents.amac3V ) * (FrontEndComponents.amac3I  + FrontEndComponents.ldoI) * namac
 
 def Phv_R(Is) :
     return SensorProperties.Rhv*Is*Is
