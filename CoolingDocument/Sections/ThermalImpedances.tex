@@ -1,123 +1,6 @@
 
-\newcommand{\highlight}[1]{{\color{BrickRed}\textbf{#1}}}
-
-\section{Collecting Power Inputs for the Endcap Petal}
-
-Table~\ref{tab:power_numbers} details the current, voltage, and power specifications for each
-component. Most of these numbers come from Graham and Georg's thermal model. Most are similar to
-Sergio's numbers, with some differences highlighted in red.
-
-\def\tid{\ensuremath{^\text{TID}}\xspace}
-\def\eff{\ensuremath{\varepsilon}}
-\def\pfeast{\ensuremath{\frac{(1-\eff)}{\eff}(P_\text{ABC}+P_\text{HCC})}}
-%
-\let\arraystretcha\arraystretch
-\renewcommand\arraystretch{1.2} % 1.6
-\begin{table}[h]
-\begin{center}
-\adjustbox{max width=\textwidth}{ %% just before tabular
-\begin{tabular}{|l|c|c|c|c|c|c|} \hline
-\multirow{2}{*}{Description} & input voltage & \multicolumn{3}{c|}{Specifications for 1 component} & $n$ components & Total power \\
-              & [V]           & current [A]           & power [W]                   & eff   & per module (1 side) & (1 side) [W]    \\ \hline
-AMAC 1.5V     & 1.5           & 0.045                 & 0.0675                      &       & --                  &                 \\
-AMAC 3.0V     & 3.0           & 0.002                 & 0.006                       &       & --                  &                 \\
-Total AMAC    & --            & --                    & 0.0735                      &       & 1                   & 0.0735          \\ \hline
-ABC (digital) & 1.5           & 0.035                 & 0.0525                      &       & --                  &                 \\
-ABC (analog)  & 1.5           & 0.066                 & 0.099                       &       & --                  &                 \\
-Total ABC     & --            & 0.101                 & 0.1515                      &       & 21$^*$              & 3.1815$^*$\tid  \\ \hline
-HCC (digital) & 1.5           & 0.125                 & 0.1875                      &       & --                  &                 \\
-HCC (analog)  & 1.5           & 0.075                 & 0.1125                      &       & --                  &                 \\
-Total HCC     & --            & 0.200                 & 0.3                         &       & 2$^*$               & 0.6$^*$\tid     \\ \hline
-FEAST (ABC,HCC) & --          &                       & \pfeast                     & 75\%  & --                  & 1.2605$^*$\tid  \\
-``FEAST'' AMAC regulators & --&                       & see below                   &       & --                  & 0.415           \\
-Total FEAST   & --            &                       & see below                   &       & 1                   & 1.6755$^*$\tid  \\ \hline
-Total Module (R1)  & --       &                       &                             &       &                     & 5.53$^*$        \\ \hline
-\multicolumn{7}{|c|}{} \\[-2mm]
-\multicolumn{7}{|c|}{EOS} \\ \hline
-VTRx: lpGBTx  & 1.2           & 0.625                 & 0.750                       &       & --                  &                 \\
-VTRx: GBLD 1.2V & 1.2         & 0.0095                & 0.0114                      &       & --                  &                 \\
-VTRx: GBLD 2.5V & 2.5         & 0.018                 & 0.045                       &       & --                  &                 \\
-Total VTRx    &               &                       & 0.8064                      &       & 1                   & 0.8064          \\         
-GBTIA         & 2.5           & 0.053                 & 0.1325                      &       & 1                   & 0.1325          \\
-FEAST         &               &                       &                             &       & 0.5$^\dagger$       & 0.35$^\dagger$  \\
-DCDC2         &               &                       &                             & 88\%  & 0.5$^\dagger$       & 0.104$^\dagger$ \\ \hline
-Total EOS     &               &                       &                             &       &                     & 1.4             \\
-EOS both sides&               &                       &                             &       &                     & 2.8             \\
-\hline \end{tabular}
-} %% resizebox after tabular
-\end{center}
-\caption{Endcap module inputs. Starred ($^*$) values are representative and taken from Endcap R1. Values
-with \tid next to them are affected by the TID bump in one way or another. The 75\% FEAST efficiency 
-is representative only; in reality it is temperature- and current-dependent (also TID-dependent?).
-}
-\label{tab:power_numbers}
-\end{table}
-\let\arraystretch\arraystretcha
-
-Some notes on the numbers in the table:
-\begin{itemize}
-\item HCC and ABC power numbers correspond to unirradiated values.
-\item The ABC power numbers (from Georg/Graham) differ from Sergio's sheet by 1.7\%.
-\item \highlight{The HCC power numbers (from Georg/Graham) differ from Sergio's sheet by 38\%.}
-\item \tid The FEAST is affected by the TID bump insofar as its power is determined by the ABC and HCC.
-  In the above it is assumed to be 75\%, but it is temperature and current-dependent.
-\item The total power (before irradiation, before TID bump) of Module R1 represents
-all components excluding HV and tape losses, which are small in comparison.
-\item For the EOS, the total power for both sides is simply double the power of one side.
-\item $^\dagger$ The FEAST and DCDC2 exist on one side only, and power the EOS cards on both petal
-sides (hence ``0.5 per side''). If both EOSes are powered, then the power dissipatd by the FEAST and
-DCDC2 is twice the power listed above.
-\item For $n=1$ lpGBTx ASICs (corresponding to the barrel long strips and the endcaps),
-and assuming a FEAST efficiency $\varepsilon_\text{FEAST}=0.75$,
-the total power is 1.4~W per EOS side.
-\item For $n=2$ lpGBTx ASICs (corresponding to the barrel short strips),
-\highlight{the total power is 2.6~W per EOS side (differs from the TDR, which says 3~W)}.
-\end{itemize}
-
-%% \subsection{The End-of-Substructure (EOS)}
-%% \begin{itemize}
-%% \item DCDC2 converter: $P=0.208$~W (see calculation below)
-%% \item FEAST: $P=1.12$~W (see calculation below)
-%% \item VTRx
-%%   \begin{itemize}
-%%     \item GBTIA: $I=53$~mA; 2.5~V; $P=0.1325$~W
-%%     \item GBLD$_{2.5V}$: $I=18$~mA 2.5~V; $P=0.045$~W
-%%   \end{itemize}
-%% \item lpGBTx: $I=625$~mA; 1.2~V; $P=0.75$~W; powered by DCDC2
-%% \item GBLD$_{1.2V}$: $I=9.5$~mA; 1.2~V; $P=0.0114$~W; powered by DCDC2
-%% \end{itemize}
-
-The total power of the EOS (one side) is given by:
-\begin{equation}
-P_\text{EOS} = \frac{1}{\varepsilon_\text{FEAST}}\times
-  \left( \frac{1}{\varepsilon_\text{DCDC2}} (n P_\text{lpGBTx} + n P_\text{GBLD1.2}) + n P_\text{GBLD2.5} + P_\text{GBTIA} \right)
-\end{equation}
-% (((.750*2+0.0114*2)/0.88)+0.1325+0.045*2)/0.75 = 2.60
-% (((.750*1+0.0114*1)/0.88)+0.1325+0.045*1)/0.75 = 1.40
-
-As can probably be inferred from above, the power in the EOS FEAST is:
-\begin{equation}
-P^\text{EOS}_\text{FEAST} = \frac{(1-\varepsilon_\text{FEAST})}{\varepsilon_\text{FEAST}}\times
-  \left( \frac{1}{\varepsilon_\text{DCDC2}} (n P_\text{lpGBTx} + n P_\text{GBLD1.2}) + n P_\text{GBLD2.5} + P_\text{GBTIA} \right)
-\end{equation}
-
-The power in the EOS DCDC2 converter is:
-\begin{equation}
-P^\text{EOS}_\text{DCDC2} = \frac{(1-\varepsilon_\text{DCDC2})}{\varepsilon_\text{DCDC2}} \left(n P_\text{lpGBTx} + n P_\text{GBLD1.2}\right)
-\end{equation}
-
-
-The power dissipated by the AMAC regulators is given by the current in the AMAC components multiplied
-by the voltage drop in the regulators:
-\begin{equation}
-P_\text{regulator} = I^{1.5V}_\text{AMAC}\left(  10.5V - 1.5V \right)
-                   + I^{3.0V}_\text{AMAC}\left(  10.5V - 3.0V \right)
-\label{eq:amac_regulator}
-\end{equation}
-
-
-
 \section{ Extracting thermal impedances using FEA simulations}
+
 
 \subsection{Setup of the FEA Simulation to extract thermal impedances}
 
@@ -172,16 +55,17 @@ In the FEA, the power is distributed over all 6 surfaces (\highlight{different f
 Simulation \# & Description                        & Input parameters           \\ \hline
 1             & All HCCs powered on, rest off      & $P_\text{HCC}=0.413$~W     \\
 2             & All ABCs powered on, rest off      & $P_\text{ABC}=0.149$~W     \\
-3             & All FEASTs powered on, rest off    & $P_\text{FEAST}=1.5$~W$^*$ \\ \hline
-\multicolumn{3}{|c|}{Extended simulations} \\ \hline
-4             & Tape ``powered'' on, rest off      & skip for now \\
-5             & HVMUX powered on, rest off         & skip for now \\
-6             & R$_\text{HV}$ powered on, rest off & skip for now \\
-7             & EOS                                & skip for now \\ % $P_\text{EOS}=3.03$~W$^{**}$
+3             & All FEASTs powered on, rest off    & $P_\text{FEAST}=1.5$~W$^*$ \\
+%% \hline
+%% \multicolumn{3}{|c|}{Extended simulations} \\ \hline
+%% 4             & Tape ``powered'' on, rest off      & skip for now \\
+%% 5             & HVMUX powered on, rest off         & skip for now \\
+%% 6             & R$_\text{HV}$ powered on, rest off & skip for now \\
+%% 7             & EOS                                & skip for now \\ % $P_\text{EOS}=3.03$~W$^{**}$
 \hline \end{tabular}
 } %% resizebox after tabular
 \end{center}
-\caption{ Description of the 7 thermal simulations required to obtain the thermal impedances.
+\caption{ Description of the 3 thermal simulations required to obtain the thermal impedances.
 }
 \label{tab:simulation_runs}
 \end{table}
@@ -223,43 +107,15 @@ of the petal}.
 
 \section{The Linear Model}
 
-\subsection{Additional parameters in the linear model}
-
-The number of ABCs, HCC, and the sensor area are below,
-as are the FEAST currents before irradiation (pre-TID bump).
-%
-\let\arraystretcha\arraystretch
-\renewcommand\arraystretch{1.1} % 1.6
-\begin{table}[h]
-\footnotesize
-\begin{center}
-\adjustbox{max width=\textwidth}{ %% just before tabular
-\begin{tabular}{|l|r|r|r|r|r|} \hline
-Module & nABC & nHCC & Sensor area (cm$^2$) & $I_\text{FEAST}$ [A] & $P_\text{FEAST}$ \\ \hline
-R0     &   17 &    2 &                 92.0 &              2.12 & 1.0585 \\
-R1     &   21 &    2 &                 91.0 &              2.52 & 1.2605 \\
-R2     &   12 &    2 &                 76.0 &              1.61 & 0.806  \\
-R3     &   28 &    4 &                164.0 &              3.63 & 1.814  \\
-R4     &   16 &    2 &                178.0 &              2.02 & 1.008  \\
-R5     &   18 &    2 &                186.0 &              2.22 & 1.109  \\
-\hline \end{tabular}
-} %% resizebox after tabular
-\end{center}
-\caption{Endcap module inputs. The FEAST current is calculated from the HCC and ABC values in
-Table~\ref{tab:power_numbers}, and given nABC and nHCC in each module. The FEAST power is calculated
-assuming a 75\% efficiency, and does not include the power due to the AMAC regulators.}
-\label{tab:spurious_signal_main}
-\end{table}
-\let\arraystretch\arraystretcha
-
-
+%% \subsection{Additional parameters in the linear model}
 \subsection{Other assumed quantities}
 
 Assumed quantities are below:
 \begin{itemize}
 \item $R_\text{EOS}=15.0$~K/W (guessed by Georg/Graham)
 \item $R_\text{sensor}=0.02$~K/W (guessed by Georg/Graham)
-\item $R_\text{tape}=0.01$~K/W per module (i.e. there are 6 such resistors in the endcap) (worst-case number)
+\item $R_\text{tape}=0.01$~K/W per module (i.e. there are 6 such resistors in the petal, one
+for each module). This is considered a worst-case value.
 %% \item EOS DCDC2 efficiency: 0.88
 %% \item $V_\text{hybrid}=1.5$~V
 %% \item $I^\text{digital}_\text{HCC}=0.125$~A (before TID damage; TID-dependent)
@@ -278,34 +134,56 @@ Assumed quantities are below:
 %% \item (Efficiency $\varepsilon^{3.0V}_\text{AMAC} = 0.65$\% -- not used in model)
 %% \end{itemize}
 
+\begin{figure}[ht!]
+\includegraphics[width=0.49\linewidth]{figures/FEA_20171207_m30p0C_0p0Wm2C_DP1_ALL_S0.pdf}
+\includegraphics[width=0.49\linewidth]{figures/FEA_20171207_m30p0C_0p0Wm2C_DP1_ALL_S1.pdf}\\
+\includegraphics[width=0.49\linewidth]{figures/FEA_20171207_m30p0C_0p0Wm2C_DP1_ALL_S2.pdf}
+\includegraphics[width=0.49\linewidth]{figures/FEA_20171207_m30p0C_0p0Wm2C_DP1_ALL_S3.pdf}
+\caption{Box-and-whisker plot of the four scenarios described in Table~\ref{tab:simulation_runs}.
+The box is the interquartile range (middle 50\%) of the component's temperature, and the whiskers are
+the minimum and maximum temperatures.}
+\label{thermal_data}
+\end{figure}
+
 Table~\ref{tab:thermal_impedances} shows the thermal impedances calculated
 from the FEA simulations.
 
-\def\insulabc{$R_\text{ABC}\times n_\text{ABC}$\xspace}
-\def\insulhcc{$R_\text{HCC}\times n_\text{HCC}$\xspace}
+%% \def\insulabc{$R_\text{ABC}\times n_\text{ABC}$\xspace}
+%% \def\insulhcc{$R_\text{HCC}\times n_\text{HCC}$\xspace}
+\def\insulabc{$(R\times n)_\text{ABC}$\xspace}
+\def\insulhcc{$(R\times n)_\text{HCC}$\xspace}
+\def\insulfeast{$(R\times n)_\text{FEAST}$\xspace}
 
 %
 \let\arraystretcha\arraystretch
 \renewcommand\arraystretch{1.1} % 1.6
 \begin{table}[h]
-\footnotesize
 \begin{center}
 \adjustbox{max width=\textwidth}{ %% just before tabular
-\begin{tabular}{|l|r|r|r|r|r|r|} \hline
-       &                     &                   & \multicolumn{2}{c|}{ABC}   & \multicolumn{2}{c|}{HCC}   \\
-Module & $R_\text{cm}$ [K/W] & $ R_\text{FEAST}$ & $R_\text{ABC}$ & \insulabc & $R_\text{HCC}$ & \insulhcc \\ \hline
-R0     &               0.802 &            26.045 &          0.917 &    15.589 &         12.632 &    25.264 \\
-R1     &               0.991 &            28.256 &          0.671 &    14.091 &         12.744 &    25.488 \\
-R2     &               1.410 &            28.883 &          1.550 &    18.600 &         13.794 &    27.588 \\
-R3     &               0.873 &            29.333 &          0.566 &    15.848 &          6.812 &    27.248 \\
-R4     &               0.744 &            26.816 &          1.432 &    22.912 &         13.027 &    26.054 \\
-R5     &               0.690 &            27.450 &          1.034 &    18.612 &         13.177 &    26.354 \\
+\begin{tabular}{|l|cc|c|c|c|c|c|c|} \hline
+       &             &              &  \multicolumn{2}{c|}{FEAST}     & \multicolumn{2}{c|}{ABC}   & \multicolumn{2}{c|}{HCC}   \\
+Module & $R_C$ [K/W] & $R_M$ [K/W]  & $ R_\text{FEAST}$ & \insulfeast & $R_\text{ABC}$ & \insulabc & $R_\text{HCC}$ & \insulhcc \\ \hline
+R0     & \multicolumn{2}{c|}{0.802} &            16.627 &      16.627 &          0.927 &    15.759 &         12.485 &    24.970 \\
+R1     & \multicolumn{2}{c|}{0.991} &            17.936 &      17.936 &          0.661 &    13.881 &         12.719 &    25.438 \\
+R2     & \multicolumn{2}{c|}{1.410} &            18.282 &      18.282 &          1.529 &    18.348 &         13.833 &    27.666 \\
+R3     & \multicolumn{2}{c|}{0.873} &            11.361 &      22.722 &          0.582 &    16.296 &\phantom{0}6.808&    27.232 \\
+R4     & \multicolumn{2}{c|}{0.744} &            17.847 &      17.847 &          1.316 &    21.056 &         12.669 &    25.338 \\
+R5     &              0.486 & 0.690 &            16.470 &      16.470 &          1.151 &    20.718 &         12.905 &    25.810 \\ \hline
+SS EOS    &           0.719 & 0.393      & \multicolumn{2}{c|}{19.650} &         1.003 &    20.060 &         12.305 &    24.610 \\
+SS middle &   \multicolumn{2}{c|}{1.160} & \multicolumn{2}{c|}{19.752} &         0.928 &    18.560 &         13.157 &    26.314 \\
+LS EOS    &           0.811 & 0.427      & \multicolumn{2}{c|}{19.602} &         2.194 &    21.940 &         24.195 &    24.195 \\
+LS middle &   \multicolumn{2}{c|}{1.360} & \multicolumn{2}{c|}{19.663} &         2.141 &    21.410 &         25.174 &    25.174 \\
+%% in [degC/W]  RC       RM       RS      REOS    RABC     RHCC      RFEAST
+%% SS EOS       0.719    0.393    0.02    15.0    1.003    12.305    19.650
+%% SS middle    1.160             0.02       -    0.928    13.157    19.752
+%% LS EOS       0.811    0.427    0.02    15.0    2.194    24.195    19.602
+%% LS middle    1.360             0.02       -    2.141    25.174    19.663
 \hline \end{tabular}
 } %% resizebox after tabular
 \end{center}
 \caption{Effective thermal impedances calculated from Yu-Heng's numbers (in K/W).
 For instances where you have $n$ components, the thermal insulance (inverse of HTC) is also calucated, simply
-in units of A$_\text{1-device}\cdot$ K/W.
+in units of {${(\text{Area}_\text{1-device})\cdot\text{K/W}}$}.
 }
 \label{tab:thermal_impedances}
 \end{table}

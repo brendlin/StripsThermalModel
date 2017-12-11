@@ -6,6 +6,7 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage{multirow}
 \usepackage{datetime}
+\usepackage{caption}
 
 %% Use these lines for letter-sized paper
 \usepackage[paper=letterpaper,
@@ -26,7 +27,13 @@
 
 \today, \currenttime
 
+\input{Sections/Layout.tex}
+\clearpage
+\input{Sections/PowerInputs.tex}
+\clearpage
 \input{Sections/ThermalImpedances.tex}
+\clearpage
+\input{Sections/OtherInputs.tex}
 
 \end{document}
 
