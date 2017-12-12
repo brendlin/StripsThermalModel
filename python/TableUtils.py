@@ -85,7 +85,7 @@ def PrintLatexTable(thing,justs=[],nsigfig=3,caption='',hlines=[]) :
 
     ret_text =  '\\begin{table}[ht]\n'
     ret_text += '\\begin{centering}'
-    ret_text += '\\adjustbox{max width=\\textwidth}{ %% just before tabular\n'
+    ret_text += '\\adjustbox{max width=\\textwidth,max totalheight=\\textheight}{ %% just before tabular\n'
     ret_text += '\\begin{tabular}{|%s|} \hline %% data_below\n'%(justs_text) + text
     ret_text += '\hline\end{tabular}\n'
     ret_text += '} %% resize box after tabular\n'

@@ -39,17 +39,14 @@ for s in os.listdir(inputpath) :
         continue
     scenarios.append(s)
 
+# Want to explore ordering for solving sensor headroom issue
 ordering = [
     'No_Safety',
     'Base_assumptions',
-    'BasePlusASICOldCurrent',
+    'BasePlusBumpParam',
     'BasePlusASIC',
-    'BasePlusBumpParam'
-    'BasePlusThermal',
-    'BasePlusThermalTight',
     'BasePlusBias',
-    'BasePlusASICPlusBiasPlusThermal',
-    'BasePlusASICPlusBiasPlusThermalTight',
+    'BasePlusThermal',
     'BasePlusBumpASICThermalBias',
     ]
 
@@ -58,26 +55,16 @@ for i in reversed(ordering) :
 for i in reversed(['flat_m35','flat_m30','flat_m25','flat_m20','flat_m15','ramp_m35']) :
     scenarios.sort(key = lambda x: (i not in x))
 
-# different ordering
+# different ordering (used for "two main scenarios")
 scenarios_o2 = list(a for a in scenarios)
 for i in reversed(ordering) :
     scenarios_o2.sort(key = lambda x: (i+'_' not in x))
 
-# scenarios = [
-#     'Official_No_Safety_flat_m30',
-#     'Official_Base_assumptions_flat_m30',
-#     'Official_BasePlusASICOldCurrent_flat_m30',
-#     'Official_BasePlusASIC_flat_m30',
-#     'Official_BasePlusThermal_flat_m30',
-#     'Official_BasePlusThermalTight_flat_m30',
-#     'Official_BasePlusBias_flat_m30',
-#     'Official_BasePlusASICPlusBiasPlusThermal_flat_m30',
-#     'Official_BasePlusASICPlusBiasPlusThermalTight_flat_m30',
-#     ]
-# scenarios = list('ExtendedModelEndcap_'+i for i in scenarios)
-
 two_main_scenarios = []
 find_two_main_scenarios = ['No_Safety_','BasePlusBumpASICThermalBias_']
+#find_two_main_scenarios = ['No_Safety_','blah']
+#find_two_main_scenarios = ['BasePlusBumpASICThermalBias_','blah']
+#find_two_main_scenarios = ['BasePlusASICThermalBias','BasePlusBumpASICThermal']
 for scenario in scenarios_o2 :
     print scenario
     if find_two_main_scenarios[0] in scenario :
@@ -93,18 +80,6 @@ for scenario in scenarios_o2 :
 if len(two_main_scenarios) < 2 :
     print 'Need the two main scenarios'
     sys.exit()
-
-safety_factor_list = ['Fluence','$R_{T}$','$I_D$','$I_A$','TID']
-other_parameters = ['[V]','[$^\circ$C]']
-header = '\n\multicolumn{%d}{|c|}{%s} & $V_{bias}$ & Cooling & Endcaps max & Endcaps max & Min sensor \\\\'%(len(safety_factor_list),'Safety factor')
-
-the_lists = []
-the_lists.append(list(a for a in safety_factor_list))
-the_lists[-1] += list(a for a in other_parameters)
-the_lists[-1] += list(a for a in ['\multicolumn{1}{l}{power [kW]}',
-                                  '\multicolumn{1}{l}{HV [kW]}',
-                                  '\multicolumn{1}{l|}{headroom}',
-                                  ])
 
 structure_names = []
 for ring in range(6) :
@@ -127,7 +102,7 @@ def GetSixScenarioParamters(a_list) :
         cooling = cooling.replace('flat','').replace('-','$-$')+' flat'
     if 'ramp' in cooling :
         cooling = cooling.replace('ramp','').replace('-','$-$')+' ramp'
-    the_lists[-1].append(cooling)
+    a_list.append(cooling)
     return
 
 #
@@ -183,7 +158,7 @@ for scenario in scenarios :
     #
     # Minimum / Maximum Module Value
     #
-    for quantity_name in ['tfeast','isensor','qsensor_headroom','tsensor'] :
+    for quantity_name in ['tfeast','isensor','qsensor_headroom','tsensor','tc_headroom'] :
         if runaway :
             tmp_dict['%s_minModule_str'%(quantity_name)] = (RunawayText,'')
             tmp_dict['%s_maxModule_str'%(quantity_name)] = (RunawayText,'')
@@ -348,6 +323,8 @@ lists_new.append(['','Max sensor T [$^\circ$C], Y1' ]); lists_new[-1] += list('%
 lists_new.append(['','Max sensor T [$^\circ$C], Y14']); lists_new[-1] += list('%s (%s)'%all_results[scenario][0]['tsensor_maxModuleY14_str'] for scenario in two_main_scenarios)
 lists_new.append(['','Max sensor T [$^\circ$C], Max']); lists_new[-1] += list('%s (%s)'%all_results[scenario][0]['tsensor_maxModule_str'] for scenario in two_main_scenarios)
 lists_new.append(['','Max $T_\text{Feast}$']); lists_new[-1] += list('%s (%s)'%all_results[scenario][0]['tfeast_maxModule_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Min $Q_{sensor}$ Headroom [$Q_{S,crit}/Q_{S}$]']); lists_new[-1] += list('%s (%s)'%all_results[scenario][0]['qsensor_headroom_minModule_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Min Coolant Temperature Headroom [$^\circ$C]']); lists_new[-1] += list('%s (%s)'%all_results[scenario][0]['tc_headroom_minModule_str'] for scenario in two_main_scenarios)
 table = TableUtils.PrintLatexTable(lists_new,caption='Summary of nominal and worst-case safety factor scenarios.',hlines=hlines_new,justs=['l','l'])
 f.write(table)
 #f.write('\end{landscape}\n')
@@ -355,6 +332,19 @@ f.write(table)
 #
 # Main Summary Table
 #
+safety_factor_list = ['Fluence','$R_{T}$','$I_D$','$I_A$','TID']
+other_parameters = ['[V]','[$^\circ$C]']
+header = '\n\multicolumn{%d}{|c|}{%s} & $V_{bias}$ & Cooling & Endcaps max & Endcaps max & Min sensor & Min Coolant\\\\'%(len(safety_factor_list),'Safety factor')
+
+the_lists = []
+the_lists.append(list(a for a in safety_factor_list))
+the_lists[-1] += list(a for a in other_parameters)
+the_lists[-1] += list(a for a in ['\multicolumn{1}{l}{power [kW]}',
+                                  '\multicolumn{1}{l}{HV [kW]}',
+                                  '\multicolumn{1}{l}{headroom}', # [$Q_{s,crit}/Q_s$]
+                                  '\multicolumn{1}{l|}{headroom [$^\circ$C]}',
+                                  ])
+
 f.write('\subsubsection{Main Summary Table}\n')
 for scenario in scenarios :
     # all_configs[scenario].Print()
@@ -368,15 +358,15 @@ for scenario in scenarios :
         the_lists[-1].append(tmp_dict['%s_maxval_str'%(quantity_name)])
 
     # maximum (or minimum) module value in full system
-    for quantity_name in ['qsensor_headroom'] :
+    for quantity_name in ['qsensor_headroom','tc_headroom'] :
         the_lists[-1].append(tmp_dict['%s_minModule_str'%(quantity_name)][0])
 
 scenario0 = scenarios[0]
 table = TableUtils.PrintLatexTable(the_lists,caption='Summary of all safety factor scenarios.',hlines=hlines)
 i_start_of_data = re.search("data_below\n",table).end()
 table = table[:i_start_of_data] + header + table[i_start_of_data:]
-table = re.sub('\|l%s\|r\|r\|r\|'%('\\|r'*(len(safety_factor_list)-1)),
-               '|%s|cc|rrr|'%('c'*len(safety_factor_list)),table)
+table = re.sub('\|l%s\|r\|r\|r\|r\|'%('\\|r'*(len(safety_factor_list)-1)),
+               '|%s|cc|rrrr|'%('c'*len(safety_factor_list)),table)
 f.write(table)
 
 #
