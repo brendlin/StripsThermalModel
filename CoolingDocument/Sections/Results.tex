@@ -1,0 +1,76 @@
+
+\section{Results}
+
+\subsection{Nominal and Pessimistic scenarios}
+
+Table~\ref{results_summary} shows the power estimates and 
+
+\begin{table}[ht]
+\begin{subtable}[t]{.99\linewidth}
+\begin{centering}\adjustbox{max width=\textwidth}{ %% just before tabular
+\begin{tabular}{|l|l|r|r|r|r|r|r|} \hline % data_below
+\multirow{5}{*}{Safety Factors} & Fluence                                      &           0.0 &           0.0 &           0.0 &           0.0 &                   0.0 &           0.0 \\ 
+                                & $R_{T}$                                      &           0.0 &           0.0 &           0.0 &           0.0 &                   0.0 &           0.0 \\ 
+                                & $I_D$                                        &           0.0 &           0.0 &           0.0 &           0.0 &                   0.0 &           0.0 \\ 
+                                & $I_A$                                        &           0.0 &           0.0 &           0.0 &           0.0 &                   0.0 &           0.0 \\ 
+                                & TID parameterization                         &       nominal &       nominal &       nominal &       nominal &               nominal &       nominal \\ \hline
+\multirow{2}{*}{HV, Cooling}    & Voltage [V]                                  &         500.0 &         500.0 &         500.0 &         500.0 &                 500.0 &         500.0 \\ 
+                                & Cooling [$^\circ$C]                          &    flat $-$35 &    flat $-$30 &    flat $-$25 &    flat $-$20 &            flat $-$15 &    ramp $-$35 \\ \hline
+\multirow{3}{*}{Endcap System}  & Minimum power [kW]                           &          32.1 &          32.2 &          32.3 &          32.4 & \bf Runaway &          32.8 \\ 
+                                & Maximum power [kW]                           &          38.3 &          37.3 &          36.6 &          40.1 & \bf Year 11 &          36.2 \\ 
+                                & Maximum $P_\text{HV}$ [kW]                   &          1.06 &          1.92 &          3.57 &          7.02 & \bf (R3)    &          2.06 \\ \hline
+\multirow{2}{*}{Petal-level}    & Max petal LV $I_\text{tape}$ load [A]        &          4.32 &          4.20 &          4.11 &          4.03 & \multirow{2}{*}{Year 11} &          3.93 \\ 
+                                & Max petal power [W]                          &          45.8 &          44.6 &          44.5 &          51.8 &  &          43.6 \\ \hline
+R0                              & \multirow{6}{*}{Min/Max Power [W]}           &   5.31 / 7.91 &   5.33 / 7.48 &   5.35 / 7.14 &   5.37 / 7.20 & \multirow{6}{*}{Year 11} &   5.39 / 6.40 \\ 
+R1                              &                                              &   6.36 / 8.67 &   6.38 / 8.29 &   6.41 / 7.99 &   6.44 / 8.49 &  &   6.46 / 7.51 \\ 
+R2                              &                                              &   4.19 / 5.24 &   4.20 / 5.08 &   4.21 / 4.95 &   4.23 / 5.58 &  &   4.27 / 4.85 \\ 
+R3                              &                                              &   9.36 / 11.6 &   9.39 / 11.3 &   9.42 / 11.3 &   9.45 / 14.1 &  &   9.57 / 10.9 \\ 
+R4                              &                                              &   5.20 / 6.44 &   5.22 / 6.26 &   5.23 / 6.28 &   5.25 / 7.39 &  &   5.33 / 6.20 \\ 
+R5                              &                                              &   5.72 / 6.97 &   5.74 / 6.78 &   5.76 / 6.65 &   5.78 / 7.33 &  &   5.87 / 6.70 \\ \hline
+\multirow{5}{*}{Components}     & Max $I_{HV}$ per module [mA]                 &    0.936 (R3) &     1.80 (R3) &     3.53 (R3) &     7.93 (R3) & \multirow{5}{*}{Year 11} &     1.89 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Y1                 &      -27 (R3) &    -21.9 (R3) &    -16.9 (R3) &    -11.9 (R3) &  &     8.21 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Y14                &    -26.5 (R3) &    -21.1 (R3) &    -15.2 (R3) &    -7.84 (R3) &  &    -26.5 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Max                &      -25 (R3) &    -20.3 (R3) &    -15.2 (R3) &    -7.84 (R3) &  &     8.50 (R3) \\ 
+                                & Max $T_\text{Feast}$                         &     27.7 (R1) &     29.6 (R1) &     32.4 (R1) &     35.8 (R1) &  &     49.0 (R1) \\ 
+\hline\end{tabular}
+} %% resize box after tabular
+\end{centering}
+\caption{Summary of nominal (no safety factors) scenarios, with different coolant temperatures.}
+\end{subtable}
+
+\vspace{10mm}
+
+\begin{subtable}[t]{.99\linewidth}
+\begin{centering}\adjustbox{max width=\textwidth}{ %% just before tabular
+\begin{tabular}{|l|l|r|r|r|r|r|r|} \hline % data_below
+\multirow{5}{*}{Safety Factors} & Fluence                                      &           0.5 &          0.5 &                   0.5 &                 0.5 &                 0.5 &           0.5 \\ 
+                                & $R_{T}$                                      &           0.2 &          0.2 &                   0.2 &                 0.2 &                 0.2 &           0.2 \\ 
+                                & $I_D$                                        &           0.2 &          0.2 &                   0.2 &                 0.2 &                 0.2 &           0.2 \\ 
+                                & $I_A$                                        &          0.05 &         0.05 &                  0.05 &                0.05 &                0.05 &          0.05 \\ 
+                                & TID parameterization                         &   pessimistic &  pessimistic &           pessimistic &         pessimistic &         pessimistic &   pessimistic \\ \hline
+\multirow{2}{*}{HV, Cooling}    & Voltage [V]                                  &         700.0 &        700.0 &                 700.0 &               700.0 &               700.0 &         700.0 \\ 
+                                & Cooling [$^\circ$C]                          &    flat $-$35 &   flat $-$30 &            flat $-$25 &          flat $-$20 &          flat $-$15 &    ramp $-$35 \\ \hline
+\multirow{3}{*}{Endcap System}  & Minimum power [kW]                           &          36.8 &         36.9 &\bf Runaway&\bf Runaway&\bf Runaway& 37.8 \\ 
+                                & Maximum power [kW]                           &          44.6 &         43.5 &\bf Year 10&\bf Year  7&\bf Year  6& 44.8 \\ 
+                                & Maximum $P_\text{HV}$ [kW]                   &          3.04 &         6.10 &\bf (R3)   &\bf (all)  &\bf (all)  & 6.34 \\ \hline
+\multirow{2}{*}{Petal-level}    & Max petal LV $I_\text{tape}$ load [A]        &          5.08 &         4.93 &\multirow{2}{*}{Year 10}&\multirow{2}{*}{Year  7}&\multirow{2}{*}{Year  6}&   4.50 \\ 
+                                & Max petal power [W]                          &          54.0 &         55.3 &  & &  &          56.1 \\ \hline
+R0                              & \multirow{6}{*}{Min/Max Power [W]}           &   6.07 / 9.69 &  6.09 / 9.09 &\multirow{6}{*}{Year 10}&\multirow{6}{*}{Year  7}&\multirow{6}{*}{Year  6}& 6.24 / 7.71 \\ 
+R1                              &                                              &   7.31 / 10.6 &  7.35 / 10.2 &  & &  &   7.55 / 9.30 \\ 
+R2                              &                                              &   4.78 / 6.16 &  4.79 / 5.96 &  & &  &   4.88 / 6.03 \\ 
+R3                              &                                              &   10.7 / 13.4 &  10.7 / 15.4 &  & &  &   11.0 / 15.4 \\ 
+R4                              &                                              &   5.96 / 7.61 &  5.98 / 7.61 &  & &  &   6.12 / 7.95 \\ 
+R5                              &                                              &   6.56 / 8.40 &  6.58 / 8.13 &  & &  &   6.76 / 8.27 \\ \hline
+\multirow{5}{*}{Components}     & Max $I_{HV}$ per module [mA]                 &     2.39 (R3) &    6.05 (R3) &\multirow{5}{*}{Year 10}&\multirow{5}{*}{Year  7}&\multirow{5}{*}{Year  6}&     5.90 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Y1                 &      -24 (R3) &   -18.9 (R3) &  & &  &     11.3 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Y14                &    -22.1 (R3) &     -14 (R3) &  & &  &    -22.1 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Max                &    -21.2 (R3) &     -14 (R3) &  & &  &     12.4 (R3) \\ 
+                                & Max $T_\text{Feast}$                         &     66.6 (R1) &    68.1 (R1) &  & &  &     76.7 (R1) \\ 
+\hline\end{tabular}
+} %% resize box after tabular
+\end{centering}
+\caption{Summary of worst-case safety factor scenarios, with different coolant temperatures.}
+\end{subtable}
+\caption{Comparing nominal and worst-case and safety factor scenarios.}
+\label{results_summary}
+\end{table}

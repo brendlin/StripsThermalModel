@@ -21,3 +21,25 @@ module power.)
 
 The pathway shared by the EOS and the other components is called $R_{C}$, and is also fit using the
 data by measuring the temperature. The two are related according to $R_{CM} = R_C + R_M$.
+
+\subsection{Similarities and differences between the Barrel and Endcap models}
+
+Unless otherwise stated, the Barrel and Endcap models are identical. This includes:
+\begin{itemize}
+  \item The parameterization used to model the TID bump
+  \item The parameterization used to model the FEAST efficiency as a function of temperature 
+    and current
+  \item The procedure used to extract thermal impedances from thermal FEA simulations
+  \item The thermal model itself, which calculates the temperature and power of each component in 
+    one-month steps. The endcap model was copied from and validated against an early version
+    of the barrel model.
+\end{itemize}
+
+Key differences include:
+\begin{itemize}
+  \item The values of the thermal impedances of each component (due to geometric differences between
+    barrel and endcap modules)
+  \item The uncertainty (safety factor) of the thermal impedances in the endcap is set to 20\% (as
+    opposed to 10\% in the endcap), because the modules have more irregular shapes and the layout of
+    powered components is less regular, causing less linear thermal behavior.
+\end{itemize}

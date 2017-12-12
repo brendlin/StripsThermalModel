@@ -5,7 +5,8 @@ The method used to extract thermal impedances for each module component, as well
 pathways in the petal, is the same as the one used for the barrel model. Several special simulation
 runs are performed in which one component is powered on while the others are powered off. The results
 are used to calculate all thermal resistances using the system of equations relating the resistances
-to one another.
+to one another. (Note that this strategy is the same one as used in the barrel to extract thermal
+impedances.)
 
 If a component (e.g. the FEAST) is powered on the module, then the temperatures of each component
 can be expressed as:
@@ -30,6 +31,10 @@ ABCs only are powered, to obtain 8 additional ``independent measurements'' of $R
 extract $R_\text{ABC}$ and $R_\text{HCC}$.
 
 \subsection{Setup of the FEA Simulation to extract thermal impedances}
+
+For a more complete description of the FEA model itself, including a complete description of the
+thermal properties of the materials used to model the petal, see
+\url{https://cds.cern.ch/record/2294921}.
 
 For the special runs,
 representative power numbers are used to power each component. In each simulation run, all instances
@@ -99,8 +104,8 @@ Simulation \# & Description                        & Input parameters           
 
 $^*$ The actual nominal power of the FEAST varies for each module; however, for the simulation to extract
 the thermal impedances, the power is set to 1.5~W for all FEASTs in the petal.\\
-
-
+%
+Note also that in R3, the 1.5~W are shared by two FEASTs, each with 0.75~W of power.
 
 
 
@@ -148,7 +153,13 @@ the minimum and maximum temperatures.}
 
 Figure~\ref{rcm_fits} presents the data from the special FEA runs used to calculate $R_{CM}$ in each
 module; this value is extracted by fitting the data points using the equation
-$\Delta T= P\cdot R_{CM}$.
+$\Delta T= P\cdot R_{CM}$. A few points are excluded from the fit to data because of either too-remote
+or too-close
+proximity between the powered component and the component whose temperature is measured. 
+This applies to the AMAC and FEAST in R4 and R5 when the HCC is powered--the HCC is fairly thermally 
+isolated from these two components. In R0, the opposite effect occurs: the AMAC and FEAST are too
+close and share a common thermal pathway, so the AMAC measurement is ignored when the FEAST is powered.
+Except for these cases, all other data points are used to fit for $R_{CM}$.
 
 \begin{figure}[ht!]
 \includegraphics[width=0.49\linewidth]{figures/ThermalImpedanceFit_R0_Rcm.eps}
@@ -214,7 +225,7 @@ for comparison (the ``$(R\times n)_X$'' values are comparable).
 \end{table}
 \let\arraystretch\arraystretcha
 
-\subsection{Other assumed quantities}
+\subsection{Other assumed thermal quantities}
 
 Some thermal impedances are estimated roughly rather than calculated using detailed simulations.
 These include:

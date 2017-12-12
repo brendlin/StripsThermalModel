@@ -1,4 +1,4 @@
-\documentclass[10pt]{article}
+\documentclass[10pt,]{article}
 
 \usepackage{xspace}
 \usepackage{amsmath,amssymb}
@@ -9,6 +9,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{hyperref}
+\usepackage[toc,page]{appendix}
 
 %% Use these lines for letter-sized paper
 \usepackage[paper=letterpaper,
@@ -16,8 +17,8 @@
 %%             marginparwidth=1in,     % Length of section titles
 %%             marginparsep=.05in,       % Space between titles and text
                margin=1in,               % 1 inch margins
-            left=1.0in,
-            right=1.0in,
+            left=0.75in,
+            right=0.75in,
 %%             includemp
             ]{geometry}
 
@@ -29,6 +30,8 @@
 \thispagestyle{empty}
 
 \today, \currenttime
+
+\tableofcontents
 
 \section{Changes since the previous results}
 
@@ -48,14 +51,20 @@ temperature in the model.
 \end{itemize}
 
 \input{Sections/Introduction.tex}
-\clearpage
+%\clearpage
 \input{Sections/Layout.tex}
-\clearpage
+%\clearpage
 \input{Sections/PowerInputs.tex}
 \clearpage
 \input{Sections/ThermalImpedances.tex}
 \clearpage
 \input{Sections/OtherInputs.tex}
+\clearpage
+\input{Sections/Results.tex}
+\clearpage
+\begin{appendices}
+\input{Sections/Results_detailed.tex}
+\end{appendices}
 
 \end{document}
 
