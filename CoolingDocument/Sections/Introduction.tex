@@ -1,6 +1,11 @@
 
 \section{Introduction}
 
+The thermal model of endcap modules, and its analogy with electrical circuitry, is depicted in
+Figure~\ref{thermoelectric_model}. The figure also describes some of the terminology used for thermal
+impedances (resistances) used in the following discussion. Here, power sources are analogous to
+current sources, thermal impedances comparable to resistors, temperature to voltage, and the thermal
+``circuit'' follows the rule $\Delta T=P\times R$ (by analogy with $V=I\times R$).
 
 \begin{figure}[ht!]
 \includegraphics[width=.99\textwidth]{figures/thermoelectric_model.pdf}
@@ -14,8 +19,8 @@ Note that e.g. all ABCs are treated as a single node in this description, meanin
 to the total power in all ABCs, and the thermal resistance is an effective thermal resistance for all
 ABCs (the same applies to the FEAST and HCC).
 
-Note that the effect of the AMAC as a power source affecting the module temperature is neglected in
-the following; however, the AMAC represents roughly 1\% of the total module power, so the impact on
+Note also that the effect of the AMAC as a power source affecting the module temperature is neglected
+in the following; however, the AMAC represents roughly 1\% of the total module power, so the impact on
 the temperatures of the module is negligible. (The AMAC power itself is counted as part of the total
 module power.)
 

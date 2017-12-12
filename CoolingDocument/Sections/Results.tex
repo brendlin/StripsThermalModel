@@ -3,7 +3,27 @@
 
 \subsection{Nominal and Pessimistic scenarios}
 
-Table~\ref{results_summary} shows the power estimates and 
+Table~\ref{results_summary} shows the power estimates, properties (temperature) of the sensor and
+FEAST, as well as HV and LV currents. Two scenarios are shown: one in which no safety factors are
+applied, and one in which all safety factors (Fluence, thermal impedance, digital and analog current,
+TID parameterization, and HV bias) are applied. In both cases, a wide range of cooling scenarios
+(from $-35^\circ$C to $-35^\circ$C coolant temperature) are shown, as well as the ``ramp'' scenario
+in which the temperature is ramped down from $0^\circ$C to $-35^\circ$C over the course of 9 years
+(the same as used in the barrel).
+
+In the nominal scenario, the Endcap System has a total power (including cable losses) between 23.1
+and 38.3 kW (it varies due to the effect of the TID bump in the electronics).
+In the worst-case safety factor scenario, the total power is 36.8-44.6 kW.
+
+In places where thermal runaway occurs, the R3 module reaches thermal runaway before the others
+(although at higher temperatures in the pessimistic safety-factor scenario, all endcap modules
+eventually run away).
+
+It is also important to note that runaway always occurs near the end of the detector life, rather than
+at the TID bump.
+
+\let\arraystretcha\arraystretch
+\renewcommand\arraystretch{1.15} % 1.6
 
 \begin{table}[ht]
 \begin{subtable}[t]{.99\linewidth}
@@ -31,14 +51,16 @@ R5                              &                                              &
                                 & Max sensor T [$^\circ$C], Y1                 &      -27 (R3) &    -21.9 (R3) &    -16.9 (R3) &    -11.9 (R3) &  &     8.21 (R3) \\ 
                                 & Max sensor T [$^\circ$C], Y14                &    -26.5 (R3) &    -21.1 (R3) &    -15.2 (R3) &    -7.84 (R3) &  &    -26.5 (R3) \\ 
                                 & Max sensor T [$^\circ$C], Max                &      -25 (R3) &    -20.3 (R3) &    -15.2 (R3) &    -7.84 (R3) &  &     8.50 (R3) \\ 
-                                & Max $T_\text{Feast}$                         &     27.7 (R1) &     29.6 (R1) &     32.4 (R1) &     35.8 (R1) &  &     49.0 (R1) \\ 
+                                & Max $T_\text{Feast}$                         &     27.7 (R1) &     29.6 (R1) &     32.4 (R1) &     35.8 (R1) &  &     49.0 (R1) \\ \hline
+\multirow{2}{*}{Headroom}       & Min $Q_{sensor}$ Headroom [$Q_{S,crit}/Q_{S}$] &   7.86 (R3) &     4.40 (R3) &     2.45 (R3) &     1.28 (R3) & \multirow{2}{*}{Year 11} &     4.50 (R3) \\ 
+                                & Min Coolant Temp Headroom [$^\circ$C]        &     19.3 (R3) &     14.1 (R3) &     8.67 (R3) &     2.41 (R3) &  &     15.6 (R3) \\ 
 \hline\end{tabular}
 } %% resize box after tabular
 \end{centering}
 \caption{Summary of nominal (no safety factors) scenarios, with different coolant temperatures.}
 \end{subtable}
 
-\vspace{10mm}
+\vspace{5mm}
 
 \begin{subtable}[t]{.99\linewidth}
 \begin{centering}\adjustbox{max width=\textwidth}{ %% just before tabular
@@ -65,7 +87,9 @@ R5                              &                                              &
                                 & Max sensor T [$^\circ$C], Y1                 &      -24 (R3) &   -18.9 (R3) &  & &  &     11.3 (R3) \\ 
                                 & Max sensor T [$^\circ$C], Y14                &    -22.1 (R3) &     -14 (R3) &  & &  &    -22.1 (R3) \\ 
                                 & Max sensor T [$^\circ$C], Max                &    -21.2 (R3) &     -14 (R3) &  & &  &     12.4 (R3) \\ 
-                                & Max $T_\text{Feast}$                         &     66.6 (R1) &    68.1 (R1) &  & &  &     76.7 (R1) \\ 
+                                & Max $T_\text{Feast}$                         &     66.6 (R1) &    68.1 (R1) &  & &  &     76.7 (R1) \\ \hline
+\multirow{2}{*}{Headroom}       & Min $Q_{sensor}$ Headroom [$Q_{S,crit}/Q_{S}$] &   2.16 (R3) &    1.15 (R3) & \multirow{2}{*}{Year 10}&\multirow{2}{*}{Year  7}&\multirow{2}{*}{Year  6}&     1.21 (R3) \\ 
+                                & Min Coolant Temp Headroom [$^\circ$C]        &     7.02 (R3) &    1.27 (R3) &  & &  &     1.89 (R3) \\ 
 \hline\end{tabular}
 } %% resize box after tabular
 \end{centering}
@@ -74,3 +98,84 @@ R5                              &                                              &
 \caption{Comparing nominal and worst-case and safety factor scenarios.}
 \label{results_summary}
 \end{table}
+\let\arraystretch\arraystretcha
+
+\clearpage
+
+\subsection{Interpretation and Main Takeaways}
+
+Two particularly important quantities to monitor are the $Q_{sensor}$ headroom and the coolant
+temperature headroom. The $Q_{sensor}$ headroom is the multiplicative factor
+$[Q_{s,critical}/Q_{s,current}]$ by which the sensor $Q$ can increase before reaching thermal runaway
+(when this value falls to 1, thermal runaway has occurred). The coolant temperature headroom is the
+number of degrees C that you could raise the coolant temperature before thermal runaway occurs (the
+headroom falls to 0 at thermal runaway). Even without any safety factors, the $Q_{sensor}$ headroom
+is below 10; with all of the safety factors applied, the headroom is around 2. The temperature
+headroom tells a similar story.
+
+Two questions that can be asked is how to improve the sensor $Q$ headroom, and, since there are many
+moving parts in the model, which methods of improving the sensor $Q$ headroom are most effective? The
+answer can be addressed by evaluating the effect of each individual safety factor on the sensor $Q$
+headroom (and/or the coolant headroom).
+
+Table~\ref{detailed_safety_table} offers a detailed look at the effect of each individual safety
+factor; the ``safety factor scenarios'' are ordered according to which scenario has the larger impact
+on the minimum sensor $Q$ headroom (minimum sensor $Q$ headroom means the minimum among all of the sensors in
+the endcap, at any point in time). According to the results in the table, the thermal impedance
+$R_T$ (with a +20\% safety factor) has the largest impact on the sensor $Q$ headroom,
+followed by the HV bias (the safety factor is 700 V), and finally the
+currents of the ABC, HCC and AMAC\footnote{
+The current is typically dominated by the ABC ($\sim$80\%), followed by the HCC ($\sim$20\%). The AMAC
+contributes about 1\% to the total power.}.
+Note that the fluence safety factor is out of our control, and the nature of the TID bump does not
+have any impact on the sensor $Q$ headroom, since its effect is minimal at the detector end-of-life.
+
+The outlook can be ``improved'' in two ways: first, by improving the accuracy of the safety factors.
+In other words, if we can e.g. improve the endcap thermal model and build confidence that the thermal
+impedance safety factor should be 10\% rather than 20\%, then our worst-case scenarios will have
+larger sensor $Q$ headroom values. Another example would be to guarantee that the HV will never run
+above 650V. Of course, the margin for error would not have changed---only our confidence that we can
+run within that margin of error.
+
+The outlook can also be improved by physical changes to the petal. This includes pipe rerouting, 
+using more thermally conductive material, etc. to reduce the thermal impedance of the material
+underneath the sensor. It could include making changes to the ABC chip to reduce the current.
+These changes would have the effect of reducing the temperature of the sensors, thus increasing the
+sensor $Q$ headroom.
+
+\begin{table}[ht]
+\begin{centering}\adjustbox{max width=\textwidth,max totalheight=\textheight}{ %% just before tabular
+\begin{tabular}{|ccccc|cc|rrrr|r|r|} \hline % data_below
+\multicolumn{5}{|c|}{Safety factor} & $V_{bias}$ & Cooling & Endcaps max & Endcaps max & Min sensor $Q$ & Min Coolant\\
+Fluence & $R_{T}$ & $I_D$ & $I_A$ &   TID &   [V] & [$^\circ$C] & \multicolumn{1}{l}{power [kW]} & \multicolumn{1}{l}{HV [kW]} & \multicolumn{1}{l}{headroom} & \multicolumn{1}{l|}{headroom [$^\circ$C]} \\ \hline
+0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      38.3 &    1.06 &      7.86 &       19.3 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      39.2 &    1.56 &      5.20 &       15.2 \\ 
+0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$35 flat &      39.2 &    1.56 &      5.20 &       15.2 \\ 
+0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$35 flat &      44.9 &    1.72 &      4.58 &       14.1 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$35 flat &      39.4 &    2.28 &      3.71 &       11.9 \\ 
+0.5     &     0.2 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      38.9 &    1.83 &      3.54 &       11.6 \\ 
+0.5     &     0.2 &   0.2 &  0.05 &  True & 700.0 &  $-$35 flat &      44.6 &    3.04 &      2.16 &       7.02 \\ \hline
+0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      37.3 &    1.92 &      4.40 &       14.1 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      38.1 &    2.92 &      2.86 &       9.85 \\ 
+0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$30 flat &      38.1 &    2.92 &      2.86 &       9.85 \\ 
+0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$30 flat &      43.6 &    3.24 &      2.51 &       8.65 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$30 flat &      38.3 &    4.28 &      2.04 &       6.59 \\ 
+0.5     &     0.2 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      37.9 &    3.50 &      1.92 &       6.08 \\ 
+0.5     &     0.2 &   0.2 &  0.05 &  True & 700.0 &  $-$30 flat &      43.5 &    6.10 &      1.15 &       1.27 \\ \hline
+0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$25 flat &      36.6 &    3.57 &      2.45 &       8.67 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$25 flat &      38.5 &    5.73 &      1.51 &       3.89 \\ 
+0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$25 flat &      38.5 &    5.73 &      1.51 &       3.89 \\ 
+0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$25 flat &      43.7 &    6.46 &      1.29 &       2.43 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$25 flat &      41.9 &    8.76 &      1.07 &      0.649 \\ 
+0.5     &     0.2 &   0.0 &   0.0 & False & 500.0 &  $-$25 flat & \multicolumn{4}{c|}{\bf Runaway Year 13} \\
+0.5     &     0.2 &   0.2 &  0.05 &  True & 700.0 &  $-$25 flat & \multicolumn{4}{c|}{\bf Runaway Year 10} \\
+\hline\end{tabular}
+} %% resize box after tabular
+\caption{Summary of all safety factor scenarios and their effect on the maximum power in the
+endcaps, the maximum HV power, the minimum sensor headroom $[Q_{s,crit}/Q_s]$, and the coolant temperature headroom.}
+\label{detailed_safety_table}
+\end{centering}
+\end{table}
+
+
+
