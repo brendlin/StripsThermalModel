@@ -4,12 +4,13 @@
 \subsection{Total Ionizing Dose and Flux}
 
 In the petal model, the total ionizing dose and fluence are given in Tables~\ref{tid} and~\ref{flux},
-respectively. They are taken from ``step 1.9'' results found in the following location\footnote{
-Note that a more recent calculation, ``Step 1.9 with Run-2 beam pipe'' or S1.9+R2BP, is not used here.
-}:
+respectively. They are taken from ``step 2.2 duals layout'' (used for the Pixel TDR), found in the following location:
+%\footnote{
+%Note that a more recent calculation, ``Step 1.9 with Run-2 beam pipe'' or S1.9+R2BP, is not used here.
+%}
 
 {\small
-\url{https://twiki.cern.ch/twiki/bin/view/Atlas/RadiationBackgroundSimulationsFullyInclinedAt4#Step_1_9}
+\url{https://twiki.cern.ch/twiki/bin/view/Atlas/RadiationBackgroundSimulationsStep2X#Step_2_2_duals}
 }
 
 \begin{table}[ht]
@@ -17,13 +18,13 @@ Note that a more recent calculation, ``Step 1.9 with Run-2 beam pipe'' or S1.9+R
 \begin{tabular}{|l|r|r|r|r|r|r|r|} \hline % data_below
   & & \multicolumn{6}{c|}{Disk} \\
 \multirow{6}{*}{Ring}
- &   &       0 &       1 &       2 &       3 &       4 &       5 \\ \hline
- & 5 &    4700 &    5000 &    5300 &    5800 &    6400 &    7000 \\ 
- & 4 &    6200 &    6700 &    6700 &    7200 &    7900 &    8900 \\ 
- & 3 &    9000 &    9200 &    9500 &   10500 &   10800 &   12100 \\ 
- & 2 &   11000 &   11300 &   11400 &   12100 &   12800 &   14300 \\ 
- & 1 &   14400 &   14800 &   15500 &   16500 &   18100 &   20100 \\ 
- & 0 &   22700 &   23900 &   24800 &   26800 &   29100 &   31100 \\ 
+ &   &     0 &     1 &     2 &     3 &     4 &     5 \\ \hline
+ & 5 &  4875 &  5025 &  5325 &  5775 &  6525 &  7350 \\ 
+ & 4 &  6300 &  6525 &  7050 &  7350 &  8100 &  9075 \\ 
+ & 3 &  8925 &  9000 &  9600 & 10425 & 11175 & 12300 \\ 
+ & 2 & 10875 & 11550 & 12000 & 12225 & 13200 & 14925 \\ 
+ & 1 & 14475 & 14850 & 16275 & 16800 & 18525 & 21150 \\ 
+ & 0 & 23475 & 24375 & 25350 & 27525 & 30375 & 32850 \\ 
 \hline\end{tabular}
 } %% resize box after tabular
 \caption{TID in 3000 fb$^{-1}$ of collected data [Rad]}
@@ -37,19 +38,47 @@ Note that a more recent calculation, ``Step 1.9 with Run-2 beam pipe'' or S1.9+R
 \begin{tabular}{|l|r|r|r|r|r|r|r|} \hline % data_below
   & & \multicolumn{6}{c|}{Disk} \\
 \multirow{6}{*}{Ring}
- &   &        0 &        1 &        2 &        3 &        4 &        5 \\ \hline
- & 5 & 2.26e+14 & 2.36e+14 & 2.56e+14 & 2.84e+14 & 3.21e+14 & 3.77e+14 \\ 
- & 4 & 2.53e+14 & 2.65e+14 & 2.85e+14 & 3.12e+14 & 3.56e+14 & 4.25e+14 \\ 
- & 3 & 3.01e+14 & 3.11e+14 & 3.32e+14 & 3.66e+14 & 4.11e+14 & 5.00e+14 \\ 
- & 2 & 3.31e+14 & 3.41e+14 & 3.62e+14 & 3.95e+14 & 4.47e+14 & 5.47e+14 \\ 
- & 1 & 3.93e+14 & 4.03e+14 & 4.22e+14 & 4.57e+14 & 5.14e+14 & 6.36e+14 \\ 
- & 0 & 5.03e+14 & 5.12e+14 & 5.38e+14 & 5.67e+14 & 6.25e+14 & 7.74e+14 \\ 
+ &   &          0 &        1 &        2 &        3 &        4 &        5 \\ \hline
+ & 5 &   2.30e+14 & 2.40e+14 & 2.61e+14 & 2.90e+14 & 3.30e+14 & 3.88e+14 \\ 
+ & 4 &   2.57e+14 & 2.68e+14 & 2.90e+14 & 3.20e+14 & 3.65e+14 & 4.38e+14 \\ 
+ & 3 &   3.05e+14 & 3.18e+14 & 3.35e+14 & 3.73e+14 & 4.24e+14 & 5.15e+14 \\ 
+ & 2 &   3.35e+14 & 3.47e+14 & 3.70e+14 & 4.04e+14 & 4.56e+14 & 5.65e+14 \\ 
+ & 1 &   3.95e+14 & 4.05e+14 & 4.28e+14 & 4.62e+14 & 5.21e+14 & 6.50e+14 \\ 
+ & 0 &   5.04e+14 & 5.14e+14 & 5.35e+14 & 5.75e+14 & 6.34e+14 & 7.93e+14 \\ 
 \hline\end{tabular}
 } %% resize box after tabular
 \caption{Total flux in 3000 fb$^{-1}$ of collected data [$n_\text{eq}/$cm$^2$]}
 \label{flux}
 \end{centering}
 \end{table}
+
+\subsection{Low-voltage supply}
+
+The low-voltage is modeled as losing 1V over the length of the petal, with 11V at the EOS and
+dropping to 10V in R1\footnote{Estimates provided by Pepe Bernabeu.}.
+Table~\ref{voltage_drops} specifies the voltage input at each module.
+
+\begin{table}[ht]
+\begin{centering}\adjustbox{max width=\textwidth}{ %% just before tabular
+\begin{tabular}{|l|l|r|r|r|r|r|r|l|} \hline % data_below
+Quantity & Description           &     R0 &     R1 &     R2 &     R3 &     R4 &     R5 & Unit   \\ \hline
+\multirow{2}{*}{$V_{in}$} & Input voltage to the  &  \multirow{2}{*}{10.00} &  \multirow{2}{*}{10.17} &  \multirow{2}{*}{10.33} 
+&  \multirow{2}{*}{10.50} &  \multirow{2}{*}{10.67} &  \multirow{2}{*}{10.83} & \multirow{2}{*}{V}      \\ 
+ & Feast and LDOs on each module & & & & & & & \\
+\hline\end{tabular}
+} %% resize box after tabular
+\end{centering}
+\caption{Voltage inputs for each endcap module. The EOS is assumed to have an 11V input voltage.}
+\label{voltage_drops}
+\end{table}
+
+\subsection{Type I-IV Cable Losses --- Under Construction!}
+
+Cable losses outside the petal are currently under construction. Currently we include in the
+total power a factor of +10.25\%. This number is obtained by using 5\% for cable losses from the
+service modules, times 5\% for losses from PP1 to USA15.
+
+A more updated treatment of cable losses will be included in the next set of results.
 
 \subsection{Full list of inputs}
 
@@ -89,7 +118,7 @@ SafetyFactors.safetythermalimpedance & Fractional thermal impedance safety facto
 SafetyFactors.vbias                  & HV bias voltage (default is 500V)                            &      700.0 & V           \\ 
 SensorProperties.Rhv                 & HV resistors are 2 times 5k                                  &    10000.0 & $\Omega$    \\ 
 SensorProperties.Rhvmux              & parallel resistor for MUX operation is 10M                   & 10000000.0 & $\Omega$    \\ 
-StripsThermalModel.GitHash           & Git hash (for internal use)                                  &    c50c7a4 & --          \\ 
+StripsThermalModel.GitHash           & Git hash (for internal use)                                  &    6191523 & --          \\ 
 ThermalImpedances.reos               & Thermal impedance of EOS                                     &       15.0 & K/W         \\ 
 ThermalImpedances.rs                 & Thermal impedance of Sensor                                  &       0.02 & K/W         \\ 
 cooling                              & Coolant temperature scenario (usually flat, or ramping down) &    flat-35 & $^{\circ}$C \\ 

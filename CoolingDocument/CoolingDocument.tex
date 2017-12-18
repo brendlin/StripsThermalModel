@@ -41,8 +41,9 @@
 
 \section{Changes since the previous results}
 
+{ \bf
 The following adjustments were made to results since the version immediately following ITK Week in
-November 2017:
+November 2017:}
 \begin{itemize}
 \item The total analog current of the ABC is now set to 70 mA, based on the advice of Paul Keener.
 (The ABC digital current is 42.5 mA.)
@@ -54,6 +55,15 @@ thermal impedance values calculated from FEA are now more compatible. The result
 temperature in the model.
 \item The model now includes two AMACs on R3; previously only one AMAC was used.
 \item A 1.9 mA quiescent current is included in the LDOs providing power to the AMACs.
+\end{itemize}
+
+{\bf 
+The following adjustments were made since circulation of the document on December 12, 2017:}
+\begin{itemize}
+\item The flux estimates have been changed from ``Step 1.9'' to the ``step 2.2 duals layout'' used in
+the Pixel TDR. This should be the latest flux estimate.
+\item A bug was fixed in which the pessimistic TID bump parameterization safety factor was not applied.
+This increases the maximum power estimates slightly, in the worst-case scenario.
 \end{itemize}
 
 \input{Sections/Introduction.tex}

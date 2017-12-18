@@ -1,5 +1,75 @@
 
+\newcommand{\mry}[2]{
+\multirow{#1}{*}{Year #2}
+}
+
 \section{Results}
+
+\subsection{Description of Output}
+\subsubsection{Module-level quantities}
+%% \let\itemsepa\itemsep
+%% \renewcommand\itemsep{1.0}
+Avearage temperatures are reported on each module for each of the following: sensor, ABC, HCC, Feast,
+and EOS.
+
+Reported power values for each module: 
+\begin{itemize}
+\setlength\itemsep{0.0em}
+\item Sensor Q (one side)
+\item EOS power (one side)
+\item LV tape power loss due to items on module (one side)
+\item Cumulative LV tape power loss (one module one side):
+Power loss in the tape associated to this module, due to the current from items on the module, plus
+current from previous modules.
+\item HV power serial resistors (one side)
+\item HV power parallel resistor (one side)
+\item Total HV power (including leakage) (one side)
+\item Module power (one side) (no EOS): front-end + HV + tape
+\end{itemize}
+
+Reported current values for each module:
+\begin{itemize}
+\setlength\itemsep{0.0em}
+\item Sensor (leakage) current (one module side)
+\item LV tape current (one side) due to items on module
+\item LV tape current (one side)
+\item Tape current load due to EOS (one side)
+\item ABC and HCC digital current
+\item Hybrid 0 (1,2,3) current (if applicable)
+\item FEAST current (load per Feasts, in case there is more than one Feast)
+\item FEAST current (input, both Feasts, in case there is more than one Feast.)
+\end{itemize}
+
+Other reported module-level values:
+\begin{itemize}
+\setlength\itemsep{0.0em}
+\item Feast efficiency
+\item Sensor Q headroom factor
+\item Coolant temperature headroom
+\end{itemize}
+%% \let\itemsep\itemsepa
+
+\subsubsection{Petal-level quantities}
+
+The following items are reported for petals at each disk position:
+\begin{itemize}
+\setlength\itemsep{0.0em}
+\item Total power in petal located at Disk $n$ (including the EOS) (one petal side)
+\item Total sensor Q in petal located at Disk $n$ (one side)
+\item HV power in petal located at Disk $n$ (one side)
+\item LV tape current in petal located at Disk $n$ (including the EOS) (one side)
+\item Total sensor (leakage) current in petal located at Disk $n$ (one side)
+\end{itemize}
+
+\subsubsection{Full system quantities}
+
+\begin{itemize}
+\setlength\itemsep{0.0em}
+\item Total power in both endcaps, including cable losses -- modeled as 
+5\%$\times$5\% for cable losses from the service modules and cable losses from PP1 to USA15 (10.25\% total loss).
+More realistic cable losses are under construction.
+\item Total HV power (sensor + resistors) in both endcaps
+\end{itemize}
 
 \subsection{Nominal and Pessimistic scenarios}
 
@@ -11,9 +81,9 @@ TID parameterization, and HV bias) are applied. In both cases, a wide range of c
 in which the temperature is ramped down from $0^\circ$C to $-35^\circ$C over the course of 9 years
 (the same as used in the barrel).
 
-In the nominal scenario, the Endcap System has a total power (including cable losses) between 23.1
+In the nominal scenario, the Endcap System has a total power (including cable losses) between 32.1
 and 38.3 kW (it varies due to the effect of the TID bump in the electronics).
-In the worst-case safety factor scenario, the total power is 36.8-44.6 kW.
+In the worst-case safety factor scenario, the total power is 36.8-46.7 kW.
 
 In places where thermal runaway occurs, the R3 module reaches thermal runaway before the others
 (although at higher temperatures in the pessimistic safety-factor scenario, all endcap modules
@@ -29,31 +99,31 @@ at the TID bump.
 \begin{subtable}[t]{.99\linewidth}
 \begin{centering}\adjustbox{max width=\textwidth}{ %% just before tabular
 \begin{tabular}{|l|l|r|r|r|r|r|r|} \hline % data_below
-\multirow{5}{*}{Safety Factors} & Fluence                                      &           0.0 &           0.0 &           0.0 &           0.0 &                   0.0 &           0.0 \\ 
-                                & $R_{T}$                                      &           0.0 &           0.0 &           0.0 &           0.0 &                   0.0 &           0.0 \\ 
-                                & $I_D$                                        &           0.0 &           0.0 &           0.0 &           0.0 &                   0.0 &           0.0 \\ 
-                                & $I_A$                                        &           0.0 &           0.0 &           0.0 &           0.0 &                   0.0 &           0.0 \\ 
-                                & TID parameterization                         &       nominal &       nominal &       nominal &       nominal &               nominal &       nominal \\ \hline
-\multirow{2}{*}{HV, Cooling}    & Voltage [V]                                  &         500.0 &         500.0 &         500.0 &         500.0 &                 500.0 &         500.0 \\ 
-                                & Cooling [$^\circ$C]                          &    flat $-$35 &    flat $-$30 &    flat $-$25 &    flat $-$20 &            flat $-$15 &    ramp $-$35 \\ \hline
-\multirow{3}{*}{Endcap System}  & Minimum power [kW]                           &          32.1 &          32.2 &          32.3 &          32.4 & \bf Runaway &          32.8 \\ 
-                                & Maximum power [kW]                           &          38.3 &          37.3 &          36.6 &          40.1 & \bf Year 11 &          36.2 \\ 
-                                & Maximum $P_\text{HV}$ [kW]                   &          1.06 &          1.92 &          3.57 &          7.02 & \bf (R3)    &          2.06 \\ \hline
-\multirow{2}{*}{Petal-level}    & Max petal LV $I_\text{tape}$ load [A]        &          4.32 &          4.20 &          4.11 &          4.03 & \multirow{2}{*}{Year 11} &          3.93 \\ 
-                                & Max petal power [W]                          &          45.8 &          44.6 &          44.5 &          51.8 &  &          43.6 \\ \hline
-R0                              & \multirow{6}{*}{Min/Max Power [W]}           &   5.31 / 7.91 &   5.33 / 7.48 &   5.35 / 7.14 &   5.37 / 7.20 & \multirow{6}{*}{Year 11} &   5.39 / 6.40 \\ 
-R1                              &                                              &   6.36 / 8.67 &   6.38 / 8.29 &   6.41 / 7.99 &   6.44 / 8.49 &  &   6.46 / 7.51 \\ 
-R2                              &                                              &   4.19 / 5.24 &   4.20 / 5.08 &   4.21 / 4.95 &   4.23 / 5.58 &  &   4.27 / 4.85 \\ 
-R3                              &                                              &   9.36 / 11.6 &   9.39 / 11.3 &   9.42 / 11.3 &   9.45 / 14.1 &  &   9.57 / 10.9 \\ 
-R4                              &                                              &   5.20 / 6.44 &   5.22 / 6.26 &   5.23 / 6.28 &   5.25 / 7.39 &  &   5.33 / 6.20 \\ 
-R5                              &                                              &   5.72 / 6.97 &   5.74 / 6.78 &   5.76 / 6.65 &   5.78 / 7.33 &  &   5.87 / 6.70 \\ \hline
-\multirow{5}{*}{Components}     & Max $I_{HV}$ per module [mA]                 &    0.936 (R3) &     1.80 (R3) &     3.53 (R3) &     7.93 (R3) & \multirow{5}{*}{Year 11} &     1.89 (R3) \\ 
-                                & Max sensor T [$^\circ$C], Y1                 &      -27 (R3) &    -21.9 (R3) &    -16.9 (R3) &    -11.9 (R3) &  &     8.21 (R3) \\ 
-                                & Max sensor T [$^\circ$C], Y14                &    -26.5 (R3) &    -21.1 (R3) &    -15.2 (R3) &    -7.84 (R3) &  &    -26.5 (R3) \\ 
-                                & Max sensor T [$^\circ$C], Max                &      -25 (R3) &    -20.3 (R3) &    -15.2 (R3) &    -7.84 (R3) &  &     8.50 (R3) \\ 
-                                & Max $T_\text{Feast}$                         &     27.7 (R1) &     29.6 (R1) &     32.4 (R1) &     35.8 (R1) &  &     49.0 (R1) \\ \hline
-\multirow{2}{*}{Headroom}       & Min $Q_{sensor}$ Headroom [$Q_{S,crit}/Q_{S}$] &   7.86 (R3) &     4.40 (R3) &     2.45 (R3) &     1.28 (R3) & \multirow{2}{*}{Year 11} &     4.50 (R3) \\ 
-                                & Min Coolant Temp Headroom [$^\circ$C]        &     19.3 (R3) &     14.1 (R3) &     8.67 (R3) &     2.41 (R3) &  &     15.6 (R3) \\ 
+\multirow{5}{*}{Safety Factors} & Fluence                                        &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 \\ 
+                                & $R_{T}$                                        &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 \\ 
+                                & $I_D$                                          &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 \\ 
+                                & $I_A$                                          &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 \\ 
+                                & TID parameterization                           &       nominal &       nominal &       nominal &       nominal &       nominal &       nominal \\ \hline
+\multirow{2}{*}{HV, Cooling}    & Voltage [V]                                    &         500.0 &         500.0 &         500.0 &         500.0 &         500.0 &         500.0 \\ 
+                                & Cooling [$^\circ$C]                            &    flat $-$35 &    flat $-$30 &    flat $-$25 &    flat $-$20 &    flat $-$15 &    ramp $-$35 \\ \hline
+\multirow{3}{*}{Endcap System}  & Minimum power [kW]                             &          32.1 &          32.2 &          32.3 &          32.4 &   \bf Runaway &          32.9 \\ 
+                                & Maximum power [kW]                             &          38.3 &          37.3 &          36.6 &          40.3 &   \bf Year 11 &          36.2 \\ 
+                                & Maximum $P_\text{HV}$ [kW]                     &          1.08 &          1.96 &          3.65 &          7.22 &      \bf (R3) &          2.10 \\ \hline
+\multirow{2}{*}{Petal-level}    & Max petal LV $I_\text{tape}$ load [A]          &          4.32 &          4.20 &          4.11 &          4.03 &   \mry{2}{11} &          3.93 \\ 
+                                & Max petal power [W]                            &          45.8 &          44.6 &          44.7 &          52.5 &               &          43.7 \\ \hline
+R0                              & \multirow{6}{*}{Min/Max Power [W]}             &   5.31 / 8.01 &   5.33 / 7.56 &   5.35 / 7.20 &   5.37 / 7.26 &   \mry{6}{11} &   5.39 / 6.43 \\ 
+R1                              &                                                &   6.36 / 8.75 &   6.38 / 8.36 &   6.41 / 8.05 &   6.44 / 8.56 &               &   6.46 / 7.53 \\ 
+R2                              &                                                &   4.19 / 5.23 &   4.20 / 5.07 &   4.21 / 4.95 &   4.23 / 5.64 &               &   4.27 / 4.86 \\ 
+R3                              &                                                &   9.36 / 11.6 &   9.39 / 11.3 &   9.42 / 11.4 &   9.45 / 14.4 &               &   9.57 / 10.9 \\ 
+R4                              &                                                &   5.20 / 6.45 &   5.22 / 6.27 &   5.23 / 6.32 &   5.25 / 7.49 &               &   5.33 / 6.21 \\ 
+R5                              &                                                &   5.72 / 7.01 &   5.74 / 6.82 &   5.76 / 6.68 &   5.78 / 7.38 &               &   5.87 / 6.71 \\ \hline
+\multirow{5}{*}{Components}     & Max $I_{HV}$ per module [mA]                   &    0.965 (R3) &     1.85 (R3) &     3.65 (R3) &     8.40 (R3) &   \mry{5}{11} &     1.95 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Y1                   &      -27 (R3) &    -21.9 (R3) &    -16.9 (R3) &    -11.9 (R3) &               &     8.21 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Y14                  &    -26.5 (R3) &    -21.1 (R3) &    -15.2 (R3) &    -7.56 (R3) &               &    -26.5 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Max                  &      -25 (R3) &    -20.3 (R3) &    -15.2 (R3) &    -7.56 (R3) &               &     8.50 (R3) \\ 
+                                & Max $T_\text{Feast}$                           &     28.5 (R1) &     30.3 (R1) &     32.9 (R1) &     36.2 (R1) &               &     49.3 (R1) \\ \hline
+\multirow{2}{*}{Headroom}       & Min $Q_{sensor}$ Headroom [$Q_{S,crit}/Q_{S}$] &     7.64 (R3) &     4.27 (R3) &     2.37 (R3) &     1.23 (R3) &   \mry{2}{11} &     4.37 (R3) \\ 
+                                & Min Coolant Temp Headroom [$^\circ$C]          &     19.0 (R3) &     13.8 (R3) &     8.35 (R3) &     2.01 (R3) &               &     15.3 (R3) \\ 
 \hline\end{tabular}
 } %% resize box after tabular
 \end{centering}
@@ -65,31 +135,31 @@ R5                              &                                              &
 \begin{subtable}[t]{.99\linewidth}
 \begin{centering}\adjustbox{max width=\textwidth}{ %% just before tabular
 \begin{tabular}{|l|l|r|r|r|r|r|r|} \hline % data_below
-\multirow{5}{*}{Safety Factors} & Fluence                                      &           0.5 &          0.5 &                   0.5 &                 0.5 &                 0.5 &           0.5 \\ 
-                                & $R_{T}$                                      &           0.2 &          0.2 &                   0.2 &                 0.2 &                 0.2 &           0.2 \\ 
-                                & $I_D$                                        &           0.2 &          0.2 &                   0.2 &                 0.2 &                 0.2 &           0.2 \\ 
-                                & $I_A$                                        &          0.05 &         0.05 &                  0.05 &                0.05 &                0.05 &          0.05 \\ 
-                                & TID parameterization                         &   pessimistic &  pessimistic &           pessimistic &         pessimistic &         pessimistic &   pessimistic \\ \hline
-\multirow{2}{*}{HV, Cooling}    & Voltage [V]                                  &         700.0 &        700.0 &                 700.0 &               700.0 &               700.0 &         700.0 \\ 
-                                & Cooling [$^\circ$C]                          &    flat $-$35 &   flat $-$30 &            flat $-$25 &          flat $-$20 &          flat $-$15 &    ramp $-$35 \\ \hline
-\multirow{3}{*}{Endcap System}  & Minimum power [kW]                           &          36.8 &         36.9 &\bf Runaway&\bf Runaway&\bf Runaway& 37.8 \\ 
-                                & Maximum power [kW]                           &          44.6 &         43.5 &\bf Year 10&\bf Year  7&\bf Year  6& 44.8 \\ 
-                                & Maximum $P_\text{HV}$ [kW]                   &          3.04 &         6.10 &\bf (R3)   &\bf (all)  &\bf (all)  & 6.34 \\ \hline
-\multirow{2}{*}{Petal-level}    & Max petal LV $I_\text{tape}$ load [A]        &          5.08 &         4.93 &\multirow{2}{*}{Year 10}&\multirow{2}{*}{Year  7}&\multirow{2}{*}{Year  6}&   4.50 \\ 
-                                & Max petal power [W]                          &          54.0 &         55.3 &  & &  &          56.1 \\ \hline
-R0                              & \multirow{6}{*}{Min/Max Power [W]}           &   6.07 / 9.69 &  6.09 / 9.09 &\multirow{6}{*}{Year 10}&\multirow{6}{*}{Year  7}&\multirow{6}{*}{Year  6}& 6.24 / 7.71 \\ 
-R1                              &                                              &   7.31 / 10.6 &  7.35 / 10.2 &  & &  &   7.55 / 9.30 \\ 
-R2                              &                                              &   4.78 / 6.16 &  4.79 / 5.96 &  & &  &   4.88 / 6.03 \\ 
-R3                              &                                              &   10.7 / 13.4 &  10.7 / 15.4 &  & &  &   11.0 / 15.4 \\ 
-R4                              &                                              &   5.96 / 7.61 &  5.98 / 7.61 &  & &  &   6.12 / 7.95 \\ 
-R5                              &                                              &   6.56 / 8.40 &  6.58 / 8.13 &  & &  &   6.76 / 8.27 \\ \hline
-\multirow{5}{*}{Components}     & Max $I_{HV}$ per module [mA]                 &     2.39 (R3) &    6.05 (R3) &\multirow{5}{*}{Year 10}&\multirow{5}{*}{Year  7}&\multirow{5}{*}{Year  6}&     5.90 (R3) \\ 
-                                & Max sensor T [$^\circ$C], Y1                 &      -24 (R3) &   -18.9 (R3) &  & &  &     11.3 (R3) \\ 
-                                & Max sensor T [$^\circ$C], Y14                &    -22.1 (R3) &     -14 (R3) &  & &  &    -22.1 (R3) \\ 
-                                & Max sensor T [$^\circ$C], Max                &    -21.2 (R3) &     -14 (R3) &  & &  &     12.4 (R3) \\ 
-                                & Max $T_\text{Feast}$                         &     66.6 (R1) &    68.1 (R1) &  & &  &     76.7 (R1) \\ \hline
-\multirow{2}{*}{Headroom}       & Min $Q_{sensor}$ Headroom [$Q_{S,crit}/Q_{S}$] &   2.16 (R3) &    1.15 (R3) & \multirow{2}{*}{Year 10}&\multirow{2}{*}{Year  7}&\multirow{2}{*}{Year  6}&     1.21 (R3) \\ 
-                                & Min Coolant Temp Headroom [$^\circ$C]        &     7.02 (R3) &    1.27 (R3) &  & &  &     1.89 (R3) \\ 
+\multirow{5}{*}{Safety Factors} & Fluence                                        &           0.5 &          0.5 &           0.5 &           0.5 &           0.5 &           0.5 \\ 
+                                & $R_{T}$                                        &           0.2 &          0.2 &           0.2 &           0.2 &           0.2 &           0.2 \\ 
+                                & $I_D$                                          &           0.2 &          0.2 &           0.2 &           0.2 &           0.2 &           0.2 \\ 
+                                & $I_A$                                          &          0.05 &         0.05 &          0.05 &          0.05 &          0.05 &          0.05 \\ 
+                                & TID parameterization                           &   pessimistic &  pessimistic &   pessimistic &   pessimistic &   pessimistic &   pessimistic \\ \hline
+\multirow{2}{*}{HV, Cooling}    & Voltage [V]                                    &         700.0 &        700.0 &         700.0 &         700.0 &         700.0 &         700.0 \\ 
+                                & Cooling [$^\circ$C]                            &    flat $-$35 &   flat $-$30 &    flat $-$25 &    flat $-$20 &    flat $-$15 &    ramp $-$35 \\ \hline
+\multirow{3}{*}{Endcap System}  & Minimum power [kW]                             &          36.8 &         36.9 &   \bf Runaway &   \bf Runaway &   \bf Runaway &          37.8 \\ 
+                                & Maximum power [kW]                             &          46.7 &         45.3 &   \bf Year 10 &   \bf Year  7 &   \bf Year  6 &          45.3 \\ 
+                                & Maximum $P_\text{HV}$ [kW]                     &          3.10 &         6.28 &   \bf (R3)    &   \bf (all)   &   \bf (all)   &          6.52 \\ \hline
+\multirow{2}{*}{Petal-level}    & Max petal LV $I_\text{tape}$ load [A]          &          5.34 &         5.15 &   \mry{2}{10} &    \mry{2}{7} &    \mry{2}{6} &          4.57 \\ 
+                                & Max petal power [W]                            &          56.8 &         55.9 &               &               &               &          56.7 \\ \hline
+R0                              & \multirow{6}{*}{Min/Max Power [W]}             &   6.07 / 10.6 &  6.09 / 9.95 &   \mry{6}{10} &    \mry{6}{7} &    \mry{6}{6} &   6.24 / 8.01 \\ 
+R1                              &                                                &   7.31 / 11.5 &  7.35 / 11.0 &               &               &               &   7.55 / 9.44 \\ 
+R2                              &                                                &   4.78 / 6.55 &  4.79 / 6.28 &               &               &               &   4.88 / 6.10 \\ 
+R3                              &                                                &   10.7 / 14.1 &  10.7 / 15.8 &               &               &               &   11.0 / 15.7 \\ 
+R4                              &                                                &   5.96 / 8.05 &  5.98 / 7.75 &               &               &               &   6.12 / 8.08 \\ 
+R5                              &                                                &   6.56 / 8.99 &  6.58 / 8.61 &               &               &               &   6.76 / 8.40 \\ \hline
+\multirow{5}{*}{Components}     & Max $I_{HV}$ per module [mA]                   &     2.48 (R3) &    6.51 (R3) &   \mry{5}{10} &    \mry{5}{7} &    \mry{5}{6} &     6.29 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Y1                   &      -24 (R3) &   -18.9 (R3) &               &               &               &     11.3 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Y14                  &    -22.1 (R3) &   -13.6 (R3) &               &               &               &    -22.1 (R3) \\ 
+                                & Max sensor T [$^\circ$C], Max                  &    -20.4 (R3) &   -13.6 (R3) &               &               &               &     12.5 (R3) \\ 
+                                & Max $T_\text{Feast}$                           &     75.2 (R1) &    75.3 (R1) &               &               &               &     79.9 (R1) \\ \hline
+\multirow{2}{*}{Headroom}       & Min $Q_{sensor}$ Headroom [$Q_{S,crit}/Q_{S}$] &     2.09 (R3) &    1.11 (R3) &   \mry{2}{10} &    \mry{2}{7} &    \mry{2}{6} &     1.16 (R3) \\ 
+                                & Min Coolant Temp Headroom [$^\circ$C]          &     6.73 (R3) &   0.943 (R3) &               &               &               &     1.53 (R3) \\ 
 \hline\end{tabular}
 } %% resize box after tabular
 \end{centering}
@@ -148,25 +218,25 @@ sensor $Q$ headroom.
 \begin{tabular}{|ccccc|cc|rrrr|r|r|} \hline % data_below
 \multicolumn{5}{|c|}{Safety factor} & $V_{bias}$ & Cooling & Endcaps max & Endcaps max & Min sensor $Q$ & Min Coolant\\
 Fluence & $R_{T}$ & $I_D$ & $I_A$ &   TID &   [V] & [$^\circ$C] & \multicolumn{1}{l}{power [kW]} & \multicolumn{1}{l}{HV [kW]} & \multicolumn{1}{l}{headroom} & \multicolumn{1}{l|}{headroom [$^\circ$C]} \\ \hline
-0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      38.3 &    1.06 &      7.86 &       19.3 \\ 
-0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      39.2 &    1.56 &      5.20 &       15.2 \\ 
-0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$35 flat &      39.2 &    1.56 &      5.20 &       15.2 \\ 
-0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$35 flat &      44.9 &    1.72 &      4.58 &       14.1 \\ 
-0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$35 flat &      39.4 &    2.28 &      3.71 &       11.9 \\ 
-0.5     &     0.2 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      38.9 &    1.83 &      3.54 &       11.6 \\ 
-0.5     &     0.2 &   0.2 &  0.05 &  True & 700.0 &  $-$35 flat &      44.6 &    3.04 &      2.16 &       7.02 \\ \hline
-0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      37.3 &    1.92 &      4.40 &       14.1 \\ 
-0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      38.1 &    2.92 &      2.86 &       9.85 \\ 
-0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$30 flat &      38.1 &    2.92 &      2.86 &       9.85 \\ 
-0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$30 flat &      43.6 &    3.24 &      2.51 &       8.65 \\ 
-0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$30 flat &      38.3 &    4.28 &      2.04 &       6.59 \\ 
-0.5     &     0.2 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      37.9 &    3.50 &      1.92 &       6.08 \\ 
-0.5     &     0.2 &   0.2 &  0.05 &  True & 700.0 &  $-$30 flat &      43.5 &    6.10 &      1.15 &       1.27 \\ \hline
-0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$25 flat &      36.6 &    3.57 &      2.45 &       8.67 \\ 
-0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$25 flat &      38.5 &    5.73 &      1.51 &       3.89 \\ 
-0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$25 flat &      38.5 &    5.73 &      1.51 &       3.89 \\ 
-0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$25 flat &      43.7 &    6.46 &      1.29 &       2.43 \\ 
-0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$25 flat &      41.9 &    8.76 &      1.07 &      0.649 \\ 
+0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      38.3 &    1.08 &      7.64 &       19.0 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      39.2 &    1.59 &      5.05 &       14.9 \\ 
+0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$35 flat &      41.3 &    1.59 &      5.05 &       14.9 \\ 
+0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$35 flat &      44.9 &    1.75 &      4.45 &       13.8 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$35 flat &      39.4 &    2.32 &      3.60 &       11.6 \\ 
+0.5     &     0.2 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      38.9 &    1.86 &      3.44 &       11.4 \\ 
+0.5     &     0.2 &   0.2 &  0.05 &  True & 700.0 &  $-$35 flat &      46.7 &    3.10 &      2.09 &       6.73 \\ \hline
+0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      37.3 &    1.96 &      4.27 &       13.8 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      38.1 &    2.98 &      2.77 &       9.55 \\ 
+0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$30 flat &      39.8 &    2.98 &      2.77 &       9.55 \\ 
+0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$30 flat &      43.6 &    3.31 &      2.43 &       8.34 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$30 flat &      38.3 &    4.37 &      1.97 &       6.29 \\ 
+0.5     &     0.2 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      37.9 &    3.58 &      1.85 &       5.76 \\ 
+0.5     &     0.2 &   0.2 &  0.05 &  True & 700.0 &  $-$30 flat &      45.3 &    6.28 &      1.11 &      0.943 \\ \hline
+0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$25 flat &      36.6 &    3.65 &      2.37 &       8.35 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$25 flat &      38.7 &    5.87 &      1.45 &       3.53 \\ 
+0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$25 flat &      38.7 &    5.87 &      1.45 &       3.53 \\ 
+0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$25 flat &      43.9 &    6.64 &      1.24 &       2.05 \\ 
+0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$25 flat &      42.2 &    9.07 &      1.03 &      0.297 \\ 
 0.5     &     0.2 &   0.0 &   0.0 & False & 500.0 &  $-$25 flat & \multicolumn{4}{c|}{\bf Runaway Year 13} \\
 0.5     &     0.2 &   0.2 &  0.05 &  True & 700.0 &  $-$25 flat & \multicolumn{4}{c|}{\bf Runaway Year 10} \\
 \hline\end{tabular}
@@ -176,6 +246,3 @@ endcaps, the maximum HV power, the minimum sensor headroom $[Q_{s,crit}/Q_s]$, a
 \label{detailed_safety_table}
 \end{centering}
 \end{table}
-
-
-
