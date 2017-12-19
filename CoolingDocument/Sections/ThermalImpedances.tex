@@ -226,6 +226,37 @@ for comparison (the ``$(R\times n)_X$'' values are comparable).
 \end{table}
 \let\arraystretch\arraystretcha
 
+\subsection{Notes about treating S0 and S1 jointly in R3-R5}
+
+The current Endcap thermoelectric model treats the S0 and S1 sensors in R3-R5 as a single entity.
+This simplification assumes that the average temperature of S1 and S2 individually is equal to the
+average temperature of S1+S2 combined. If S0 and S1 have very different average temperatures, then
+the model might underestimate the risk of thermal runaway in the hotter of the two silicon sensors.
+
+We can use the FEA to understand if this assumption is valid.
+Figure~\ref{sensor_temperatures} shows the temperature distribution of the front and back sensors of a
+fully-powered sensor, and Figure~\ref{component_temperatures_detailed} displays the detailed
+measurements of each component or sensor on either side of the petal, as well as temperatures of S0 and
+S1 individually. The average temperatures agree to within about a degree, suggesting that treating
+S0 and S1 jointly is a reasonable assumption to make (see Section~\ref{thermal_validation} about steps
+to further validate this assumption).
+
+\begin{figure}[ht!]
+\begin{subfigure}[t]{0.50\textwidth}\includegraphics[width=0.99\linewidth]{figures/m30C_0Wm2C_DP0_F_20170117_Sensor_label_enlarged.png}\caption{Front sensors}\end{subfigure}
+\begin{subfigure}[t]{0.50\textwidth}\includegraphics[width=0.99\linewidth]{figures/m30C_0Wm2C_DP0_B_20170117_Sensor_label_enlarged.png}\caption{Back sensors}\end{subfigure}\vspace{2mm}
+\caption{Front and back sensor temperatures of a fully-powered petal.}
+\label{sensor_temperatures}
+\end{figure}
+
+\begin{figure}[ht!]
+\includegraphics[width=0.99\linewidth]{figures/FEA_20171207_m30p0C_0p0Wm2C_DP1_ALL_All_Bins_S0.pdf}
+\caption{Temperatures of the fully-powered petal for individual components on each module. In the
+x-axis, ``I'' and ``O'' refer to inner and outer (referring to the hybrids), ``F'' and ``B'' refer to
+the front and back of the petal, and ``R'' and ``L'' refer to the right (S0) and left (S1) sensors.
+}
+\label{component_temperatures_detailed}
+\end{figure}
+
 \subsection{Other assumed thermal quantities}
 
 Some thermal impedances are estimated roughly rather than calculated using detailed simulations.
@@ -239,3 +270,24 @@ for each module). This is considered a worst-case value.
 \end{itemize}
 %
 The impact of an incorrect assumption on the above quantities is expected to be small.
+
+\subsection{Validating the thermal model --- Under Construction!}
+\label{thermal_validation}
+
+The common treatment of S0 and S1 in R3-R5 comes with other imperfect assumptions.
+For instance, the heat from the HCCs will affect S1 more than S0, and likewise the heat from the FEAST
+will affect S0 more than S1. The model assumes that these effects are small: the power dissipated on
+the HCC relative to the other components is roughly 10\% of the full module, and the FEAST is centrally
+located, roughly affecting S0 and S1 equally. If the FEAST location is dramatically changed or the
+relative power of the HCCs increases, then the assumption should be revisited.
+
+Another assumption made in the model relates to cross-talk between modules. The thermal impedances were
+extracted using simulations where e.g. all of the FEASTs were powered simultaneously, in order to see
+the effect of the FEASTs on the sensor temperature. If at any point the FEASTs of two adjacent modules
+dissipate different amounts of power, then the model will not account for this. The effect should be
+small, but should be checked nonetheless.
+
+To validate these (and other) assumptions in the model, especially in extreme cases, we should feed
+some extreme cases predicted by the thermoelectric model back into the FEA to see if the linear model
+is still valid in these conditions. Depending on the outcome of these checks, the model can be expanded
+to treat S0 and S1 individually, or to specifically model cross-talk between two adjacent modules.
