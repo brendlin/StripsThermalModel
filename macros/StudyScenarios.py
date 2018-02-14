@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os,sys
+import subprocess
 import re
 import ROOT
 the_path = ('/').join(os.getcwd().split('/')[:-1]) 
@@ -203,7 +204,7 @@ for scenario in scenarios :
     # Maximum Petal Value
     #
     tmp_dict = all_results[scenario]
-    for quantity_name in ['itapepetal','pmodulepetal'] :
+    for quantity_name in ['itapepetal','pmodulepetal','petalvoutlvpp2'] :
         if runaway :
             all_results[scenario][0]['%s_maxPetal_str'%(quantity_name)] = RunawayText
             continue
@@ -252,7 +253,7 @@ for scenario in scenarios :
 #f.write('\\begin{landscape}\n')
 #f.write('\subsubsection{Main Summary Table 2}\n')
 lists_new = []
-hlines_new = [4,6,9,11,17,23,29,35,48]
+hlines_new = [4,6,9,12,18,24,30,36,49]
 #
 lists_new.append(['','Fluence'    ]); lists_new[-1] += list(all_configs[scenario].GetValue('SafetyFactors.safetyfluence','')          for scenario in two_main_scenarios)
 lists_new[-1][0] = '\multirow{5}{*}{Safety Factors}'
@@ -266,22 +267,22 @@ lists_new.append(['','Voltage [V]']); lists_new[-1] += list(all_configs[scenario
 lists_new[-1][0] = '\multirow{2}{*}{HV, Cooling}'
 lists_new.append(['','Cooling [$^\circ$C]']); lists_new[-1] += list(all_configs[scenario].GetValue('cooling','').replace('-',' $-$')  for scenario in two_main_scenarios)
 #
-lists_new.append(['','Minimum power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_minval_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Minimum (LV+HV) power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_minval_str'] for scenario in two_main_scenarios)
 lists_new[-1][0] = '\multirow{3}{*}{Endcap System}'
-lists_new.append(['','Maximum power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_maxval_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Maximum (LV+HV) power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_maxval_str'] for scenario in two_main_scenarios)
 lists_new.append(['','Maximum $P_\text{HV}$ [kW]']); lists_new[-1] += list(all_results[scenario][0]['phv_wleakage_maxval_str'] for scenario in two_main_scenarios)
 #
-lists_new.append(['','Max petal $I_\text{tape}$ [A]']); lists_new[-1] += list(all_results[scenario][0]['itapepetal_maxPetal_str'] for scenario in two_main_scenarios)
-lists_new[-1][0] = '\multirow{2}{*}{Petal-level}'
-lists_new.append(['','Max petal power [W]']); lists_new[-1] += list(all_results[scenario][0]['pmodulepetal_maxPetal_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Max petal LV $I_\text{tape}$ [A]']); lists_new[-1] += list(all_results[scenario][0]['itapepetal_maxPetal_str'] for scenario in two_main_scenarios)
+lists_new[-1][0] = '\multirow{3}{*}{Petal-level}'
+lists_new.append(['','Max petal power (LV+HV) [W]']); lists_new[-1] += list(all_results[scenario][0]['pmodulepetal_maxPetal_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Max LV $V_\text{out}$ at PP2']); lists_new[-1] += list(all_results[scenario][0]['petalvoutlvpp2_maxPetal_str'] for scenario in two_main_scenarios)
 #
 for ring in range(6) :
     index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
-    title = 'Min/Max Power [W]' if not ring else ''
     lists_new.append(['R%d'%(ring),''])
     lists_new[-1] += list('%s / %s'%(all_results[scenario][index_rXd0]['pmodule_minOfRtype'],
                                      all_results[scenario][index_rXd0]['pmodule_maxOfRtype']) for scenario in two_main_scenarios)
-    if not ring : lists_new[-1][1] = '\multirow{6}{*}{Min/Max Power [W]}'
+    if not ring : lists_new[-1][1] = '\multirow{6}{*}{Min/Max (LV+HV) Power [W]}'
 #
 for ring in range(6) :
     index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
@@ -481,6 +482,7 @@ os.system('cat %s/latex/FrontMatter.tex > %s/Scenarios_%s.tex'%(the_path,outputp
 os.system('echo "\section{Safety Factor Scenarios}\n" >> %s/Scenarios_%s.tex'%(outputpath,wildcard))
 os.system('cat %s/Scenarios.txt >> %s/Scenarios_%s.tex'%(outputpath,outputpath,wildcard))
 os.system('echo "\end{document}\n" >> %s/Scenarios_%s.tex'%(outputpath,wildcard))
+# p = subprocess.Popen(['cd',outputpath,'&&','pdflatex','Scenarios_%s.tex'%(wildcard)],stdout=subprocess.PIPE)
+# print p.communicate()
 os.system('cd %s && pdflatex Scenarios_%s.tex'%(outputpath,wildcard))
-
 print 'done'
