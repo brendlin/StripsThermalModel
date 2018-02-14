@@ -255,6 +255,9 @@ def main(options,args) :
         os.makedirs(outputpath)
 
     outfiletag = options.data.replace('ThermalImpedances_','').replace('.txt','')
+    a = ROOT.TLatex()
+    a.SetNDC()
+    a.DrawText(0.714,0.387,'Module %s'%(outfiletag))
     c.Print('%s/ThermalImpedanceFit_%s_Rcm.eps'%(outputpath,outfiletag))
 
     Rc = 0
