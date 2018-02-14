@@ -46,11 +46,20 @@ HVType2ResistancePerMeter = Config.GetDouble('CableLosses.HVType2ResistancePerMe
 HVType3ResistancePerMeter = Config.GetDouble('CableLosses.HVType3ResistancePerMeter',0.139  ,unit='$\Omega$/m',description=descr%(3))
 HVType4ResistancePerMeter = Config.GetDouble('CableLosses.HVType4ResistancePerMeter',0.14286,unit='$\Omega$/m',description=descr%(4))
 
+def Resistance_Type1and2() :
+    return (LVType1ResistancePerMeter*Type1LengthOneWay*2 + LVType2ResistancePerMeter*Type2LengthOneWay*2)
+
+def Resistance_Type3and4() :
+    return (LVType3ResistancePerMeter*Type3LengthOneWay*2 + LVType4ResistancePerMeter*Type4LengthOneWay*2)
+
 # Vout_LV_pp2 is the return voltage to the pp2
 # Ihalfsubstructure should be 'itapepetal' from ExtendedModelSummaryPlots.py
 def Vout_LV_pp2(Ihalfsubstructure) :
-    tmp_type12_R = (LVType1ResistancePerMeter*Type1LengthOneWay*2 + LVType2ResistancePerMeter*Type2LengthOneWay*2)
-    return EOSComponents.Veos + Ihalfsubstructure * tmp_type12_R
+    return EOSComponents.Veos + Ihalfsubstructure * Resistance_Type1and2()
+
+# "Round trip voltage drop"
+def Vdrop_RoundTrip_type1and2(Ihalfsubstructure) :
+    return Ihalfsubstructure * Resistance_Type1and2()
 
 def Ppp2_LV(Ihalfsubstructure) :
     return (1./float(PP2Efficiency) - 1.) * Ihalfsubstructure * Vout_LV_pp2(Ihalfsubstructure)
@@ -58,10 +67,12 @@ def Ppp2_LV(Ihalfsubstructure) :
 def ILVtype3andType4(Ihalfsubstructure) :
     return ( Vout_LV_pp2(Ihalfsubstructure)/float(PP2InputVoltage) ) * Ihalfsubstructure / float(PP2Efficiency)
 
+def PlossCables(Ihalfsubstructure) :
+    return (Ihalfsubstructure**2) * Resistance_Type1and2() + (ILVtype3andType4(Ihalfsubstructure)**2) * Resistance_Type3and4()
+
 # Factor of 2 is for half-substructure -> full substructure
 def PLVservicesFullSubstructure(Ihalfsubstructure) :
-    tmp_type34_R = (LVType3ResistancePerMeter*Type3LengthOneWay*2 + LVType4ResistancePerMeter*Type4LengthOneWay*2)
-    return 2 * ( Ppp2_LV(Ihalfsubstructure) + (Ihalfsubstructure**2) * tmp_type12_R + (ILVtype3andType4**2) * tmp_type34_R )
+    return 2 * ( Ppp2_LV(Ihalfsubstructure) + PlossCables(Ihalfsubstructure) )
 
 # High-voltage
 def DeltaVHV_halfsubstructure_Services() :
