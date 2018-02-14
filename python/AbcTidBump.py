@@ -54,7 +54,7 @@ def tid_shape_GeorgGraham(T, doserate, collecteddose,pess):
     return max( (1-exp(-coeff1 * (collecteddose - 400)/1000.)) - (1-exp(-coeff2 * (collecteddose-400)/1000.)), 0 )/float(norm(coeff1, coeff2))
 
 def tid_scalePlusShape_GeorgGraham(T, doserate, collecteddose,pess):
-    return 1 + (tid_scalefactor_GeorgGraham_tf2.Eval(T, doserate)-1)*tid_shape_GeorgGraham(T, doserate, collecteddose)
+    return 1 + (tid_scalefactor_GeorgGraham_tf2.Eval(T, doserate)-1)*tid_shape_GeorgGraham(T, doserate, collecteddose,pess)
 
 # Get the model version:
 ModelVersion = Config.GetStr('AbcTidBump.ModelVersion','v02',description='TID parameterization Model Version')

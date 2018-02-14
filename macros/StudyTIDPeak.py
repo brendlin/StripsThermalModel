@@ -9,12 +9,18 @@ print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
 ROOT.gROOT.SetMacroPath(the_path)
 
-import python.AbcTidBump as AbcTidBump
-import python.PlotUtils as PlotUtils
-import python.TAxisFunctions as TAxisFunctions
-
 #-----------------------------------------------
 def main(options,args) :
+
+    # Dummy config must be loaded before loading any other module.
+    import python.Config as Config
+    Config.SetConfigFile('%s/data/%s'%(the_path,'Barrel_B0.config'),doprint=False)
+    Config.SetValue('SafetyFactors.TIDpessimistic',options.pess)
+
+    import python.AbcTidBump as AbcTidBump
+    import python.PlotUtils as PlotUtils
+    import python.TAxisFunctions as TAxisFunctions
+
     PlotUtils.ApplyGlobalStyle()
     
     tid_overall_data = open('%s/data/AbcTidBumpData.txt'%(the_path),'r')
@@ -145,7 +151,7 @@ def main(options,args) :
     shapeArray = []
     for i in range(0, 10000, 10) :
         dose.append(float(i))
-        shapeArray.append(AbcTidBump.tid_shape_GeorgGraham(-999,-999,i)) # no dependence on T or doserate
+        shapeArray.append(AbcTidBump.tid_shape_GeorgGraham(-999,-999,i,options.pess)) # no dependence on T or doserate
     gShape = PlotUtils.MakeGraph('TIDShape','TID shape vs collected dose','Dose [kRad]','Scale factor',dose,shapeArray)
     gShape.SetLineColor(3)
     gShape.Draw('al')
@@ -162,8 +168,8 @@ def main(options,args) :
     fTp10 = []
     for i in range(0,2200, 10) :
         D.append(i)
-        fTm10.append(AbcTidBump.tid_scalePlusShape_GeorgGraham(-10., 1.1, i))
-        fTp10.append(AbcTidBump.tid_scalePlusShape_GeorgGraham( 10., 1.1, i))
+        fTm10.append(AbcTidBump.tid_scalePlusShape_GeorgGraham(-10., 1.1, i,options.pess))
+        fTp10.append(AbcTidBump.tid_scalePlusShape_GeorgGraham( 10., 1.1, i,options.pess))
     
     gCombm10 = PlotUtils.MakeGraph('TIDScaleCombined','TID scaling for 1.1 kRad/h','Dose [kRad]','Scale factor',D,fTm10)
     gCombm10.SetLineColor(4)
@@ -213,8 +219,8 @@ def main(options,args) :
                 Dose = Dose * (180. / 1.) * (24. / 1.) * (0.3) # hours = year * (d/y) * (h/d) * efficiency
                 Dose = Dose * float(rate) # kRad = hours * (kRad/hr)
                 #print '%8.1f %8.1f %8.1f %8.1f'%(i,Dose,rate,temp)
-                fT_and_DR['v00'][temp][rate].append(AbcTidBump.tid_scalePlusShape_GeorgGraham(temp,rate,Dose))
-                fT_and_DR['v01'][temp][rate].append(AbcTidBump.tid_scalePlusShape_Kyle(temp,rate,Dose))
+                fT_and_DR['v00'][temp][rate].append(AbcTidBump.tid_scalePlusShape_Kyle(temp,rate,Dose,options.pess))
+                fT_and_DR['v01'][temp][rate].append(AbcTidBump.tid_scalePlusShape_Kyle_Oct2017(temp,rate,Dose,options.pess))
 
     dummy = dict()
     for j,rate in enumerate(rates) :
@@ -268,6 +274,7 @@ if __name__ == '__main__':
     from optparse import OptionParser
     p = OptionParser()
     
+    p.add_option('--pess',action='store_true',default=False,dest='pess',help='Pessimistic?')
     options,args = p.parse_args()
     
     main(options,args)
