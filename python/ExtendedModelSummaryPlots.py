@@ -205,6 +205,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         for disk_layer in range(Layout.nlayers_or_disks) :
             result_dicts_petals.append(dict())
             ppetal,qsensorpetal,phvpetal,itapepetal,isensorpetal = [],[],[],[],[]
+            petalvoutlvpp2 = []
 
             for i in range(GlobalSettings.nstep) :
                 ppetal.append(0); qsensorpetal.append(0); phvpetal.append(0); itapepetal.append(0); isensorpetal.append(0)
@@ -218,6 +219,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
                     itapepetal[i] += result_dicts[index]['itape_eos'].GetY()[i]
                     isensorpetal[i] += result_dicts[index]['isensor'].GetY()[i]
 
+                petalvoutlvpp2.append(CableLosses.Vout_LV_pp2(itapepetal[i]))
+
             str_pet_stv = 'petal' if Layout.isEndcap else 'stave'
             aa,bb,cc = ['Petal','Disk',disk_layer] if Layout.isEndcap else ['Stave','Layer',disk_layer]
             result_dicts_petals[disk_layer]['pmodulepetal']      = MakeGraph('%sPower%s%d'  %(aa,bb,cc),'Total power in %s (with EOS) (one side)'%(str_pet_stv),xtitle,'P_{%s} [W]'%(str_pet_stv),x,ppetal)
@@ -225,6 +228,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             result_dicts_petals[disk_layer]['phv_wleakagepetal'] = MakeGraph('%sHVPower%s%d'%(aa,bb,cc),'HV power in %s (one side)'              %(str_pet_stv),xtitle,'P [W]'              ,x,phvpetal)
             result_dicts_petals[disk_layer]['itapepetal']        = MakeGraph('%sTapeCurrentLV%s%d'%(aa,bb,cc),'LV tape current in %s (with EOS) (one side)'%(str_pet_stv),xtitle,'I [A]'    ,x,itapepetal)
             result_dicts_petals[disk_layer]['isensorpetal']      = MakeGraph('%sSensorCurrent%s%d'%(aa,bb,cc),'Total sensor (leakage) current in %s (one side)'%(str_pet_stv),xtitle,'I [mA]',x,isensorpetal)
+
+            result_dicts_petals[disk_layer]['petalvoutlvpp2']    = MakeGraph('%sVoutLVPP2%s%d'%(aa,bb,cc),'Vout at PP2, %s (one side)'%(str_pet_stv),xtitle,'I [mA]',x,petalvoutlvpp2)
 
             thermal_runaway_yearpetal = 999
             for ring_mod in range(Layout.nmodules_or_rings) :
@@ -236,7 +241,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
             # Append to result_dicts for further use in ProcessSummaryTables
             index = PlotUtils.GetResultDictIndex(names,0,disk_layer)
-            for i in ['pmodulepetal','qsensorpetal','phv_wleakagepetal','itapepetal','isensorpetal'] :
+            for i in ['pmodulepetal','qsensorpetal','phv_wleakagepetal','itapepetal','isensorpetal','petalvoutlvpp2'] :
                 result_dicts[index][i] = result_dicts_petals[disk_layer][i]
             result_dicts[index]['thermal_runaway_yearpetal'] = thermal_runaway_yearpetal
 

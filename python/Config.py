@@ -136,7 +136,6 @@ def ReloadPythonModule(name) :
 def ReloadAllPythonModules() :
     #                   Module                               Dependencies
     ReloadPythonModule('python.GlobalSettings'           ) # none
-    ReloadPythonModule('python.CableLosses'              ) # none
     ReloadPythonModule('python.AbcTidBump'               ) # Config
     ReloadPythonModule('python.PoweringEfficiency'       ) # Config
     ReloadPythonModule('python.Layout'                   ) # Config
@@ -146,6 +145,7 @@ def ReloadAllPythonModules() :
     ReloadPythonModule('python.ThermalImpedances'        ) # Config SafetyFactors
     ReloadPythonModule('python.OperationalProfiles'      ) # Config SafetyFactors (GlobalSettings)
     ReloadPythonModule('python.EOSComponents'            ) # SafetyFactors
+    ReloadPythonModule('python.CableLosses'              ) # Config EOSComponents
     ReloadPythonModule('python.FrontEndComponents'       ) # SafetyFactors
     ReloadPythonModule('python.PlotUtils'                ) # SafetyFactors CoolantTemperature
     ReloadPythonModule('python.Temperatures'             ) # ThermalImpedances (GlobalSettings)
