@@ -3,6 +3,7 @@
 #
 import Config
 import EOSComponents
+import PlotUtils
 
 # Loss factors in cables
 # in tapes (no value?)
@@ -46,20 +47,20 @@ HVType2ResistancePerMeter = Config.GetDouble('CableLosses.HVType2ResistancePerMe
 HVType3ResistancePerMeter = Config.GetDouble('CableLosses.HVType3ResistancePerMeter',0.139  ,unit='$\Omega$/m',description=descr%(3))
 HVType4ResistancePerMeter = Config.GetDouble('CableLosses.HVType4ResistancePerMeter',0.14286,unit='$\Omega$/m',description=descr%(4))
 
-def Resistance_Type1and2() :
+def Resistance_LVType1and2() :
     return (LVType1ResistancePerMeter*Type1LengthOneWay*2 + LVType2ResistancePerMeter*Type2LengthOneWay*2)
 
-def Resistance_Type3and4() :
+def Resistance_LVType3and4() :
     return (LVType3ResistancePerMeter*Type3LengthOneWay*2 + LVType4ResistancePerMeter*Type4LengthOneWay*2)
 
 # Vout_LV_pp2 is the return voltage to the pp2
 # Ihalfsubstructure should be 'itapepetal' from ExtendedModelSummaryPlots.py
 def Vout_LV_pp2(Ihalfsubstructure) :
-    return EOSComponents.Veos + Ihalfsubstructure * Resistance_Type1and2()
+    return EOSComponents.Veos + Ihalfsubstructure * Resistance_LVType1and2()
 
 # "Round trip voltage drop"
 def Vdrop_RoundTrip_type1and2(Ihalfsubstructure) :
-    return Ihalfsubstructure * Resistance_Type1and2()
+    return Ihalfsubstructure * Resistance_LVType1and2()
 
 def Ppp2_LV(Ihalfsubstructure) :
     return (1./float(PP2Efficiency) - 1.) * Ihalfsubstructure * Vout_LV_pp2(Ihalfsubstructure)
@@ -68,15 +69,51 @@ def ILVtype3andType4(Ihalfsubstructure) :
     return ( Vout_LV_pp2(Ihalfsubstructure)/float(PP2InputVoltage) ) * Ihalfsubstructure / float(PP2Efficiency)
 
 def PlossCables(Ihalfsubstructure) :
-    return (Ihalfsubstructure**2) * Resistance_Type1and2() + (ILVtype3andType4(Ihalfsubstructure)**2) * Resistance_Type3and4()
+    return (Ihalfsubstructure**2) * Resistance_LVType1and2() + (ILVtype3andType4(Ihalfsubstructure)**2) * Resistance_LVType3and4()
 
 # Factor of 2 is for half-substructure -> full substructure
 def PLVservicesFullSubstructure(Ihalfsubstructure) :
     return 2 * ( Ppp2_LV(Ihalfsubstructure) + PlossCables(Ihalfsubstructure) )
 
+#
 # High-voltage
-def DeltaVHV_halfsubstructure_Services() :
-    return 0
+#
+
+RHVtape = 0 # Get from Graham?
+RHV = 0 # What is this?
+
+def Resistance_HVType1and2() :
+    return (HVType1ResistancePerMeter*Type1LengthOneWay*2 + HVType2ResistancePerMeter*Type2LengthOneWay*2)
+
+def Resistance_HVType3and4() :
+    return (HVType3ResistancePerMeter*Type3LengthOneWay*2 + HVType4ResistancePerMeter*Type4LengthOneWay*2)
+
+# separate HV lines will serve modules: R5, R4, R3 and R2, and R1 and R0.
+def iSensors_HV_Type1Type2PP2_Petal(names,ring,disk,result_dicts,itime) :
+    index = PlotUtils.GetResultDictIndex(names,ring,disk)
+    isensors = result_dicts[index]['isensor'].GetY()[itime]
+
+    if (ring == 0) or (ring == 2) :
+        index = PlotUtils.GetResultDictIndex(names,ring+1,disk)
+        isensors += result_dicts[index]['isensor'].GetY()[itime]
+
+    if (ring == 1) or (ring == 3) :
+        index = PlotUtils.GetResultDictIndex(names,ring-1,disk)
+        isensors += result_dicts[index]['isensor'].GetY()[itime]
+
+    return isensors
+
+# For now assume that the multiplexing is the same as in Type1Type2PP2
+def iSensors_HV_Type3Type4_Petal(names,ring,disk,result_dicts,itime) :
+    return iSensors_HV_Type1Type2PP2_Petal(names,ring,disk,result_dicts,itime)
+
+# separate HV lines will serve modules: R5, R4, R3 and R2, and R1 and R0.
+# RHV is related to the EOS somehow... ?
+def DeltaVHV_halfsubstructure_Type1Type2PP2(isensors_type12) :
+    return isensors_type12 * (RHVtape + Resistance_HVType1and2() + PP2HVFilterResistance )
+
+def DeltaVHV_halfsubstructure_Type3Type4(isensors_type34) :
+    return isensors_type34 * Resistance_HVType3and4()
 
 # Power of HV services, including tape, PP2, and cables. Excluding on-module resistors.
-PHV_Services = 0
+PHVservicesFullPetal = 0

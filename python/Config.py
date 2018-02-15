@@ -145,9 +145,9 @@ def ReloadAllPythonModules() :
     ReloadPythonModule('python.ThermalImpedances'        ) # Config SafetyFactors
     ReloadPythonModule('python.OperationalProfiles'      ) # Config SafetyFactors (GlobalSettings)
     ReloadPythonModule('python.EOSComponents'            ) # SafetyFactors
-    ReloadPythonModule('python.CableLosses'              ) # Config EOSComponents
     ReloadPythonModule('python.FrontEndComponents'       ) # SafetyFactors
     ReloadPythonModule('python.PlotUtils'                ) # SafetyFactors CoolantTemperature
+    ReloadPythonModule('python.CableLosses'              ) # Config EOSComponents PlotUtils
     ReloadPythonModule('python.Temperatures'             ) # ThermalImpedances (GlobalSettings)
     ReloadPythonModule('python.ExtendedModelSummaryPlots') # CoolantTemperature PlotUtils CableLosses Layout (GlobalSettings)
     ReloadPythonModule('python.SensorLeakage'            ) # SensorProperties OperationalProfiles (GlobalSettings)

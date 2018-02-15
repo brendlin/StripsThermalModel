@@ -24,7 +24,7 @@ colors = {'L0':ROOT.kGreen,
           }
 
 
-def SetEndcapLegendSpecial(leg,graphs,doDisks=True,doRings=True) :
+def SetEndcapLegendSpecial(leg,graphs,doDisks=True,doRings=True,multiplexedhv=False) :
     leg.Clear()
     if doDisks and doRings :
         leg.SetNColumns(2)
@@ -37,7 +37,15 @@ def SetEndcapLegendSpecial(leg,graphs,doDisks=True,doRings=True) :
             dummy_graphs.append(ROOT.TGraph(1,array('d',[1]),array('d',[1])))
             dummy_graphs[-1].SetLineColor(colors['R%d'%(i)])
             dummy_graphs[-1].SetLineWidth(2)
-            leg.AddEntry(dummy_graphs[-1],'Ring %d'%(i),'l')
+            if multiplexedhv :
+                if i == 1 or i == 3 :
+                    leg.AddEntry(dummy_graphs[-1],'Ring%d/%d'%(i,i+1),'l')
+                elif i == 0 or i == 2 :
+                    leg.AddEntry(0,' ','')
+                else :
+                    leg.AddEntry(dummy_graphs[-1],'Ring %d'%(i),'l')
+            else :
+                leg.AddEntry(dummy_graphs[-1],'Ring %d'%(i),'l')
 
         if doDisks :
             # Disks
@@ -114,6 +122,28 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     styles = {'D0':1,'D1':10,'D2':11,'D3':12,'D4':13,'D5':14,
               'M0':1,'M13':14}
 
+    # One-per-module items that nonetheless need to know about the other modules.
+    for disk_layer in range(Layout.nlayers_or_disks) :
+        for ring_mod in range(Layout.nmodules_or_rings) :
+            deltavhvservices = []
+            for i in range(GlobalSettings.nstep) :
+                index = PlotUtils.GetResultDictIndex(names,ring_mod,disk_layer)
+
+                # Get the multiplexed deltavhv
+                deltav_RHV = 0
+                if ('R5' in names[index]) or ('M13' in names[index]) :
+                    deltav_RHV = result_dicts[index]['isensor'].GetY()[i] * CableLosses.RHV
+
+                isensors_type12 = CableLosses.iSensors_HV_Type1Type2PP2_Petal(names,ring_mod,disk_layer,result_dicts,i)
+                isensors_type34 = CableLosses.iSensors_HV_Type3Type4_Petal(names,ring_mod,disk_layer,result_dicts,i)
+                deltavhv_type12pp2 = CableLosses.DeltaVHV_halfsubstructure_Type1Type2PP2(isensors_type12)
+                deltavhv_type34    = CableLosses.DeltaVHV_halfsubstructure_Type3Type4   (isensors_type34)
+                # milliVolts -> Volts
+                deltavhvservices.append((deltav_RHV + deltavhv_type12pp2 + deltavhv_type34)/1000.)
+
+            result_dicts[index]['deltavhvservices'] = MakeGraph('HVDeltaVServices','HV cable HV #Delta^{}V (one petal side)',xtitle,'V',x,deltavhvservices)
+
+
     list_of_plots = list(result_dicts[0].keys())
 
     for plotname in list_of_plots :
@@ -156,7 +186,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         if speciallegend :
             if options.endcap :
                 # save dummy graphs so they do not go out of scope
-                dummy_graphs = SetEndcapLegendSpecial(leg,graphs)
+                dummy_graphs = SetEndcapLegendSpecial(leg,graphs,multiplexedhv = (plotname == 'deltavhvservices'))
             elif options.barrel :
                 dummy_graphs = SetBarrelLegendSpecial(leg,graphs)
 
