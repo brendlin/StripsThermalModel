@@ -116,4 +116,19 @@ def DeltaVHV_halfsubstructure_Type3Type4(isensors_type34) :
     return isensors_type34 * Resistance_HVType3and4()
 
 # Power of HV services, including tape, PP2, and cables. Excluding on-module resistors.
-PHVservicesFullPetal = 0
+def PHVservicesFullPetal(names,disk,result_dicts,itime) :
+    output = 0
+    # (0,1), (2,3), (4), (5) Type1Type2PP2 and Type3Type4
+    for ring in [0,2,4,5] :
+        itmp = 0.001 * iSensors_HV_Type1Type2PP2_Petal(names,ring,disk,result_dicts,itime)
+        output += itmp * DeltaVHV_halfsubstructure_Type1Type2PP2(itmp)
+        itmp = 0.001 * iSensors_HV_Type3Type4_Petal   (names,ring,disk,result_dicts,itime)
+        output += itmp * DeltaVHV_halfsubstructure_Type3Type4   (itmp)
+
+    # add eos component
+    index = PlotUtils.GetResultDictIndex(names,5,disk)
+    itmp = 0.001 * result_dicts[index]['isensor'].GetY()[itime]
+    output += (itmp**2) * RHV
+
+    # Extra factor of 2 for two halves of the petal
+    return 2 * output
