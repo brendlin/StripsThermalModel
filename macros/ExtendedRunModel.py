@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os,sys
+import subprocess
 import math
 import ROOT
 the_path = ('/').join(os.getcwd().split('/')[:-1]) 
@@ -158,7 +159,7 @@ def main(options,args):
     os.system('echo "\section{Model Results}\n" >> %s/Document.tex'%(outputpath))
     os.system('cat %s/SummaryTables.txt >> %s/Document.tex'%(outputpath,outputpath))
     os.system('echo "\end{document}\n" >> %s/Document.tex'%(outputpath))
-    os.system('cd %s && pdflatex Document.tex'%(outputpath))
+    PlotUtils.pdflatex(outputpath,'Document.tex')
 
     print 'done'
     return
