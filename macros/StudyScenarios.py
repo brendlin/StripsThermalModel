@@ -252,34 +252,33 @@ for scenario in scenarios :
 #f.write('\\begin{landscape}\n')
 #f.write('\subsubsection{Main Summary Table 2}\n')
 olist = []
-hlines_new = [4,6,9,12,18,24,30,36,49]
+hlines_new = [4,6,10,13,19,25,31,37,50]
 #
-olist.append(['','Fluence'    ]); olist[-1] += list(all_configs[scn].GetValue('SafetyFactors.safetyfluence','')          for scn in two_main_scenarios)
-olist[-1][0] = '\multirow{5}{*}{Safety Factors}'
-olist.append(['','$R_{T}$'    ]); olist[-1] += list(all_configs[scn].GetValue('SafetyFactors.safetythermalimpedance','') for scn in two_main_scenarios)
-olist.append(['','$I_D$'      ]); olist[-1] += list(all_configs[scn].GetValue('SafetyFactors.safetycurrentd','')         for scn in two_main_scenarios)
-olist.append(['','$I_A$'      ]); olist[-1] += list(all_configs[scn].GetValue('SafetyFactors.safetycurrenta','')         for scn in two_main_scenarios)
-olist.append(['','TID parameterization']);
-olist[-1] += list(all_configs[scn].GetValue('SafetyFactors.TIDpessimistic','False').replace('False','nominal').replace('True','pessimistic') for scn in two_main_scenarios)
+olist.append(['','Fluence'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetyfluence','')          for scn in two_main_scenarios))
+olist.append(['','$R_{T}$'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetythermalimpedance','') for scn in two_main_scenarios))
+olist.append(['','$I_D$'      ] + list(all_configs[scn].GetValue('SafetyFactors.safetycurrentd','')         for scn in two_main_scenarios))
+olist.append(['','$I_A$'      ] + list(all_configs[scn].GetValue('SafetyFactors.safetycurrenta','')         for scn in two_main_scenarios))
+olist.append(['','TID parameterization'] + list(all_configs[scn].GetValue('SafetyFactors.TIDpessimistic','False').replace('False','nominal').replace('True','pessimistic') for scn in two_main_scenarios))
+olist.append(['','Voltage [V]'         ] + list(all_configs[scn].GetValue('SafetyFactors.vbias','')         for scn in two_main_scenarios))
+olist.append(['','Cooling [$^\circ$C]' ] + list(all_configs[scn].GetValue('cooling','').replace('-',' $-$') for scn in two_main_scenarios))
+olist.append(['','Min/Max Power (LV+HV, no services) [kW]'] + list('%s/%s'%(all_results[scn][0]['pmodule_minval_str'],
+                                                                            all_results[scn][0]['pmodule_maxval_str']) for scn in two_main_scenarios))
+olist.append(['','\phantom{Min/Max Power} (w/type 1 cooling system) [kW]'] + list('%s/%s'%('???','???') for scn in two_main_scenarios))
+olist.append(['','\phantom{Min/Max Power} (w/all services +PS, e.g. wall power) [kW]'] + list('%s/%s'%('???','???') for scn in two_main_scenarios))
+olist.append(['','Maximum $P_\text{HV}$ [kW]'      ] + list(all_results[scn][0]['phv_wleakage_maxval_str']     for scn in two_main_scenarios))
+olist.append(['','Max petal LV $I_\text{tape}$ [A]'] + list(all_results[scn][0]['itapepetal_maxPetal_str']     for scn in two_main_scenarios))
+olist.append(['','Max petal power (LV+HV) [W]'     ] + list(all_results[scn][0]['pmodulepetal_maxPetal_str']   for scn in two_main_scenarios))
+olist.append(['','Max LV $V_\text{out}$ at PP2'    ] + list(all_results[scn][0]['petalvoutlvpp2_maxPetal_str'] for scn in two_main_scenarios))
 #
-olist.append(['','Voltage [V]']); olist[-1] += list(all_configs[scn].GetValue('SafetyFactors.vbias','')                  for scn in two_main_scenarios)
-olist[-1][0] = '\multirow{2}{*}{HV, Cooling}'
-olist.append(['','Cooling [$^\circ$C]']); olist[-1] += list(all_configs[scn].GetValue('cooling','').replace('-',' $-$')  for scn in two_main_scenarios)
+# Fill in the leftmost labels:
 #
-olist.append(['','Min/Max Power (LV+HV, no services) [kW]']); olist[-1] += list('%s/%s'%(all_results[scn][0]['pmodule_minval_str'],
-                                                                                                 all_results[scn][0]['pmodule_maxval_str']) for scn in two_main_scenarios)
-olist[-1][0] = '\multirow{2}{*}{Endcap System}'
-olist.append(['','\phantom{Min/Max Power} (w/type 1 cooling system) [kW]']); olist[-1] += list('%s/%s'%('???',
-                                                                                                                '???') for scn in two_main_scenarios)
-olist[-1][0] = '\multirow{2}{*}{Power [kW]}'
-olist.append(['','\phantom{Min/Max Power} (w/all services +PS, e.g. wall power) [kW]']); olist[-1] += list('%s/%s'%('???',
-                                                                                                                            '???') for scn in two_main_scenarios)
-olist.append(['','Maximum $P_\text{HV}$ [kW]']); olist[-1] += list(all_results[scn][0]['phv_wleakage_maxval_str'] for scn in two_main_scenarios)
-#
-olist.append(['','Max petal LV $I_\text{tape}$ [A]']); olist[-1] += list(all_results[scn][0]['itapepetal_maxPetal_str'] for scn in two_main_scenarios)
-olist[-1][0] = '\multirow{3}{*}{Petal-level}'
-olist.append(['','Max petal power (LV+HV) [W]']); olist[-1] += list(all_results[scn][0]['pmodulepetal_maxPetal_str'] for scn in two_main_scenarios)
-olist.append(['','Max LV $V_\text{out}$ at PP2']); olist[-1] += list(all_results[scn][0]['petalvoutlvpp2_maxPetal_str'] for scn in two_main_scenarios)
+olist[0][0] = '\multirow{5}{*}{Safety Factors}'
+olist[5][0] = '\multirow{2}{*}{HV, Cooling}'
+olist[7][0] = '\multirow{2}{*}{Endcap System}'
+olist[8][0] = '\multirow{2}{*}{Min/Max}'
+olist[9][0] = '\multirow{2}{*}{Power [kW]}'
+olist[11][0] = '\multirow{3}{*}{Petal-level}'
+
 #
 for ring in range(6) :
     index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
@@ -306,7 +305,7 @@ for ring in range(6) :
     index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
     olist.append(['R%d'%(ring),''])
     olist[-1] += list('%s / %s'%(all_results[scn][index_rXd0]['ifeast_minOfRtype'],
-                                     all_results[scn][index_rXd0]['ifeast_maxOfRtype']) for scn in two_main_scenarios)
+                                 all_results[scn][index_rXd0]['ifeast_maxOfRtype']) for scn in two_main_scenarios)
     if not ring : olist[-1][1] = '\multirow{6}{*}{Min/Max Feast load [A]}'
 #
 for ring in range(6) :
@@ -317,19 +316,19 @@ for ring in range(6) :
             continue
         olist.append([name,''])
         olist[-1] += list('%s / %s'%(all_results[scn][index_rXd0]['ihybrid%d_minOfRtype'%(hybrid)],
-                                         all_results[scn][index_rXd0]['ihybrid%d_maxOfRtype'%(hybrid)]) for scn in two_main_scenarios)
+                                     all_results[scn][index_rXd0]['ihybrid%d_maxOfRtype'%(hybrid)]) for scn in two_main_scenarios)
         if (not ring) and (not hybrid) :
             olist[-1][1] = '\multirow{13}{*}{Min/Max Hybrid Current [A]}'
 #
 olist.append(['','Max $I_{HV}$ per module [mA]']); olist[-1] += list('%s (%s)'%all_results[scn][0]['isensor_maxModule_str'] for scn in two_main_scenarios)
-olist[-1][0] = '\multirow{5}{*}{Components}'
+olist[-1][0] = '\multirow{7}{*}{Components}'
 # Sensor temperatures
-olist.append(['','Max sensor T [$^\circ$C], Y1' ]); olist[-1] += list('%s (%s)'%all_results[scn][0]['tsensor_maxModuleY1_str'] for scn in two_main_scenarios)
-olist.append(['','Max sensor T [$^\circ$C], Y14']); olist[-1] += list('%s (%s)'%all_results[scn][0]['tsensor_maxModuleY14_str'] for scn in two_main_scenarios)
-olist.append(['','Max sensor T [$^\circ$C], Max']); olist[-1] += list('%s (%s)'%all_results[scn][0]['tsensor_maxModule_str'] for scn in two_main_scenarios)
-olist.append(['','Max $T_\text{Feast}$']); olist[-1] += list('%s (%s)'%all_results[scn][0]['tfeast_maxModule_str'] for scn in two_main_scenarios)
-olist.append(['','Min $Q_{sensor}$ Headroom [$Q_{S,crit}/Q_{S}$]']); olist[-1] += list('%s (%s)'%all_results[scn][0]['qsensor_headroom_minModule_str'] for scn in two_main_scenarios)
-olist.append(['','Min Coolant Temperature Headroom [$^\circ$C]']); olist[-1] += list('%s (%s)'%all_results[scn][0]['tc_headroom_minModule_str'] for scn in two_main_scenarios)
+olist.append(['','Max sensor T [$^\circ$C], Y1' ] + list('%s (%s)'%all_results[scn][0]['tsensor_maxModuleY1_str' ] for scn in two_main_scenarios))
+olist.append(['','Max sensor T [$^\circ$C], Y14'] + list('%s (%s)'%all_results[scn][0]['tsensor_maxModuleY14_str'] for scn in two_main_scenarios))
+olist.append(['','Max sensor T [$^\circ$C], Max'] + list('%s (%s)'%all_results[scn][0]['tsensor_maxModule_str'   ] for scn in two_main_scenarios))
+olist.append(['','Max $T_\text{Feast}$'         ] + list('%s (%s)'%all_results[scn][0]['tfeast_maxModule_str'    ] for scn in two_main_scenarios))
+olist.append(['','Min $Q_{sensor}$ Headroom [$Q_{S,crit}/Q_{S}$]'] + list('%s (%s)'%all_results[scn][0]['qsensor_headroom_minModule_str'] for scn in two_main_scenarios))
+olist.append(['','Min Coolant Temperature Headroom [$^\circ$C]'  ] + list('%s (%s)'%all_results[scn][0]['tc_headroom_minModule_str'     ] for scn in two_main_scenarios))
 table = TableUtils.PrintLatexTable(olist,caption='Summary of nominal and worst-case safety factor scenarios.',hlines=hlines_new,justs=['l','l'])
 f.write(table)
 #f.write('\end{landscape}\n')
