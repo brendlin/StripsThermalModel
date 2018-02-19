@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os,sys
-import subprocess
 import re
 import ROOT
 the_path = ('/').join(os.getcwd().split('/')[:-1]) 
@@ -267,9 +266,14 @@ lists_new.append(['','Voltage [V]']); lists_new[-1] += list(all_configs[scenario
 lists_new[-1][0] = '\multirow{2}{*}{HV, Cooling}'
 lists_new.append(['','Cooling [$^\circ$C]']); lists_new[-1] += list(all_configs[scenario].GetValue('cooling','').replace('-',' $-$')  for scenario in two_main_scenarios)
 #
-lists_new.append(['','Minimum (LV+HV) power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_minval_str'] for scenario in two_main_scenarios)
-lists_new[-1][0] = '\multirow{3}{*}{Endcap System}'
-lists_new.append(['','Maximum (LV+HV) power [kW]']); lists_new[-1] += list(all_results[scenario][0]['pmodule_maxval_str'] for scenario in two_main_scenarios)
+lists_new.append(['','Min/Max Power (LV+HV, no services) [kW]']); lists_new[-1] += list('%s/%s'%(all_results[scenario][0]['pmodule_minval_str'],
+                                                                                                 all_results[scenario][0]['pmodule_maxval_str']) for scenario in two_main_scenarios)
+lists_new[-1][0] = '\multirow{2}{*}{Endcap System}'
+lists_new.append(['','\phantom{Min/Max Power} (w/type 1 cooling system) [kW]']); lists_new[-1] += list('%s/%s'%('???',
+                                                                                                                '???') for scenario in two_main_scenarios)
+lists_new[-1][0] = '\multirow{2}{*}{Power [kW]}'
+lists_new.append(['','\phantom{Min/Max Power} (w/all services +PS, e.g. wall power) [kW]']); lists_new[-1] += list('%s/%s'%('???',
+                                                                                                                            '???') for scenario in two_main_scenarios)
 lists_new.append(['','Maximum $P_\text{HV}$ [kW]']); lists_new[-1] += list(all_results[scenario][0]['phv_wleakage_maxval_str'] for scenario in two_main_scenarios)
 #
 lists_new.append(['','Max petal LV $I_\text{tape}$ [A]']); lists_new[-1] += list(all_results[scenario][0]['itapepetal_maxPetal_str'] for scenario in two_main_scenarios)
@@ -482,7 +486,6 @@ os.system('cat %s/latex/FrontMatter.tex > %s/Scenarios_%s.tex'%(the_path,outputp
 os.system('echo "\section{Safety Factor Scenarios}\n" >> %s/Scenarios_%s.tex'%(outputpath,wildcard))
 os.system('cat %s/Scenarios.txt >> %s/Scenarios_%s.tex'%(outputpath,outputpath,wildcard))
 os.system('echo "\end{document}\n" >> %s/Scenarios_%s.tex'%(outputpath,wildcard))
-# p = subprocess.Popen(['cd',outputpath,'&&','pdflatex','Scenarios_%s.tex'%(wildcard)],stdout=subprocess.PIPE)
-# print p.communicate()
-os.system('cd %s && pdflatex Scenarios_%s.tex'%(outputpath,wildcard))
+PlotUtils.pdflatex(outputpath,'Scenarios_%s.tex'%(wildcard))
+
 print 'done'

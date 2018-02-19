@@ -250,7 +250,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
                     itapepetal[i] += result_dicts[index]['itape'].GetY()[i]
                     itapepetal[i] += result_dicts[index]['itape_eos'].GetY()[i]
                     isensorpetal[i] += result_dicts[index]['isensor'].GetY()[i]
-                
+
                 # Five power components (0,1), (2,3), (4), (5), EOS
                 petalhvservices.append(CableLosses.PHVservicesFullPetal(names,disk_layer,result_dicts,i))
 
