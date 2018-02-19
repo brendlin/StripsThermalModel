@@ -279,35 +279,19 @@ olist[8][0] = '\multirow{2}{*}{Min/Max}'
 olist[9][0] = '\multirow{2}{*}{Power [kW]}'
 olist[11][0] = '\multirow{3}{*}{Petal-level}'
 
-#
-for ring in range(6) :
-    index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
-    olist.append(['R%d'%(ring),''])
-    olist[-1] += list('%s / %s'%(all_results[scn][index_rXd0]['pmodule_minOfRtype'],
-                                     all_results[scn][index_rXd0]['pmodule_maxOfRtype']) for scn in two_main_scenarios)
-    if not ring : olist[-1][1] = '\multirow{6}{*}{Min/Max (LV+HV) Power [W]}'
-#
-for ring in range(6) :
-    index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
-    olist.append(['R%d'%(ring),''])
-    olist[-1] += list('%s / %s'%(all_results[scn][index_rXd0]['pmodule_noHV_minOfRtype'],
-                                     all_results[scn][index_rXd0]['pmodule_noHV_maxOfRtype']) for scn in two_main_scenarios)
-    if not ring : olist[-1][1] = '\multirow{6}{*}{Min/Max LV power [W]}'
-#
-for ring in range(6) :
-    index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
-    olist.append(['R%d'%(ring),''])
-    olist[-1] += list('%s / %s'%(all_results[scn][index_rXd0]['phv_wleakage_minOfRtype'],
-                                     all_results[scn][index_rXd0]['phv_wleakage_maxOfRtype']) for scn in two_main_scenarios)
-    if not ring : olist[-1][1] = '\multirow{6}{*}{Min/Max HV power [W]}'
-#
-for ring in range(6) :
-    index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
-    olist.append(['R%d'%(ring),''])
-    olist[-1] += list('%s / %s'%(all_results[scn][index_rXd0]['ifeast_minOfRtype'],
-                                 all_results[scn][index_rXd0]['ifeast_maxOfRtype']) for scn in two_main_scenarios)
-    if not ring : olist[-1][1] = '\multirow{6}{*}{Min/Max Feast load [A]}'
-#
+def AddRingsDataMinMax(value,title) :
+    for ring in range(6) :
+        index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
+        olist.append(['R%d'%(ring),''])
+        olist[-1] += list('%s / %s'%(all_results[scn][index_rXd0]['%s_minOfRtype'%(value)],
+                                     all_results[scn][index_rXd0]['%s_maxOfRtype'%(value)]) for scn in two_main_scenarios)
+        if not ring : olist[-1][1] = '\multirow{6}{*}{Min/Max %s}'%(title)
+
+AddRingsDataMinMax('pmodule'     ,'(LV+HV) Power [W]')
+AddRingsDataMinMax('pmodule_noHV','LV power [W]'     )
+AddRingsDataMinMax('phv_wleakage','HV power [W]'     )
+AddRingsDataMinMax('ifeast'      ,'Feast load [A]'   )
+
 for ring in range(6) :
     index_rXd0 = structure_names.index('R%dD%d'%(ring,0))
     for hybrid in range(4) :
