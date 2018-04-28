@@ -23,12 +23,14 @@ Rtape_descr = 'tape resistance is 0.01 $\Omega$ per module worst case'
 Rtape = Config.GetDouble('NominalPower.Rtape',0.01,unit='$\Omega$',description=Rtape_descr)
 
 # Total amac power given n amacs on the module
-namac  = Config.GetInt('NominalPower.namac',1,description='Number of AMACs on the hybrid')
+namac  = Config.GetInt('NominalPower.namac',1,description='Number of AMACs on the power board')
 Pamac = (FrontEndComponents.amac15V * FrontEndComponents.amac15I + FrontEndComponents.amac3V * FrontEndComponents.amac3I) * namac
 
-# Power in the FEAST chip due to AMAC supply
-Pfamac  = (PoweringEfficiency.Vfeast - FrontEndComponents.amac15V) * (FrontEndComponents.amac15I + FrontEndComponents.ldoI) * namac
-Pfamac += (PoweringEfficiency.Vfeast - FrontEndComponents.amac3V ) * (FrontEndComponents.amac3I  + FrontEndComponents.ldoI) * namac
+# Power in the (separate) linPOL12V due to AMAC supply
+def PlinPOL12V(vdrop) :
+    ret  = (vdrop - FrontEndComponents.amac15V) * (FrontEndComponents.amac15I + FrontEndComponents.ldoI) * namac
+    ret += (vdrop - FrontEndComponents.amac3V ) * (FrontEndComponents.amac3I  + FrontEndComponents.ldoI) * namac
+    return ret
 
 def Phv_R(Is) :
     return SensorProperties.Rhv*Is*Is
@@ -80,34 +82,32 @@ def Ifeast(Tabc,Thcc,d,D) :
     return Iabc(Tabc, d, D) + Ihcc(Thcc, d, D)
 
 # TOTAL feast power (due to ABC,HCC) given n feasts on the module
-def Pfeast_ABC_HCC(Tabc,Thcc,Tfeast,d,D) :
-    return ( Pabc(Tabc,d,D) + Phcc(Thcc,d,D) ) * (100 / float( PoweringEfficiency.feasteff(Tfeast,Ifeast(Tabc,Thcc,d,D)/float(nfeast)) ) - 1)
-
-# TOTAL feast power given n feasts on the module
+# (All of it is due to the ABC, HCC now -- no AMAC component)
 def Pfeast(Tabc,Thcc,Tfeast,d,D) :
-    return Pfamac + Pfeast_ABC_HCC(Tabc,Thcc,Tfeast,d,D)
+    return ( Pabc(Tabc,d,D) + Phcc(Thcc,d,D) ) * (100 / float( PoweringEfficiency.feasteff(Tfeast,Ifeast(Tabc,Thcc,d,D)/float(nfeast)) ) - 1)
 
 def Idig(Tabc,Thcc,d,D) :
     return Iabc_digital(Tabc,d,D) + Ihcc_digital(Thcc,d,D)
 
 # Input from module FEAST and LDOs (e.g. load on the tape)
-def Itape(Tabc,Thcc,Tfeast,d,D) :
-    return ( Pabc(Tabc, d, D) + Phcc(Thcc, d, D) + Pamac + Pfeast(Tabc,Thcc,Tfeast,d,D) ) / float(PoweringEfficiency.Vfeast)
+def Itape(Tabc,Thcc,Tfeast,vdrop,d,D) :
+    return ( Pabc(Tabc, d, D) + Phcc(Thcc, d, D) + Pamac + PlinPOL12V(vdrop) + Pfeast(Tabc,Thcc,Tfeast,d,D) ) / float(vdrop)
 
 # Input from this module's feast plus any current from the previous modules
-def Itape_Cumulative(Tabc,Thcc,Tfeast,d,D,itape_previous_modules=0) :
-    return Itape(Tabc,Thcc,Tfeast,d,D) + itape_previous_modules
+def Itape_Cumulative(Tabc,Thcc,Tfeast,vdrop,d,D,itape_previous_modules) :
+    return Itape(Tabc,Thcc,Tfeast,vdrop,d,D) + itape_previous_modules
 
 # Tape power loss (due to load on tape) due to items on the module
-def Ptape(Tabc,Thcc,Tfeast,d,D) :
-    return (Itape(Tabc,Thcc,Tfeast,d,D) )**2 * Rtape
+def Ptape(Tabc,Thcc,Tfeast,vdrop,d,D) :
+    return (Itape(Tabc,Thcc,Tfeast,vdrop,d,D) )**2 * Rtape
 
 # Cumulative tape power loss (due to items on the module, plus previous modules)
-def Ptape_Cumulative(Tabc,Thcc,Tfeast,d,D,itape_previous_modules=0) :
-    return ( Itape_Cumulative(Tabc,Thcc,Tfeast,d,D,itape_previous_modules) )**2 * Rtape
+# This uses the cumulative tape current, but it is only the power associated to the module
+def Ptape_Cumulative(Tabc,Thcc,Tfeast,vdrop,d,D,itape_previous_modules) :
+    return ( Itape_Cumulative(Tabc,Thcc,Tfeast,vdrop,d,D,itape_previous_modules) )**2 * Rtape
 
-def Pmod(Tabc,Thcc,Tfeast,d,D,Is,itape_previous_modules=0) :
-    return Pabc(Tabc,d,D) + Phcc(Thcc,d,D) + Pamac + Pfeast(Tabc,Thcc,Tfeast,d,D) + Ptape_Cumulative(Tabc,Thcc,Tfeast,d,D,itape_previous_modules) + Phv_R(Is) + Phv_Mux
+def Pmod(Tabc,Thcc,Tfeast,vdrop,d,D,Is,itape_previous_modules) :
+    return Pabc(Tabc,d,D) + Phcc(Thcc,d,D) + Pamac + Pfeast(Tabc,Thcc,Tfeast,d,D) + Ptape_Cumulative(Tabc,Thcc,Tfeast,vdrop,d,D,itape_previous_modules) + Phv_R(Is) + Phv_Mux
 
 # EOS current (load) on FEAST
 eosI  = ( (nlpgbt * EOSComponents.lpgbtI + ngbld * EOSComponents.gbld12I) / float(PoweringEfficiency.DCDC2eff) ) * (EOSComponents.eosV12/float(EOSComponents.eosV25))
@@ -125,14 +125,14 @@ def Itape_eos(Teos) :
 # in Watt, 2x14 modules (including ohmic loss in tape) +2xEOS, nominal (no irradiation and leakage) 
 # Tape loss is subtracted from module power and added with proper scaling
 
-# def Pstavetape(Tabc,Thcc,Tfeast,d,D) :
+# def Pstavetape(Tabc,Thcc,Tfeast,vdrop,d,D) :
 #     n2_from_1_to_nmod = list( n**2 for n in range(1,Layout.nmod+1) )
 #     sum_n2_from_1_to_nmod = sum(n2_from_1_to_nmod)
-#     return (Ptape(Tabc, Thcc, Tfeast, d, D) / float(Layout.nmod)**2 ) * sum_n2_from_1_to_nmod
+#     return (Ptape(Tabc, Thcc, Tfeast, vdrop, d, D) / float(Layout.nmod)**2 ) * sum_n2_from_1_to_nmod
 
 # Factor of 2 is for two modules on each side of a stave
-# def Pstave(Tabc,Thcc,Tfeast,Teos,d,D,Is) :
-#     return 2 * (Layout.nmod * (Pmod(Tabc,Thcc,Tfeast,d,D,Is) - Ptape(Tabc,Thcc,Tfeast,d,D) +
+# def Pstave(Tabc,Thcc,Tfeast,Teos,vdrop,d,D,Is) :
+#     return 2 * (Layout.nmod * (Pmod(Tabc,Thcc,Tfeast,vdrop,d,D,Is) - Ptape(Tabc,Thcc,Tfeast,vdrop,d,D) +
 #                                Is * SensorProperties.vbias) + Pstavetape(Tabc,Thcc,Tfeast,d,D) + eosP(Teos) )
 
 # Pstavebare = Pstave(GlobalSettings.nomsensorT,

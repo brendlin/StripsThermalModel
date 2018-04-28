@@ -36,8 +36,9 @@ def GraphToHist(gr) :
         h.SetBinContent(h.FindBin(gr.GetX()[i]),gr.GetY()[i])
     return h
 
-def CalculateSensorTemperature(options,itape_previous_list=[]) :
+def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_list=[]) :
     # itape_previous must be a list with the same length as GlobalSettings.nstep
+    # Same with vdrop_previous_list
 
     # "Initialize lists"
     # Lists of quantities vs time
@@ -50,9 +51,8 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     phcc       = [] # HCC power
     pamac      = list(NominalPower.Pamac for i in range(GlobalSettings.nstep))
     peos       = [] # EOS power
-    pfeast     = [] # FEAST power
-    pfeast_abchcc = [] # FEAST power, abc and hcc specific
-    pfamac     = list(NominalPower.Pfamac for i in range(GlobalSettings.nstep))
+    pfeast     = [] # FEAST power (due to ABC and HCC - linPOL12V specified elsewhere)
+    plinpol12v = [] # linPOL12V power dissipated (powers the amac)
     pmodule    = [] # Power per module (front-end + HV)
     ptape      = [] # Power loss in tape due to items on the module
     ptape_cumulative = [] # Power loss in tape due to items on the module, plus previous modules
@@ -77,6 +77,8 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     ifeast     = [] # FEAST current (load)
     ifeast_in  = [] # FEAST current (input)
     efffeast   = [] # FEAST efficiency
+    vdrop_tape = [] # Voltage drop in the module (including FEAST/linPOL12V and tape) (== vfeast of next module)
+    vfeast     = [] # FEAST/linPOL12V voltage used in this module
     qsensor    = [] # sensor Q
     qsensor_headroom = [] # Sensor Qleakage headroom factor
     tc_crit = [] # Critical coolant temperature
@@ -94,21 +96,21 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     # These are initial values. Saved slightly differently for simplicity.
     # defTeos
     teos.append(Temperatures.Teos( NominalPower.eosP(nomT),
-                                   NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0, itape_previous_modules=0),
+                                   NominalPower.Pmod(nomT, nomT, nomT, 10., 1, 0, 0, 0),
                                    0, CoolantTemperature.GetTimeStepTc()[0] ))
     # defTabc
     tabc.append(Temperatures.Tabc( NominalPower.Pabc(nomT, 1, 0),
                                    NominalPower.eosP(nomT),
-                                   NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0, itape_previous_modules=0),
+                                   NominalPower.Pmod(nomT, nomT, nomT, 10., 1, 0, 0, 0),
                                    0, CoolantTemperature.GetTimeStepTc()[0] ))
     # defThcc
     thcc.append(Temperatures.Thcc( NominalPower.Phcc(nomT, 1, 0), NominalPower.eosP(nomT),
-                                   NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0, itape_previous_modules=0),
+                                   NominalPower.Pmod(nomT, nomT, nomT, 10., 1, 0, 0, 0),
                                    0, CoolantTemperature.GetTimeStepTc()[0] ))
     # defTfeast
     tfeast.append(Temperatures.Tfeast( NominalPower.Pfeast(nomT, nomT, nomT, 1, 0),
                                        NominalPower.eosP(nomT),
-                                       NominalPower.Pmod(nomT, nomT, nomT, 1, 0, 0, itape_previous_modules=0),
+                                       NominalPower.Pmod(nomT, nomT, nomT, 10., 1, 0, 0, 0),
                                        0, CoolantTemperature.GetTimeStepTc()[0] ))
 
     thermal_runaway = False
@@ -145,6 +147,10 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
         y_gets_over_zero = False
 
         itape_previous_i = 0 if not itape_previous_list else itape_previous_list[i]
+
+        # vfeast_i otherwise known as vdrop (for FEAST, linPOL12V)
+        vfeast_i = PoweringEfficiency.VfeastMin if not vdrop_previous_list else vdrop_previous_list[i]
+
         doserate_i = OperationalProfiles.doserate[i]
         tid_dose_i = OperationalProfiles.tid_dose[i]
         Tcoolant_i = CoolantTemperature.GetTimeStepTc()[i]
@@ -161,9 +167,10 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
             # T0 temperature, which depends (via HV resistors) on ts at a given step.
             t0_noLeakage_ts_i = Temperatures.T0(NominalPower.eosP(teos[-1]),
                                                 NominalPower.Pmod(tabc[-1],thcc[-1],tfeast[-1],
+                                                                  vfeast_i,
                                                                   doserate_i,tid_dose_i,
                                                                   isensor_i, # You need the current here to get the heat from the HV resistors
-                                                                  itape_previous_modules=itape_previous_i),
+                                                                  itape_previous_i),
                                                 Tcoolant_i
                                                 )
 
@@ -214,7 +221,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
                 qref_rootsolve_list.append(y)
 
         if thermal_runaway :
-            for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pfeast_abchcc,pmodule,ptape,ptape_cumulative,phv_wleakage,isensor,phvr,
+            for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pmodule,ptape,ptape_cumulative,phv_wleakage,isensor,phvr,
                            phvmux,itape,itape_cumulative,itape_eos,idig,ihcc_dig,iabc_dig,ihybrid0,ihybrid1,ihybrid2,ihybrid3,ifeast,ifeast_in,efffeast,qsensor,
                            tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
@@ -268,8 +275,9 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
 
         # module power: no leakage power, but power from hvmux and rhv is included here.
         pmodule_noLeakagePow_lastStep = NominalPower.Pmod(tabc[i-1],thcc[i-1],tfeast[i-1],
+                                                          vfeast_i,
                                                           doserate_i,tid_dose_i,isensor[i],
-                                                          itape_previous_modules=itape_previous_i)
+                                                          itape_previous_i)
 
         # Temperature of ABC
         tabc.append(Temperatures.Tabc(NominalPower.Pabc(tabc[i-1],doserate_i,tid_dose_i),
@@ -308,8 +316,9 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
         #
 
         pmodule_noLeakagePow_thisStep = NominalPower.Pmod(tabc[i],thcc[i],tfeast[i],
+                                                          vfeast_i,
                                                           doserate_i,tid_dose_i,isensor[i],
-                                                          itape_previous_modules=itape_previous_i)
+                                                          itape_previous_i)
 
         # ABC Power (all n ABCs)
         pabc.append(NominalPower.Pabc(tabc[i],doserate_i,tid_dose_i))
@@ -325,20 +334,21 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
         # EOS Power
         peos.append(NominalPower.eosP(teos[i]))
 
-        # FEAST power (dissipated only by FEAST), including power dissipated due to AMAC. Both FEASTs.
+        # FEAST power (dissipated only by FEAST), including power dissipated due to ABC/HCCs. Both FEASTs.
+        # (There is no more pfeast_abchcc)
         pfeast.append(NominalPower.Pfeast(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
 
-        # FEAST power from ABC and HCC only
-        pfeast_abchcc.append(NominalPower.Pfeast_ABC_HCC(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
+        # linPOL12V power dissipated (powers the amac)
+        plinpol12v.append(NominalPower.PlinPOL12V(vfeast_i))
 
         # Power per module (front-end + HV)
         pmodule.append(pmodule_noLeakagePow_thisStep + resultqsensor)
 
         # Power loss in tape due to items on the module
-        ptape.append(NominalPower.Ptape(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
+        ptape.append(NominalPower.Ptape(tabc[i],thcc[i],tfeast[i],vfeast_i,doserate_i,tid_dose_i))
 
         # Power loss in tape due to items on the module, plus previous modules
-        ptape_cumulative.append(NominalPower.Ptape_Cumulative(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i,itape_previous_i))
+        ptape_cumulative.append(NominalPower.Ptape_Cumulative(tabc[i],thcc[i],tfeast[i],vfeast_i,doserate_i,tid_dose_i,itape_previous_i))
 
         # HV power per module (leakage + Phv_R + Phv_Mux)
         phv_wleakage.append(resultqsensor + NominalPower.Phv_R( isensor[i] ) + NominalPower.Phv_Mux )
@@ -350,10 +360,16 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
         phvmux.append(NominalPower.Phv_Mux)
 
         # Tape current (load) per module
-        itape.append(NominalPower.Itape(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i))
+        itape.append(NominalPower.Itape(tabc[i],thcc[i],tfeast[i],vfeast_i,doserate_i,tid_dose_i))
 
         # Cumulative tape current (load) per module - adding the previous modules
-        itape_cumulative.append(NominalPower.Itape_Cumulative(tabc[i],thcc[i],tfeast[i],doserate_i,tid_dose_i,itape_previous_i))
+        itape_cumulative.append(NominalPower.Itape_Cumulative(tabc[i],thcc[i],tfeast[i],vfeast_i,doserate_i,tid_dose_i,itape_previous_i))
+
+        # Voltage drop in the module (including FEAST/linPOL12V and tape) (== vfeast of next module)
+        vdrop_tape.append(vfeast_i + itape_cumulative[i]*NominalPower.Rtape)
+
+        # FEAST/linPOL12V voltage used in this module
+        vfeast.append(vfeast_i)
 
         # Tape current (load) per module due to EOS
         itape_eos.append(NominalPower.Itape_eos(teos[i]))
@@ -381,7 +397,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
 
         # FEAST input current (both FEASTs, in case there is more than one feast.)
         # In any case there is no nfeast in the equation below.
-        ifeast_in.append( (pfeast_abchcc[i] + pabc[i] + phcc[i]) / float(PoweringEfficiency.Vfeast) )
+        ifeast_in.append( (pfeast[i] + pabc[i] + phcc[i]) / float(vfeast_i) )
 
         # if i and math.fabs(((i+1)*GlobalSettings.step) % 1.) < 0.000001 :
         #     print 'Calculated year %.0f'%( int((i+1)*GlobalSettings.step) )
@@ -420,6 +436,8 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     gr['ifeast']     = MakeGraph('FeastCurrent'           ,'FEAST current (load, per FEAST)'           ,xtitle,'I_{%s} [A]'%('FEAST,load')    ,x,ifeast    )
     gr['ifeast_in']  = MakeGraph('FeastCurrentInput'      ,'FEAST current (input)'                     ,xtitle,'I_{%s} [A]'%('FEAST,in')      ,x,ifeast_in )
     gr['efffeast']   = MakeGraph('FeastEfficiency'        ,'Feast efficiency'                          ,xtitle,'Efficiency [%]'               ,x,efffeast  )
+    gr['vfeast']     = MakeGraph('FeastVoltage'           ,'Vdrop over FEAST and linPOL12V'            ,xtitle,'#Delta V [V]'                 ,x,vfeast    )
+    gr['vdrop_tape'] = MakeGraph('TapeVoltageDrop'        ,'Vdrop over FEAST, linPOL12V and tape'      ,xtitle,'#Delta V [V]'                 ,x,vdrop_tape)
     gr['qsensor_headroom'] = MakeGraph('SensorQHeadroom'  ,'Sensor Q headroom factor'                  ,xtitle,'Power headroom factor [_{}Q_{S,crit}/Q_{S}]',x,qsensor_headroom)
     gr['tcoolant']   = MakeGraph('CoolantTemperature'     ,'Coolant temperature'                       ,xtitle,'T_{%s} [#circ^{}C]'%('coolant'),x,CoolantTemperature.GetTimeStepTc())
     gr['tid_sf_abc'] = MakeGraph('ABCTidBumpScaleFactor'  ,'ABC TID bump scale factor'                 ,xtitle,'scale factor'                 ,x,tid_sf_abc)
@@ -473,8 +491,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     extr['pabc']          = MakeGraph('ABCPower'               ,'ABC power'                                 ,xtitle,'P_{%s} [W]'%('ABC'   )        ,x,pabc      )
     extr['phcc']          = MakeGraph('HCCPower'               ,'HCC power'                                 ,xtitle,'P_{%s} [W]'%('HCC'   )        ,x,phcc      )
     extr['pfeast']        = MakeGraph('FeastPower'             ,'FEAST power'                               ,xtitle,'P_{%s} [W]'%('FEAST' )        ,x,pfeast    )
-    extr['pfeast_abchcc'] = MakeGraph('FeastPower_ABC_HCC'     ,'FEAST power (HCC,ABC)'                     ,xtitle,'P_{%s} [W]'%('FEAST' )        ,x,pfeast_abchcc)
-    extr['pfamac']        = MakeGraph('FeastPower_AMAC'        ,'FEAST power (AMAC)'                        ,xtitle,'P_{%s} [W]'%('FEAST' )        ,x,pfamac    )
+    extr['plinpol12v']    = MakeGraph('LinPOL12VPower'         ,'LinPOL12V power (powers AMAC)'             ,xtitle,'P_{%s} [W]'%('linPOL12V' )    ,x,plinpol12v)
     extr['tid_shape']     = MakeGraph('TID_Shape'              ,'TID shape #times 1.45'                     ,xtitle,'shape'                        ,x,tid_shape )
     extr['ihcc_dig']      = MakeGraph('HCCDigitalCurrent'      ,'HCC digital current'                       ,xtitle,'I_{%s} [A]'%('HCC')           ,x,ihcc_dig  )
     extr['ihcc_a']        = MakeGraph('HCCAnalogCurrent'       ,'HCC analog current'                        ,xtitle,'I_{%s} [A]'%('HCC')           ,x,ihcc_a    )
@@ -601,8 +618,8 @@ def CalculateSensorTemperature(options,itape_previous_list=[]) :
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pamac'])))
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pabc'])))
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['phcc'])))
-    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pfeast_abchcc'])))
-    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pfamac'])))
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['pfeast'])))
+    hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(extr['plinpol12v'])))
     hists.insert(0,PlotUtils.AddToStack(stack,leg,GraphToHist(gr['ptape_cumulative'])))
     phvresistors  = list(phvmux[i] + phvr[i] for i in range(len(phvmux)))
     gr_phvresistors = MakeGraph('ModulePower_HVResistors','Power of HV resistors',xtitle,'P [W]',x,phvresistors)

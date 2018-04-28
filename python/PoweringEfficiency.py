@@ -54,8 +54,8 @@ for i in [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0] :
     feast_func_fixedCurr_new[i] = ROOT.TF1("feast_fit_function_new","[0] + [1]*%0.1f + [2]*%0.2f + [3]*%0.3f + [4]*%0.4f + [5]*%0.1f*x + [6]*x"%(i,i*i,i*i*i,i*i*i*i,i),-35,65)
     feast_func_fixedCurr_new[i].SetParameters(*feastfitconstants_new)
 
-descr_Vfeast = 'Feast input voltage'
-Vfeast = Config.GetDouble('PoweringEfficiency.Vfeast',10.5,unit='V',description=descr_Vfeast)
+descr_Vfeast = 'Minimum Feast input voltage (farthest from EOS)'
+VfeastMin = Config.GetDouble('PoweringEfficiency.VfeastMin',10.0,unit='V',description=descr_Vfeast)
 
 # EOS DCDC converter
 descr_DCDC2eff = 'Efficiency of EOS DCDC2 converter'

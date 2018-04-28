@@ -102,13 +102,19 @@ def main(options,args):
                 # config_text += Config.Print() + '\n'
 
                 itape_previous_list = []
+                vdrop_previous_list = []
                 if ring_mod :
                     index_previousmodule = PlotUtils.GetResultDictIndex(structure_names,ring_mod-1,disk_layer)
+
                     tmp_gr = results[index_previousmodule]['itape_cumulative']
                     for tmp_i in range(tmp_gr.GetN()) :
                         itape_previous_list.append(tmp_gr.GetY()[tmp_i])
 
-                results.append(SensorTemperatureCalc.CalculateSensorTemperature(options,itape_previous_list=itape_previous_list))
+                    tmp_gr = results[index_previousmodule]['vdrop_tape']
+                    for tmp_i in range(tmp_gr.GetN()) :
+                        vdrop_previous_list.append(tmp_gr.GetY()[tmp_i])
+
+                results.append(SensorTemperatureCalc.CalculateSensorTemperature(options,itape_previous_list=itape_previous_list,vdrop_previous_list=vdrop_previous_list))
                 if options.endcap :
                     structure_names.append('R%dD%d'%(ring_mod,disk_layer))
                 else :
