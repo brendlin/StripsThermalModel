@@ -203,7 +203,7 @@ for scenario in scenarios :
     # Maximum Petal Value
     #
     tmp_dict = all_results[scenario]
-    for quantity_name in ['itapepetal','pmodulepetal','petalvoutlvpp2'] :
+    for quantity_name in ['itapepetal','pmodulepetal','petalvoutlvpp2','vdrop_roundtrip'] :
         if runaway :
             all_results[scenario][0]['%s_maxPetal_str'%(quantity_name)] = RunawayText
             continue
@@ -252,23 +252,25 @@ for scenario in scenarios :
 #f.write('\\begin{landscape}\n')
 #f.write('\subsubsection{Main Summary Table 2}\n')
 olist = []
-hlines_new = [4,6,10,13,16,22,28,34,40,53,60]
+hlines_new = [4,6,10,12,15,21,27,33,39,52,59]
 #
 olist.append(['','Fluence'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetyfluence','')          for scn in two_main_scenarios))
 olist.append(['','$R_{T}$'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetythermalimpedance','') for scn in two_main_scenarios))
 olist.append(['','$I_D$'      ] + list(all_configs[scn].GetValue('SafetyFactors.safetycurrentd','')         for scn in two_main_scenarios))
 olist.append(['','$I_A$'      ] + list(all_configs[scn].GetValue('SafetyFactors.safetycurrenta','')         for scn in two_main_scenarios))
 olist.append(['','TID parameterization'] + list(all_configs[scn].GetValue('SafetyFactors.TIDpessimistic','False').replace('False','nominal').replace('True','pessimistic') for scn in two_main_scenarios))
+
 olist.append(['','Voltage [V]'         ] + list(all_configs[scn].GetValue('SafetyFactors.vbias','')         for scn in two_main_scenarios))
 olist.append(['','Cooling [$^\circ$C]' ] + list(all_configs[scn].GetValue('cooling','').replace('-',' $-$') for scn in two_main_scenarios))
+
 olist.append(['','Total LV+HV, no services'] + list('%s/%s'%(all_results[scn][0]['pmodule_minval_str'],
                                                              all_results[scn][0]['pmodule_maxval_str']) for scn in two_main_scenarios))
 olist.append(['',' + type 1 cables, PP1 (Cooling system power)'] + list('%s/%s'%('???','???') for scn in two_main_scenarios))
 olist.append(['',' + all services and power supplies (Wall power)'] + list('%s/%s'%('???','???') for scn in two_main_scenarios))
 olist.append(['','Service power only'] + list('%s/%s'%('???','???') for scn in two_main_scenarios))
+
 olist.append(['','Maximum $P_\text{HV}$ [kW]'      ] + list(all_results[scn][0]['phv_wleakage_maxval_str']     for scn in two_main_scenarios))
 olist.append(['','Max petal power (LV+HV) [W]'     ] + list(all_results[scn][0]['pmodulepetal_maxPetal_str']   for scn in two_main_scenarios))
-olist.append(['','Max LV $V_\text{out}$ at PP2'    ] + list(all_results[scn][0]['petalvoutlvpp2_maxPetal_str'] for scn in two_main_scenarios))
 
 olist.append(['','Max tape power [W]'            ] + list('???'     for scn in two_main_scenarios))
 olist.append(['','Max $\Delta V_\text{tape}$ [V]'] + list('???'     for scn in two_main_scenarios))
@@ -281,8 +283,8 @@ olist[5][0] = '\multirow{2}{*}{HV, Cooling}'
 olist[7][0] = '\multirow{2}{*}{Endcap System}'
 olist[8][0] = '\multirow{2}{*}{Min/Max}'
 olist[9][0] = '\multirow{2}{*}{Power [kW]}'
-olist[11][0] = '\multirow{3}{*}{Petal-level}'
-olist[14][0] = '\multirow{3}{*}{Petal LV tape}'
+olist[11][0] = '\multirow{2}{*}{Petal-level}'
+olist[13][0] = '\multirow{3}{*}{Petal LV tape}'
 
 def AddRingsDataMinMax(value,title) :
     for ring in range(6) :
@@ -321,8 +323,8 @@ olist.append(['','Min Coolant Temperature Headroom [$^\circ$C]'  ] + list('%s (%
 
 # Services
 olist.append(['','Max $\Delta V_\text{HV}$ (tape, EOS, cables, PP2) [V]'] + list('???' for scn in two_main_scenarios))
-olist.append(['','Max LV round-trip V drop from PP2 [V]'] + list('???' for scn in two_main_scenarios))
-olist.append(['','Max PP2 output voltage [V]'           ] + list('???' for scn in two_main_scenarios))
+olist.append(['','Max LV round-trip $\Delta V$ from PP2 (type I/II cables only) [V]'] + list(all_results[scn][0]['vdrop_roundtrip_maxPetal_str'] for scn in two_main_scenarios))
+olist.append(['','Max LV $V_\text{out}$ at PP2 [V]'     ] + list(all_results[scn][0]['petalvoutlvpp2_maxPetal_str'] for scn in two_main_scenarios))
 
 olist[-10][0] = '\multirow{6}{*}{Module-level}'
 olist[ -9][0] = '\multirow{6}{*}{Components}'

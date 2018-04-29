@@ -47,33 +47,36 @@ HVType2ResistancePerMeter = Config.GetDouble('CableLosses.HVType2ResistancePerMe
 HVType3ResistancePerMeter = Config.GetDouble('CableLosses.HVType3ResistancePerMeter',0.139  ,unit='$\Omega$/m',description=descr%(3))
 HVType4ResistancePerMeter = Config.GetDouble('CableLosses.HVType4ResistancePerMeter',0.14286,unit='$\Omega$/m',description=descr%(4))
 
+# Round-trip resistance
 def Resistance_LVType1and2() :
     return (LVType1ResistancePerMeter*Type1LengthOneWay*2 + LVType2ResistancePerMeter*Type2LengthOneWay*2)
 
+# Round-trip resistance
 def Resistance_LVType3and4() :
     return (LVType3ResistancePerMeter*Type3LengthOneWay*2 + LVType4ResistancePerMeter*Type4LengthOneWay*2)
 
 # Vout_LV_pp2 is the return voltage to the pp2
 # Ihalfsubstructure should be 'itapepetal' from ExtendedModelSummaryPlots.py
-def Vout_LV_pp2(Ihalfsubstructure) :
-    return EOSComponents.Veos + Ihalfsubstructure * Resistance_LVType1and2()
+# vdrop_tape_r5 should be the vdrop_tape from R5 (which includes VfeastMin)
+def Vout_LV_pp2(Ihalfsubstructure,vdrop_tape_r5) :
+    return vdrop_tape_r5 + Ihalfsubstructure * Resistance_LVType1and2()
 
-# "Round trip voltage drop"
+# "Round trip voltage drop" meaning due to the Type 1 and Type 2 cables
 def Vdrop_RoundTrip_type1and2(Ihalfsubstructure) :
     return Ihalfsubstructure * Resistance_LVType1and2()
 
-def Ppp2_LV(Ihalfsubstructure) :
-    return (1./float(PP2Efficiency) - 1.) * Ihalfsubstructure * Vout_LV_pp2(Ihalfsubstructure)
+def Ppp2_LV(Ihalfsubstructure,vdrop_tape_r5) :
+    return (1./float(PP2Efficiency) - 1.) * Ihalfsubstructure * Vout_LV_pp2(Ihalfsubstructure,vdrop_tape_r5)
 
-def ILVtype3andType4(Ihalfsubstructure) :
-    return ( Vout_LV_pp2(Ihalfsubstructure)/float(PP2InputVoltage) ) * Ihalfsubstructure / float(PP2Efficiency)
+def ILVtype3andType4(Ihalfsubstructure,vdrop_tape_r5) :
+    return ( Vout_LV_pp2(Ihalfsubstructure,vdrop_tape_r5)/float(PP2InputVoltage) ) * Ihalfsubstructure / float(PP2Efficiency)
 
-def PlossCables(Ihalfsubstructure) :
-    return (Ihalfsubstructure**2) * Resistance_LVType1and2() + (ILVtype3andType4(Ihalfsubstructure)**2) * Resistance_LVType3and4()
+def PlossCables(Ihalfsubstructure,vdrop_tape_r5) :
+    return (Ihalfsubstructure**2) * Resistance_LVType1and2() + (ILVtype3andType4(Ihalfsubstructure,vdrop_tape_r5)**2) * Resistance_LVType3and4()
 
 # Factor of 2 is for half-substructure -> full substructure
-def PLVservicesFullSubstructure(Ihalfsubstructure) :
-    return 2 * ( Ppp2_LV(Ihalfsubstructure) + PlossCables(Ihalfsubstructure) )
+def PLVservicesFullSubstructure(Ihalfsubstructure,vdrop_tape_r5) :
+    return 2 * ( Ppp2_LV(Ihalfsubstructure,vdrop_tape_r5) + PlossCables(Ihalfsubstructure,vdrop_tape_r5) )
 
 #
 # High-voltage
