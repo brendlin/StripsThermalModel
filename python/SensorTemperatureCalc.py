@@ -444,6 +444,10 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     gr['tid_bump_hcc'] = MakeGraph('HCCTidBump'           ,'HCC TID bump'                              ,xtitle,'scale factor #times shape'    ,x,tid_bump_hcc)
     gr['doserate']   = MakeGraph('DoseRate'               ,'Dose rate'                                 ,xtitle,'dose rate [kRad/hr]'          ,x,OperationalProfiles.doserate)
 
+    # pmodule_noHV is (Power per module including leakage) minus (HV power including leakage)
+    pmodule_noHV  = list(pmodule[i] - phv_wleakage[i] for i in range(len(pmodule)))
+    gr['pmodule_noHV'] = MakeGraph('ModulePower_noHV','Power without HV (no EOS)',xtitle,'P [W]',x,pmodule_noHV)
+
     dosave = (not hasattr(options,'save') or options.save)
 
     # Write out to file
@@ -504,10 +508,6 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     # Module power
     #
     c.Clear()
-    # pmodule_noHV is (Power per module including leakage) minus (HV power including leakage)
-    pmodule_noHV  = list(pmodule[i] - phv_wleakage[i] for i in range(len(pmodule)))
-    gr['pmodule_noHV'] = MakeGraph('ModulePower_noHV','Power without HV (no EOS)',xtitle,'P [W]',x,pmodule_noHV)
-    gr['pmodule_noHV']
     pmodule_noHV_noTapeLoss = list(pmodule[i] - phv_wleakage[i] - ptape_cumulative[i] for i in range(len(pmodule)))
     gr_pmodule_noHV_noTapeLoss = MakeGraph('ModulePower_noHV_NoTapeLoss','Power w/o HV and w/o tape loss',xtitle,'P [W]',x,pmodule_noHV_noTapeLoss)
     gr_pmodule_noHV_noTapeLoss.SetLineStyle(7)

@@ -9,6 +9,7 @@ import CoolantTemperature
 import TableUtils
 import Layout
 import CableLosses
+import PoweringEfficiency
 from array import array
 
 colors = {'L0':ROOT.kGreen,
@@ -242,6 +243,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
             for i in range(GlobalSettings.nstep) :
                 ppetal.append(0); qsensorpetal.append(0); phvpetal.append(0); itapepetal.append(0); isensorpetal.append(0)
+                petaltapepower.append(0);
                 for ring_mod in range(Layout.nmodules_or_rings) :
                     index = PlotUtils.GetResultDictIndex(names,ring_mod,disk_layer)
                     ppetal[i] += result_dicts[index]['pmodule'].GetY()[i]
@@ -252,20 +254,23 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
                     itapepetal[i] += result_dicts[index]['itape_eos'].GetY()[i]
                     isensorpetal[i] += result_dicts[index]['isensor'].GetY()[i]
 
+                    # Module LV power (including module, tape)
+                    petaltapepower[i] += result_dicts[index]['pmodule_noHV'].GetY()[i]
+
                 # Five power components (0,1), (2,3), (4), (5), EOS
                 petalhvservices.append(CableLosses.PHVservicesFullPetal(names,disk_layer,result_dicts,i))
 
                 # Get the tape voltage drop, power in R5
                 LastModule = (5 if options.endcap else 13)
                 index_R5 = PlotUtils.GetResultDictIndex(names,LastModule,disk_layer)
-                petaltapedeltav.append(result_dicts[index_R5]['vdrop_tape'].GetY()[i])
-                petaltapepower.append(result_dicts[index_R5]['ptape_cumulative'].GetY()[i])
+                tape_voltage_drop_r5 = result_dicts[index_R5]['vdrop_tape'].GetY()[i]
+                petaltapedeltav.append(tape_voltage_drop_r5 - PoweringEfficiency.VfeastMin)
 
                 # Other services
-                petalvoutlvpp2.append(CableLosses.Vout_LV_pp2(itapepetal[i],petaltapedeltav[i]))
+                petalvoutlvpp2.append(CableLosses.Vout_LV_pp2(itapepetal[i],tape_voltage_drop_r5))
                 vdrop_roundtrip.append(CableLosses.Vdrop_RoundTrip_type1and2(itapepetal[i]))
-                pserviceslvfullpetal.append(CableLosses.PLVservicesFullSubstructure(itapepetal[i],petaltapedeltav[i]))
-                plosscables.append(CableLosses.PlossCables(itapepetal[i],petaltapedeltav[i]))
+                pserviceslvfullpetal.append(CableLosses.PLVservicesFullSubstructure(itapepetal[i],tape_voltage_drop_r5))
+                plosscables.append(CableLosses.PlossCables(itapepetal[i],tape_voltage_drop_r5))
 
             str_pet_stv = 'petal' if Layout.isEndcap else 'stave'
             aa,bb,cc = ['Petal','Disk',disk_layer] if Layout.isEndcap else ['Stave','Layer',disk_layer]
