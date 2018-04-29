@@ -203,7 +203,7 @@ for scenario in scenarios :
     # Maximum Petal Value
     #
     tmp_dict = all_results[scenario]
-    for quantity_name in ['itapepetal','pmodulepetal','petalvoutlvpp2','vdrop_roundtrip'] :
+    for quantity_name in ['itapepetal','pmodulepetal','petalvoutlvpp2','vdrop_roundtrip','petaltapedeltav'] :
         if runaway :
             all_results[scenario][0]['%s_maxPetal_str'%(quantity_name)] = RunawayText
             continue
@@ -273,7 +273,7 @@ olist.append(['','Maximum $P_\text{HV}$ [kW]'      ] + list(all_results[scn][0][
 olist.append(['','Max petal power (LV+HV) [W]'     ] + list(all_results[scn][0]['pmodulepetal_maxPetal_str']   for scn in two_main_scenarios))
 
 olist.append(['','Max tape power [W]'            ] + list('???'     for scn in two_main_scenarios))
-olist.append(['','Max $\Delta V_\text{tape}$ [V]'] + list('???'     for scn in two_main_scenarios))
+olist.append(['','Max $\Delta V_\text{tape}$ [V]'] + list(all_results[scn][0]['petaltapedeltav_maxPetal_str'] for scn in two_main_scenarios))
 olist.append(['','Max $I_\text{tape}$ [A]'       ] + list(all_results[scn][0]['itapepetal_maxPetal_str']     for scn in two_main_scenarios))
 #
 # Fill in the leftmost labels:

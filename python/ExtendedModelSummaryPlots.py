@@ -238,6 +238,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             ppetal,qsensorpetal,phvpetal,itapepetal,isensorpetal = [],[],[],[],[]
             petalhvservices = []
             petalvoutlvpp2,vdrop_roundtrip,pserviceslvfullpetal,plosscables = [],[],[],[]
+            petaltapedeltav = []
 
             for i in range(GlobalSettings.nstep) :
                 ppetal.append(0); qsensorpetal.append(0); phvpetal.append(0); itapepetal.append(0); isensorpetal.append(0)
@@ -257,13 +258,13 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
                 # Get the tape voltage drop in R5
                 LastModule = (5 if options.endcap else 13)
                 index_R5 = PlotUtils.GetResultDictIndex(names,LastModule,disk_layer)
-                tape_voltage_drop_r5 = result_dicts[index_R5]['vdrop_tape'].GetY()[i]
+                petaltapedeltav.append(result_dicts[index_R5]['vdrop_tape'].GetY()[i])
 
                 # Other services
-                petalvoutlvpp2.append(CableLosses.Vout_LV_pp2(itapepetal[i],tape_voltage_drop_r5))
+                petalvoutlvpp2.append(CableLosses.Vout_LV_pp2(itapepetal[i],petaltapedeltav[i]))
                 vdrop_roundtrip.append(CableLosses.Vdrop_RoundTrip_type1and2(itapepetal[i]))
-                pserviceslvfullpetal.append(CableLosses.PLVservicesFullSubstructure(itapepetal[i],tape_voltage_drop_r5))
-                plosscables.append(CableLosses.PlossCables(itapepetal[i],tape_voltage_drop_r5))
+                pserviceslvfullpetal.append(CableLosses.PLVservicesFullSubstructure(itapepetal[i],petaltapedeltav[i]))
+                plosscables.append(CableLosses.PlossCables(itapepetal[i],petaltapedeltav[i]))
 
             str_pet_stv = 'petal' if Layout.isEndcap else 'stave'
             aa,bb,cc = ['Petal','Disk',disk_layer] if Layout.isEndcap else ['Stave','Layer',disk_layer]
@@ -278,6 +279,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             result_dicts_petals[disk_layer]['vdrop_roundtrip']   = MakeGraph('%sVdropLVRoundTripType1and2%s%d'%(aa,bb,cc),'Round-trip Vdrop of Type 1 and 2 cables, %s (servicing one petal side)'%(str_pet_stv),xtitle,'V',x,vdrop_roundtrip)
             result_dicts_petals[disk_layer]['pserviceslvfullpetal'] = MakeGraph('%sLVServicesPowerLossFullPetal%s%d'%(aa,bb,cc),'LV Services power loss for a full petal (both sides), %s (includes both sides)'%(str_pet_stv),xtitle,'P [W]',x,pserviceslvfullpetal)
             result_dicts_petals[disk_layer]['plosscables']       = MakeGraph('%sLVPowerLossAllCables%s%d'%(aa,bb,cc),'LV cable power loss (one petal side), %s'%(str_pet_stv),xtitle,'P [W]',x,plosscables)
+            result_dicts_petals[disk_layer]['petaltapedeltav']  = MakeGraph('%sLVTapeVoltageDrop%s%d'%(aa,bb,cc),'LV tape voltage drop (one petal side), %s'%(str_pet_stv),xtitle,'#Delta^{}V [V]',x,petaltapedeltav)
 
             thermal_runaway_yearpetal = 999
             for ring_mod in range(Layout.nmodules_or_rings) :
@@ -289,7 +291,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
             # Append to result_dicts for further use in ProcessSummaryTables
             index = PlotUtils.GetResultDictIndex(names,0,disk_layer)
-            for i in ['pmodulepetal','qsensorpetal','phv_wleakagepetal','itapepetal','isensorpetal','petalhvservices','petalvoutlvpp2','vdrop_roundtrip','pserviceslvfullpetal','plosscables'] :
+            for i in ['pmodulepetal','qsensorpetal','phv_wleakagepetal','itapepetal','isensorpetal',
+                      'petalhvservices','petalvoutlvpp2','vdrop_roundtrip','pserviceslvfullpetal','plosscables','petaltapedeltav'] :
                 result_dicts[index][i] = result_dicts_petals[disk_layer][i]
             result_dicts[index]['thermal_runaway_yearpetal'] = thermal_runaway_yearpetal
 
