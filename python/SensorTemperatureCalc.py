@@ -54,7 +54,6 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     pfeast     = [] # FEAST power (due to ABC and HCC - linPOL12V specified elsewhere)
     plinpol12v = [] # linPOL12V power dissipated (powers the amac)
     pmodule    = [] # Power per module (front-end + HV)
-    ptape      = [] # Power loss in tape due to items on the module
     ptape_cumulative = [] # Power loss in tape due to items on the module, plus previous modules
     phv_wleakage = [] # HV power per module (leakage + resistors)
     isensor    = [] # Sensor current (Leakage current per module)
@@ -221,7 +220,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
                 qref_rootsolve_list.append(y)
 
         if thermal_runaway :
-            for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pmodule,ptape,ptape_cumulative,phv_wleakage,isensor,phvr,
+            for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pmodule,ptape_cumulative,phv_wleakage,isensor,phvr,
                            phvmux,itape,itape_cumulative,itape_eos,idig,ihcc_dig,iabc_dig,ihybrid0,ihybrid1,ihybrid2,ihybrid3,ifeast,ifeast_in,efffeast,qsensor,
                            tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
@@ -345,7 +344,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
         pmodule.append(pmodule_noLeakagePow_thisStep + resultqsensor)
 
         # Power loss in tape due to items on the module
-        ptape.append(NominalPower.Ptape(tabc[i],thcc[i],tfeast[i],vfeast_i,doserate_i,tid_dose_i))
+        # ptape.append(NominalPower.Ptape(tabc[i],thcc[i],tfeast[i],vfeast_i,doserate_i,tid_dose_i))
 
         # Power loss in tape due to items on the module, plus previous modules
         ptape_cumulative.append(NominalPower.Ptape_Cumulative(tabc[i],thcc[i],tfeast[i],vfeast_i,doserate_i,tid_dose_i,itape_previous_i))
@@ -418,7 +417,6 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     gr['teos']       = MakeGraph('EOSTemperature'         ,'EOS temperature'                           ,xtitle,'T_{%s} [#circ^{}C]'%('EOS'   ),x,teos      )
     gr['peos']       = MakeGraph('EOSPower'               ,'EOS power (one side)'                      ,xtitle,'P_{%s} [W]'%('EOS'   )        ,x,peos      )
     gr['pmodule']    = MakeGraph('ModulePower'            ,'Module power (one side) (no EOS)'          ,xtitle,'P_{%s} [W]'%('module')        ,x,pmodule   )
-    gr['ptape']      = MakeGraph('TapePower'              ,'LV tape power loss due to items on module (one side)',xtitle,'P_{%s} [W]'%('tape'  ),x,ptape   )
     gr['ptape_cumulative'] = MakeGraph('TapePowerCumulative','Cumulative LV tape power loss (one module, one side)',xtitle,'P_{%s} [W]'%('tape'),x,ptape_cumulative)
     gr['phv_wleakage'] = MakeGraph('HVPower'              ,'Total HV power (with leakage and resistors) (one side)',xtitle,'P_{%s} [W]'%('HV'    )        ,x,phv_wleakage)
     gr['isensor']    = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current (one module side)',xtitle,'I_{%s} [mA]'%('sensor')       ,x,list(isensor[a]*1000. for a in range(len(isensor))))

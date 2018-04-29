@@ -98,8 +98,8 @@ def Itape_Cumulative(Tabc,Thcc,Tfeast,vdrop,d,D,itape_previous_modules) :
     return Itape(Tabc,Thcc,Tfeast,vdrop,d,D) + itape_previous_modules
 
 # Tape power loss (due to load on tape) due to items on the module
-def Ptape(Tabc,Thcc,Tfeast,vdrop,d,D) :
-    return (Itape(Tabc,Thcc,Tfeast,vdrop,d,D) )**2 * Rtape
+# def Ptape(Tabc,Thcc,Tfeast,vdrop,d,D) :
+#     return (Itape(Tabc,Thcc,Tfeast,vdrop,d,D) )**2 * Rtape
 
 # Cumulative tape power loss (due to items on the module, plus previous modules)
 # This uses the cumulative tape current, but it is only the power associated to the module
