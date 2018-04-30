@@ -27,15 +27,21 @@ namac  = Config.GetInt('NominalPower.namac',1,description='Number of AMACs on th
 Pamac = (FrontEndComponents.amac15V * FrontEndComponents.amac15I + FrontEndComponents.amac3V * FrontEndComponents.amac3I) * namac
 
 # Power in the (separate) linPOL12V due to AMAC supply
+# The implementation below assumes that 2 AMACS implies 2 linPOL12V.
+# ldoI means quiescent current
 def PlinPOL12V(vdrop) :
     ret  = (vdrop - FrontEndComponents.amac15V) * (FrontEndComponents.amac15I + FrontEndComponents.ldoI) * namac
     ret += (vdrop - FrontEndComponents.amac3V ) * (FrontEndComponents.amac3I  + FrontEndComponents.ldoI) * namac
     return ret
 
-def Phv_R(Is) :
-    return SensorProperties.Rhv*Is*Is
+nfilter_nhvmux = Config.GetInt('NominalPower.nFilters_nHVMUX',1,description='Number of HV filters (= number of HVMUX)')
 
-Phv_Mux = SensorProperties.vbias*SensorProperties.vbias/float(SensorProperties.Rhvmux + SensorProperties.Rhv)
+# With two filters covering the same current, power is halved
+def Phv_R(Is) :
+    return SensorProperties.Rhv*Is*Is / float(nfilter_nhvmux)
+
+# With two HVMUX, power is doubled.
+Phv_Mux = nfilter_nhvmux*SensorProperties.vbias*SensorProperties.vbias/float(SensorProperties.Rhvmux + SensorProperties.Rhv)
 
 nabc   = Config.GetInt('NominalPower.nabc',description='Number of ABCs on the hybrid')
 nhcc   = Config.GetInt('NominalPower.nhcc',description='Number of HCCs on the hybrid')
