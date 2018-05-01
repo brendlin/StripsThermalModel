@@ -158,7 +158,7 @@ for scenario in scenarios :
     #
     # Minimum / Maximum Module Value
     #
-    for quantity_name in ['tfeast','isensor','qsensor_headroom','tsensor','tc_headroom'] :
+    for quantity_name in ['tfeast','isensor','qsensor_headroom','tsensor','tc_headroom','deltavhvservices'] :
         if runaway :
             tmp_dict['%s_minModule_str'%(quantity_name)] = (RunawayText,'')
             tmp_dict['%s_maxModule_str'%(quantity_name)] = (RunawayText,'')
@@ -325,7 +325,7 @@ olist.append(['','Min $Q_{sensor}$ Headroom [$Q_{S,crit}/Q_{S}$]'] + list('%s (%
 olist.append(['','Min Coolant Temperature Headroom [$^\circ$C]'  ] + list('%s (%s)'%all_results[scn][0]['tc_headroom_minModule_str'     ] for scn in two_main_scenarios))
 
 # Services
-olist.append(['','Max $\Delta V_\text{HV}$ (tape, EOS, cables, PP2) [V]'] + list('???' for scn in two_main_scenarios))
+olist.append(['','Max $\Delta V_\text{HV}$ (filters, \sout{tape}, EOS, cables, PP2) [V]'] + list('%s (%s)'%all_results[scn][0]['deltavhvservices_maxModule_str'] for scn in two_main_scenarios))
 olist.append(['','Max LV round-trip $\Delta V$ from PP2 (type I/II cables only) [V]'] + list(all_results[scn][0]['vdrop_roundtrip_maxPetal_str'] for scn in two_main_scenarios))
 olist.append(['','Max LV $V_\text{out}$ at PP2 [V]'     ] + list(all_results[scn][0]['petalvoutlvpp2_maxPetal_str'] for scn in two_main_scenarios))
 
