@@ -90,48 +90,115 @@ def Resistance_HVType3and4() :
 
 # Type I and II HV current
 # separate HV lines will serve modules: R5, R4, R3 and R2, and R1 and R0.
+# Millivolts!
 def iSensors_HV_Type1Type2PP2_Petal(names,ring,disk,result_dicts,itime) :
 
-    index = PlotUtils.GetResultDictIndex(names,ring,disk)
-    isensors = result_dicts[index]['isensor'].GetY()[itime]
+    isensors = 0
 
-    if (ring == 0) or (ring == 2) :
-        index = PlotUtils.GetResultDictIndex(names,ring+1,disk)
-        isensors += result_dicts[index]['isensor'].GetY()[itime]
+    if ring in [0,1] :
 
-    if (ring == 1) or (ring == 3) :
-        index = PlotUtils.GetResultDictIndex(names,ring-1,disk)
+        for iring in [0,1] :
+            index = PlotUtils.GetResultDictIndex(names,iring,disk)
+            isensors += result_dicts[index]['isensor'].GetY()[itime]
+
+    if ring in [2,3] :
+
+        for iring in [2,3] :
+            index = PlotUtils.GetResultDictIndex(names,iring,disk)
+            isensors += result_dicts[index]['isensor'].GetY()[itime]
+
+    if ring in [4,5] :
+
+        index = PlotUtils.GetResultDictIndex(names,ring,disk)
         isensors += result_dicts[index]['isensor'].GetY()[itime]
 
     return isensors
 
 # Type III and IV HV current
 # For now assume that the multiplexing is the same as in Type1Type2PP2
+# Millivolts!
 def iSensors_HV_Type3Type4_Petal(names,ring,disk,result_dicts,itime) :
-    return iSensors_HV_Type1Type2PP2_Petal(names,ring,disk,result_dicts,itime)
 
-# separate HV lines will serve modules: R5, R4, R3 and R2, and R1 and R0.
-# RHV is from the module I think...?
-def DeltaVHV_halfsubstructure_Type1Type2PP2(isensors_type12) :
+    isensors = 0
+
+    if ring in [0,1,2,3] :
+
+        for iring in [0,1,2,3] :
+            index = PlotUtils.GetResultDictIndex(names,iring,disk)
+            isensors += result_dicts[index]['isensor'].GetY()[itime]
+
+    if ring in [4,5] :
+
+        for iring in [4,5] :
+            index = PlotUtils.GetResultDictIndex(names,iring,disk)
+            isensors += result_dicts[index]['isensor'].GetY()[itime]
+
+    return isensors
+
+# HV Delta V for a given module, from PP2 (including PP2) to just before the sensor.
+# Separate HV lines will serve modules: R5, R4, R3 and R2, and R1 and R0.
+# RHV will need to be taken separately from the module, for each module.
+def DeltaVHV_halfsubstructure_Type1Type2PP2(names,ring,disk,result_dicts,itime) :
+
+    # current in type-I/II-multiplexed cables
+    isensors_type12 = 0.001 * iSensors_HV_Type1Type2PP2_Petal(names,ring,disk,result_dicts,itime)
+
     return isensors_type12 * (RHVtape + Resistance_HVType1and2() + PP2HVFilterResistance )
 
-def DeltaVHV_halfsubstructure_Type3Type4(isensors_type34) :
+
+# HV Delta V for a given module, PP4 to just before PP2
+def DeltaVHV_halfsubstructure_Type3Type4(names,ring,disk,result_dicts,itime) :
+
+    # current in type-I/II-multiplexed cables
+    isensors_type34 = 0.001 * iSensors_HV_Type3Type4_Petal(names,ring,disk,result_dicts,itime)
+
     return isensors_type34 * Resistance_HVType3and4()
+
+
+# For power calculations
+def SumCurrentSquared_Type1Type2(names,disk,result_dicts,itime) :
+    # Sum(i^2)
+    sumi2 = 0
+
+    # (0,1), (2,3), (4), (5) Type1Type2PP2 multiplexing
+    for ring in [0,2,4,5] :
+        itmp = 0.001 * iSensors_HV_Type1Type2PP2_Petal(names,ring,disk,result_dicts,itime)
+        sumi2 += (itmp*itmp)
+
+    return sumi2
+
+
+def SumCurrentSquared_Type3Type4(names,disk,result_dicts,itime) :
+    # Sum(i^2)
+    sumi2 = 0
+
+    # (0,1,2,3), (4,5) multiplexing for Type3Type4
+    for ring in [0,4] :
+        itmp = 0.001 * iSensors_HV_Type3Type4_Petal(names,ring,disk,result_dicts,itime)
+        sumi2 += (itmp*itmp)
+
+    return sumi2
+
+
+def PtapeHV(names,disk,result_dicts,itime) :
+    return 0
+
+def Ppp2_HV(names,disk,result_dicts,itime) :
+    return PP2HVFilterResistance * SumCurrentSquared_Type1Type2(names,disk,result_dicts,itime)
+
+def PlossHVCablesType1and2(names,disk,result_dicts,itime) :
+    return Resistance_HVType1and2() * SumCurrentSquared_Type1Type2(names,disk,result_dicts,itime)
+
+def PlossHVCablesType3and4(names,disk,result_dicts,itime) :
+    return Resistance_HVType3and4() * SumCurrentSquared_Type3Type4(names,disk,result_dicts,itime)
 
 # Power of HV services, including tape, PP2, and cables. Excluding on-module resistors.
 def PHVservicesFullPetal(names,disk,result_dicts,itime) :
     output = 0
-    # (0,1), (2,3), (4), (5) Type1Type2PP2 and Type3Type4
-    for ring in [0,2,4,5] :
-        itmp = 0.001 * iSensors_HV_Type1Type2PP2_Petal(names,ring,disk,result_dicts,itime)
-        output += itmp * DeltaVHV_halfsubstructure_Type1Type2PP2(itmp)
-        itmp = 0.001 * iSensors_HV_Type3Type4_Petal   (names,ring,disk,result_dicts,itime)
-        output += itmp * DeltaVHV_halfsubstructure_Type3Type4   (itmp)
-
-    # add eos component
-    index = PlotUtils.GetResultDictIndex(names,5,disk)
-    itmp = 0.001 * result_dicts[index]['isensor'].GetY()[itime]
-    output += (itmp**2) * RHV
+    output += PtapeHV(names,disk,result_dicts,itime)
+    output += PlossHVCablesType1and2(names,disk,result_dicts,itime)
+    output += Ppp2_HV(names,disk,result_dicts,itime)
+    output += PlossHVCablesType3and4(names,disk,result_dicts,itime)
 
     # Extra factor of 2 for two halves of the petal
     return 2 * output
