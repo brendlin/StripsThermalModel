@@ -44,6 +44,12 @@ HVType4ResistancePerMeter = Config.GetDouble('CableLosses.HVType4ResistancePerMe
 def Resistance_LVType1and2() :
     return (LVType1ResistancePerMeter*Type1LengthOneWay*2 + LVType2ResistancePerMeter*Type2LengthOneWay*2)
 
+def Resistance_LVType1() :
+    return (LVType1ResistancePerMeter*Type1LengthOneWay*2)
+
+def Resistance_LVType2() :
+    return (LVType2ResistancePerMeter*Type2LengthOneWay*2)
+
 # Round-trip resistance
 def Resistance_LVType3and4() :
     return (LVType3ResistancePerMeter*Type3LengthOneWay*2 + LVType4ResistancePerMeter*Type4LengthOneWay*2)
@@ -67,6 +73,12 @@ def ILVtype3andType4(Ihalfsubstructure,vdrop_tape_r5) :
 def PlossLVCablesType1and2(Ihalfsubstructure) :
     return (Ihalfsubstructure**2) * Resistance_LVType1and2()
 
+def PlossLVCablesType1(Ihalfsubstructure) :
+    return (Ihalfsubstructure**2) * Resistance_LVType1()
+
+def PlossLVCablesType2(Ihalfsubstructure) :
+    return (Ihalfsubstructure**2) * Resistance_LVType2()
+
 def PlossLVCablesType3and4(Ihalfsubstructure,vdrop_tape_r5) :
     return (ILVtype3andType4(Ihalfsubstructure,vdrop_tape_r5)**2) * Resistance_LVType3and4()
 
@@ -84,6 +96,12 @@ RHV = 0 # This is the series resistor! Fix!
 
 def Resistance_HVType1and2() :
     return (HVType1ResistancePerMeter*Type1LengthOneWay*2 + HVType2ResistancePerMeter*Type2LengthOneWay*2)
+
+def Resistance_HVType1() :
+    return (HVType1ResistancePerMeter*Type1LengthOneWay*2)
+
+def Resistance_HVType2() :
+    return (HVType2ResistancePerMeter*Type2LengthOneWay*2)
 
 def Resistance_HVType3and4() :
     return (HVType3ResistancePerMeter*Type3LengthOneWay*2 + HVType4ResistancePerMeter*Type4LengthOneWay*2)
@@ -188,6 +206,12 @@ def Ppp2_HV(names,disk,result_dicts,itime) :
 
 def PlossHVCablesType1and2(names,disk,result_dicts,itime) :
     return Resistance_HVType1and2() * SumCurrentSquared_Type1Type2(names,disk,result_dicts,itime)
+
+def PlossHVCablesType1(names,disk,result_dicts,itime) :
+    return Resistance_HVType1() * SumCurrentSquared_Type1Type2(names,disk,result_dicts,itime)
+
+def PlossHVCablesType2(names,disk,result_dicts,itime) :
+    return Resistance_HVType2() * SumCurrentSquared_Type1Type2(names,disk,result_dicts,itime)
 
 def PlossHVCablesType3and4(names,disk,result_dicts,itime) :
     return Resistance_HVType3and4() * SumCurrentSquared_Type3Type4(names,disk,result_dicts,itime)
