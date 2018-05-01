@@ -27,7 +27,8 @@ respectively. They are taken from ``step 2.2 duals layout'' (used for the Pixel 
  & 0 & 23475 & 24375 & 25350 & 27525 & 30375 & 32850 \\ 
 \hline\end{tabular}
 } %% resize box after tabular
-\caption{TID in 3000 fb$^{-1}$ of collected data [Rad]}
+\caption{TID in 3000 fb$^{-1}$ of collected data [Rad].
+The model uses 4000 fb$^{-1}$ integrated luminosity nominally and 6000 fb$^{-1}$ as a safety factor.}
 \label{tid}
 \end{centering}
 \end{table}
@@ -47,38 +48,11 @@ respectively. They are taken from ``step 2.2 duals layout'' (used for the Pixel 
  & 0 &   5.04e+14 & 5.14e+14 & 5.35e+14 & 5.75e+14 & 6.34e+14 & 7.93e+14 \\ 
 \hline\end{tabular}
 } %% resize box after tabular
-\caption{Total flux in 3000 fb$^{-1}$ of collected data [$n_\text{eq}/$cm$^2$]}
+\caption{Total flux in 3000 fb$^{-1}$ of collected data [$n_\text{eq}/$cm$^2$].
+The model uses 4000 fb$^{-1}$ integrated luminosity nominally and 6000 fb$^{-1}$ as a safety factor.}
 \label{flux}
 \end{centering}
 \end{table}
-
-\subsection{Low-voltage supply}
-
-The low-voltage is modeled as losing 1V over the length of the petal, with 11V at the EOS and
-dropping to 10V in R1\footnote{Estimates provided by Pepe Bernabeu.}.
-Table~\ref{voltage_drops} specifies the voltage input at each module.
-
-\begin{table}[ht]
-\begin{centering}\adjustbox{max width=\textwidth}{ %% just before tabular
-\begin{tabular}{|l|l|r|r|r|r|r|r|l|} \hline % data_below
-Quantity & Description           &     R0 &     R1 &     R2 &     R3 &     R4 &     R5 & Unit   \\ \hline
-\multirow{2}{*}{$V_{in}$} & Input voltage to the  &  \multirow{2}{*}{10.00} &  \multirow{2}{*}{10.17} &  \multirow{2}{*}{10.33} 
-&  \multirow{2}{*}{10.50} &  \multirow{2}{*}{10.67} &  \multirow{2}{*}{10.83} & \multirow{2}{*}{V}      \\ 
- & Feast and LDOs on each module & & & & & & & \\
-\hline\end{tabular}
-} %% resize box after tabular
-\end{centering}
-\caption{Voltage inputs for each endcap module. The EOS is assumed to have an 11V input voltage.}
-\label{voltage_drops}
-\end{table}
-
-\subsection{Type I-IV Cable Losses --- Under Construction!}
-
-Cable losses outside the petal are currently under construction. Currently we include in the
-total power a factor of +10.25\%. This number is obtained by using 5\% for cable losses from the
-service modules, times 5\% for losses from PP1 to USA15.
-
-A more updated treatment of cable losses will be included in the next set of results.
 
 \subsection{Full list of inputs}
 

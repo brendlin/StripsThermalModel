@@ -1,0 +1,113 @@
+
+\section{LV and HV Supply and Cable Losses}
+
+\subsection{Low-voltage supply and cable losses}
+
+The low-voltage is modeled as losing 1V over the length of the petal, with 11V at the EOS and
+dropping to 10V in R1\footnote{Estimates provided by Pepe Bernabeu.}.
+Table~\ref{voltage_drops} specifies the voltage input at each module.
+
+\begin{table}[ht]
+\begin{center}
+\adjustbox{max width=\textwidth}{ %% just before tabular
+\begin{tabular}{|l|l|r|r|r|r|r|r|l|} \hline % data_below
+Quantity & Description           &     R0 &     R1 &     R2 &     R3 &     R4 &     R5 & Unit   \\ \hline
+\multirow{2}{*}{$V_{in}$} & Input voltage to the  &  \multirow{2}{*}{10.00} &  \multirow{2}{*}{10.17} &  \multirow{2}{*}{10.33} 
+&  \multirow{2}{*}{10.50} &  \multirow{2}{*}{10.67} &  \multirow{2}{*}{10.83} & \multirow{2}{*}{V}      \\ 
+ & Feast and LDOs on each module & & & & & & & \\
+\hline\end{tabular}
+} %% resize box after tabular
+\end{center}
+\caption{Voltage inputs for each endcap module. The EOS is assumed to have an 11V input voltage.}
+\label{voltage_drops}
+\end{table}
+
+\subsection{High-voltage supply and cable losses}
+
+% https://edms.cern.ch/ui/file/1889475/10/Bus_Tapes_specs_v10_300118.pdf
+%% There will be 4 separate HV lines for barrel and petals. For the petals, the
+%% separate HV lines will serve modules: R5, R4, R3 and R2, and R1 and R0. For the
+%% barrels, the HV lines will serve modules: 0 to 3, 4 to 7, 8 to 10 and 11 to 13, where
+%% module 0 is defined to be the module closest to the centre of the detector and module 13
+%% is adjacent to the EoS.
+
+There are four Type I and II HV lines per petal side, which serve modules in the following multiplexing
+scheme: (R0 + R1), (R2 + R3), R4, R5\footnote{ See
+https://edms.cern.ch/ui/file/1889475/10/Bus\_Tapes\_specs\_v10\_300118.pdf
+}. The HV tape and PP2 HV filters are also assumed to be a part of this multiplex block:
+
+\def\rhvmuxI{R^\text{HV,cables}_\text{muxI/II}}
+\def\rhvmuxIII{R^\text{HV,cables}_\text{muxIII/IV}}
+\def\rtape{R^\text{HV}_\text{tape}}
+\def\rtypeI{R^\text{HV}_\text{typeI}}
+\def\rtypeII{R^\text{HV}_\text{typeII}}
+\def\rtypeIII{R^\text{HV}_\text{typeIII}}
+\def\rtypeIV{R^\text{HV}_\text{typeIV}}
+\[
+\rhvmuxI = \rtape + \rtypeI + \rtypeII + R^\text{HV}_\text{PP2}
+\]
+
+The multiplexing of the Type III and IV cables is currently
+assumed to be (R0 + R1 + R2 + R3) and (R4 + R5).
+\[
+\rhvmuxIII = \rtypeIII + \rtypeIV
+\]
+
+Then the HV voltage drops of the services (including the filters on the module) are:
+\def\dvservices{\Delta V^\text{services}}
+\begin{align}
+\dvservices_\text{HV,R5} =&                                I^{R5}_S \cdot \left(\frac{R_{HV}}{2} +\rhvmuxI \right) + \left(\sum_{X=4,5} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R4} =&                                I^{R4}_S \cdot \left(\frac{R_{HV}}{2} +\rhvmuxI \right) + \left(\sum_{X=4,5} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R3} =& \left(\sum_{X=2,3} I^\text{RX}_S\right) \cdot \left(\frac{R_{HV}}{2} +\rhvmuxI \right) + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R2} =& \left(\sum_{X=2,3} I^\text{RX}_S\right) \cdot \left(R_{HV} +\rhvmuxI \right)           + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R1} =& \left(\sum_{X=0,1} I^\text{RX}_S\right) \cdot \left(R_{HV} +\rhvmuxI \right)           + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R0} =& \left(\sum_{X=0,1} I^\text{RX}_S\right) \cdot \left(R_{HV} +\rhvmuxI \right)           + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\end{align}
+%
+where the contribution from the on-module HV filter is halved in R3, R4 and R5 because of the
+two-filter, split-current scheme in those modules.
+
+The HV power dissipated in the HV services, excluding the on-module HV filters (whose power is counted
+as part of the module), is:
+\def\phvservices{P^\text{services}_\text{HV}}
+\[
+\phvservices = \rhvmuxI \cdot \left[ \left(\sum_{X=0,1} I^\text{RX}_S\right)^2
+                                    +\left(\sum_{X=2,3} I^\text{RX}_S\right)^2
+                                    +\left(I^{R4}_S\right)^2
+                                    +\left(I^{R5}_S\right)^2
+                                    \right]
+               + \rhvmuxIII \cdot \left[ \left(\sum^3_{X=0} I^\text{RX}_S\right)^2
+                                        +\left(\sum_{X=4,5} I^\text{RX}_S\right)^2
+                                        \right]
+\]
+
+Table~\ref{cableHVInputs} describes the cable inputs used for the HV power losses.
+
+\begin{table}[ht]
+\begin{center}
+\adjustbox{max width=\textwidth}{ %% just before tabular
+\begin{tabular}{|l|l|r|l|} \hline % data_below
+Configurable Item         & Description                          &      Value & Unit        \\ \hline
+HVType1ResistancePerMeter & Type 1 HV cable resistance per meter &      0.213 & $\Omega$/m  \\
+HVType2ResistancePerMeter & Type 2 HV cable resistance per meter &      0.213 & $\Omega$/m  \\
+HVType3ResistancePerMeter & Type 3 HV cable resistance per meter &      0.139 & $\Omega$/m  \\
+HVType4ResistancePerMeter & Type 4 HV cable resistance per meter &    0.14286 & $\Omega$/m  \\
+LVType1ResistancePerMeter & Type 1 LV cable resistance per meter &   0.025438 & $\Omega$/m  \\
+LVType2ResistancePerMeter & Type 2 LV cable resistance per meter &     0.0148 & $\Omega$/m  \\
+LVType3ResistancePerMeter & Type 3 LV cable resistance per meter &     0.0095 & $\Omega$/m  \\
+LVType4ResistancePerMeter & Type 4 LV cable resistance per meter &    0.00127 & $\Omega$/m  \\
+PP2Efficiency             & PP2 Efficiency                       &       0.85 &             \\
+PP2HVFilterResistance     & PP2 Efficiency                       &      100.0 & $\Omega$    \\
+PP2InputVoltage           & PP2 input voltage                    &       48.0 & V           \\
+PowerSuppliesEfficency    & Power supplies efficiency            &        0.8 &             \\
+Type1LengthOneWay         & Type 1 LV/HV cable one-way length    &        2.6 & m           \\
+Type2LengthOneWay         & Type 2 LV/HV cable one-way length    &       15.0 & m           \\
+Type3LengthOneWay         & Type 3 LV/HV cable one-way length    &       32.0 & m           \\
+Type4LengthOneWay         & Type 4 LV/HV cable one-way length    &       70.0 & m           \\
+Rhv tape                  & !!!!!!!!!!                           &    !!!     & !!!         \\
+\hline\end{tabular}
+} %% resize box after tabular
+\end{center}
+\caption{HV cable inputs for the endcap}
+\label{cableHVInputs}
+\end{table}

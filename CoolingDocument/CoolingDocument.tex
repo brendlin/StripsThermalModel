@@ -42,8 +42,8 @@
 \section{Changes since the previous results}
 
 { \bf
-The following adjustments were made to results since the version immediately following ITK Week in
-November 2017:}
+December 12, 2018: The following adjustments were made to results since the version immediately
+following ITK Week in November 2017:}
 \begin{itemize}
 \item The total analog current of the ABC is now set to 70 mA, based on the advice of Paul Keener.
 (The ABC digital current is 42.5 mA.)
@@ -53,17 +53,38 @@ November 2017:}
 3 Wm$^{-1}$K$^{-1}$, based on measurements and advice from Graham Beck. The barrel and endcap FEAST
 thermal impedance values calculated from FEA are now more compatible. The result is a reduced FEAST
 temperature in the model.
-\item The model now includes two AMACs on R3; previously only one AMAC was used.
+\item The model now includes two AMACs on R3 (powered by two LDOs); previously only one AMAC was used.
 \item A 1.9 mA quiescent current is included in the LDOs providing power to the AMACs.
 \end{itemize}
 
 {\bf 
-The following adjustments were made since circulation of the document on December 12, 2017:}
+December 18, 2018: The following adjustments were made since circulation of the document on December 12, 2017:}
 \begin{itemize}
 \item The flux estimates have been changed from ``Step 1.9'' to the ``step 2.2 duals layout'' used in
 the Pixel TDR. This should be the latest flux estimate.
 \item A bug was fixed in which the pessimistic TID bump parameterization safety factor was not applied.
 This increases the maximum power estimates slightly, in the worst-case scenario.
+\end{itemize}
+
+{ \bf
+April 30, 2018: The following changes were made since December 18, 2018:}
+% New system architecture: https://edms.cern.ch/ui/file/1807716/1.14/Full_System_Architecture_1.14_EDMS.pdf
+\begin{itemize}
+\item TODDO The FEAST is replaced by the BPOL12V, however the modeling of this converter (temperature
+  and current dependence has not changed. The powering of the AMAC is now handled by the LINPOL12V
+  instead of the BPOL12V (FEAST). This reduces the power associated to the FEAST, and thus the
+  temperature.
+\item The treatment of LV tape losses and FEAST voltages has now been made more consistent. Previously,
+  tape resistances were modeled with a flat 10 m$\Omega$ resistance and FEAST voltages were set by hand.
+  Now, the BPOL12V voltages are calculated on-the-fly using the voltage drop of the BPOL12V+tape of
+  the previous modules. Currently the tape resistances are set by hand to force a 1V voltage decrease
+  across the whole module. They should be updated with more realistic values. See Section~TODO.
+\item Modules R3, R4 and R5 have been updated to include two HV filters and two HVMUXes. Details on the
+implementation can be found in Section~\ref{highvoltage}.
+\item New quantities have been added to the endcap model:
+  \begin{itemize}
+    \item Round-trip LV voltage drop to/from PP2
+  \end{itemize}
 \end{itemize}
 
 \input{Sections/Introduction.tex}
@@ -73,6 +94,9 @@ This increases the maximum power estimates slightly, in the worst-case scenario.
 \input{Sections/PowerInputs.tex}
 \clearpage
 \input{Sections/ThermalImpedances.tex}
+\clearpage
+\input{Sections/HighVoltage.tex}
+\input{Sections/TapeAndCabling.tex}
 \clearpage
 \input{Sections/OtherInputs.tex}
 \clearpage

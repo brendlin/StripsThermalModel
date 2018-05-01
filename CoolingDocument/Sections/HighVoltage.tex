@@ -1,0 +1,21 @@
+
+\section{Endcap High Voltage and Sensors in R3-R5}
+\label{highvoltage}
+
+The nominal thermoelectric model of an endcap module consists of one sensor connected in parallel with
+an HVMUX and in series with a 10~k$\Omega$ filter (technically two 5k resistors).
+Note, however, that endcap modules R3, R4 and R5 each contain two sensors, each of which has its own
+HVMUX and series resistors. Because leakage current is proportional to the area of a sensor,
+the effect of replacing a single sensor with a pair of sensors having the same total area is to split
+the leakage current between the two sensors. Therefore, the total leakage current $I_S$ and sensor
+power $Q_S$ are the same as in the single-sensor case.
+
+However, these modules have two 10~k$\Omega$ serial resistors, each with half of the total
+leakage current, and two HVMUX resistors, meaning the power dissipated is different from the nominal
+case:
+
+\begin{align}
+P_{RHV}(I_S) ~=~& R_{HV}I_S^2~~\rightarrow~~ 2\times R_{HV}\left(\frac{I_S}{2}\right)^2 \\
+P_{HVMUX} ~=~& \frac{ V^2_{bias} }{R_{HVMUX} + R_{HV}} ~~\rightarrow~~ 
+             \frac{2V^2_{bias} }{R_{HVMUX} + R_{HV}}
+\end{align}
