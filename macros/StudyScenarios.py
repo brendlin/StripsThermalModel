@@ -138,7 +138,7 @@ for scenario in scenarios :
     #
     # Calculate maximum total value (input to tables)
     #
-    for quantity_name in ['pnoservices','phv_wleakage'] :
+    for quantity_name in ['pnoservices','pcoolingsys','pwallpower','pservice','phv_wleakage'] :
         if runaway :
             tmp_dict['%s_maxTotal_str'%(quantity_name)] = RunawayText
             tmp_dict['%s_minTotal_str'%(quantity_name)] = RunawayText
@@ -148,7 +148,7 @@ for scenario in scenarios :
         maxval = max(list(tmp_dict[quantity_name+'total'].GetY()[i] for i in range(nstep)))
         minval = min(list(tmp_dict[quantity_name+'total'].GetY()[i] for i in range(nstep)))
 
-        if quantity_name in ['pmodule','phv_wleakage'] :
+        if quantity_name in ['pmodule','pnoservices','pcoolingsys','pwallpower','pservice','phv_wleakage'] :
             maxval = maxval/1000.
             minval = minval/1000.
 
@@ -265,9 +265,12 @@ olist.append(['','Cooling [$^\circ$C]' ] + list(all_configs[scn].GetValue('cooli
 
 olist.append(['','Total LV+HV, no services'] + list('%s/%s'%(all_results[scn][0]['pnoservices_minTotal_str'],
                                                              all_results[scn][0]['pnoservices_maxTotal_str']) for scn in two_main_scenarios))
-olist.append(['',' + type 1 cables, PP1 (Cooling system power)'] + list('%s/%s'%('???','???') for scn in two_main_scenarios))
-olist.append(['',' + all services and power supplies (Wall power)'] + list('%s/%s'%('???','???') for scn in two_main_scenarios))
-olist.append(['','Service power only'] + list('%s/%s'%('???','???') for scn in two_main_scenarios))
+olist.append(['',' + type 1 cables, PP1 (Cooling system power)'] + list('%s/%s'%(all_results[scn][0]['pcoolingsys_minTotal_str'],
+                                                                                 all_results[scn][0]['pcoolingsys_maxTotal_str']) for scn in two_main_scenarios))
+olist.append(['',' + all services and power supplies (Wall power)'] + list('%s/%s'%(all_results[scn][0]['pwallpower_minTotal_str'],
+                                                                                    all_results[scn][0]['pwallpower_maxTotal_str']) for scn in two_main_scenarios))
+olist.append(['','Service power only'] + list('%s/%s'%(all_results[scn][0]['pservice_minTotal_str'],
+                                                       all_results[scn][0]['pservice_maxTotal_str']) for scn in two_main_scenarios))
 olist.append(['','Maximum $P_\text{HV}$ [kW]'      ] + list(all_results[scn][0]['phv_wleakage_maxTotal_str']     for scn in two_main_scenarios))
 
 olist.append(['','Max petal power (LV+HV) [W]'     ] + list(all_results[scn][0]['pmodulepetal_maxPetal_str']   for scn in two_main_scenarios))

@@ -362,11 +362,11 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     #
     # Process Totals
     #
-
     pnoservicestotal = [] # Power in both endcaps (LV+HV), excluding services (e.g. excluding cables, patch-panels)
     pcoolingsystotal = [] # Power in both endcaps, adding type-1 cables and PP1 losses
     pwallpowertotal  = [] # Including everything else
     phvtotal   = [] # Total HV Power (sensor+resistors) in full endcap or barrel (both sides)
+    pservice   = [] # Service power only (opposite of noservices)
     nModuleSides = 2.
     nDetectors = 2. # 2 barrel sides; 2 endcaps
     for i in range(GlobalSettings.nstep) :
@@ -374,6 +374,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         pcoolingsystotal.append(0)
         pwallpowertotal.append(0)
         phvtotal.append(0)
+        pservice.append(0)
 
         for disk_layer in range(Layout.nlayers_or_disks) :
             index = PlotUtils.GetResultDictIndex(names,0,disk_layer)
@@ -382,35 +383,36 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             phvtotal[i] += result_dicts[index]['phv_wleakagepetal'].GetY()[i]
 
             # Nominal module power (Module LV + HV + HV resistors + leakage + EOS + LV tape)
-            pnoservicestotal[i] += result_dicts[index]['pmodulepetal'].GetY()[i]
-            pcoolingsystotal[i] += result_dicts[index]['pmodulepetal'].GetY()[i]
-            pwallpowertotal[i]  += result_dicts[index]['pmodulepetal'].GetY()[i]
+            list_noservices = ['pmodulepetal']
+            list_cooling = ['plosslvcablest12','plosshvcablest12','ptapehv']
+            list_pp2andlater = ['plosslvcablest34','plosshvcablest34','plosslvpp2','plosshvpp2']
 
-            # Cooling system (Adds type I/II LV cables, type I/II HV cables, HV tape)
-            pcoolingsystotal[i] += result_dicts[index]['plosslvcablest12'].GetY()[i]
-            pwallpowertotal[i]  += result_dicts[index]['plosslvcablest12'].GetY()[i]
+            for value in list_noservices :
+                pnoservicestotal[i] += result_dicts[index][value].GetY()[i]
 
-            # plosshvcablest12
+            for value in list_noservices + list_cooling :
+                pcoolingsystotal[i] += result_dicts[index][value].GetY()[i]
 
-            # Full system (Adds type III/IV LV/HV cables, PP2 LV/HV losses)
-            pwallpowertotal[i]  += result_dicts[index]['pmodulepetal'].GetY()[i]
-            # plosslvcablest34
-            # plosshvcablest34
-            # plosslvpp2
-            # plosshvpp2
+            for value in list_noservices + list_cooling + list_pp2andlater :
+                pwallpowertotal[i]  += result_dicts[index][value].GetY()[i]
+
+            for value in list_cooling + list_pp2andlater :
+                pservice[i] += result_dicts[index][value].GetY()[i]
 
         # endcap                2              npetals/ring            nEndcaps (2)
         # barrel                2              nstaves/side            nSides (2)
         pnoservicestotal[i] *= (nModuleSides * Layout.nstaves_petals * nDetectors)
         pcoolingsystotal[i] *= (nModuleSides * Layout.nstaves_petals * nDetectors)
         pwallpowertotal[i]  *= (nModuleSides * Layout.nstaves_petals * nDetectors)
-        phvtotal[i]   *= (nModuleSides * Layout.nstaves_petals * nDetectors)
+        phvtotal[i]         *= (nModuleSides * Layout.nstaves_petals * nDetectors)
+        pservice[i]         *= (nModuleSides * Layout.nstaves_petals * nDetectors)
 
     gr = dict()
     gr['pnoservicestotal']  = MakeGraph('TotalPowerNoServices'  ,'Total power in both %ss (no services)'%(structure_name),xtitle,'P_{%s} [W]'%('Total'),x,pnoservicestotal)
     gr['pcoolingsystotal']  = MakeGraph('TotalPowerCoolingSys'  ,'Total power in both %ss (cooling system power)'%(structure_name),xtitle,'P_{%s} [W]'%('Total'),x,pcoolingsystotal)
     gr['pwallpowertotal' ]  = MakeGraph('TotalWallPower'        ,'Total power in both %ss (wall power)'%(structure_name),xtitle,'P_{%s} [W]'%('Total'),x,pwallpowertotal)
     gr['phv_wleakagetotal'] = MakeGraph('TotalHVPower','Total HV power (sensor + resistors) in both %ss'%(structure_name),xtitle,'P_{%s} [W]'%('HV')   ,x,phvtotal  )
+    gr['pservicetotal']     = MakeGraph('TotalServicePower','Total service power in both %ss'%(structure_name),xtitle,'P_{%s} [W]'%('Total')   ,x,pservice  )
 
     thermal_runaway_yeartotal = 999
     for disk_layer in range(Layout.nlayers_or_disks) :
@@ -421,7 +423,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     if thermal_runaway_yeartotal == 999 :
         thermal_runaway_yeartotal = 0
 
-    for i in ['pnoservicestotal','pcoolingsystotal','pwallpowertotal','phv_wleakagetotal'] :
+    for i in ['pnoservicestotal','pcoolingsystotal','pwallpowertotal','phv_wleakagetotal','pservicetotal'] :
         result_dicts[0][i] = gr[i]
 
     # For summary tables in ProcessSummaryTables
