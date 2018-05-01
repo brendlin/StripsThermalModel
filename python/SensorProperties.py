@@ -9,7 +9,7 @@ area = Config.GetDouble('SensorProperties.area',unit='cm$^2$',description='Senso
 
 # Bias voltage (incl. resistors)
 vbias = SafetyFactors.vbias
-Rhv_descr = 'HV resistors are 2 times 5k'
+Rhv_descr = 'HV filter resistors are 2 times 5k'
 Rhv    = Config.GetDouble('SensorProperties.Rhv',10000.,unit='$\Omega$',description=Rhv_descr)
 Rhvmux_descr = 'parallel resistor for MUX operation is 10M'
 Rhvmux = Config.GetDouble('SensorProperties.Rhvmux',10000000.,unit='$\Omega$',description=Rhvmux_descr)

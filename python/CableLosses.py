@@ -5,13 +5,6 @@ import Config
 import EOSComponents
 import PlotUtils
 
-# Loss factors in cables
-# in tapes (no value?)
-losstype1_descr = 'Cable losses from service modules'
-losstype1 = Config.GetDouble('CableLosses.losstype1',0.05,description=losstype1_descr)
-lossouter_descr = 'Cable losses from PP1 to USA15'
-lossouter = Config.GetDouble('CableLosses.lossouter',0.05,description=lossouter_descr)
-
 #
 # NEW cabling prescription
 #
@@ -62,7 +55,7 @@ def Vout_LV_pp2(Ihalfsubstructure,vdrop_tape_r5) :
     return vdrop_tape_r5 + Ihalfsubstructure * Resistance_LVType1and2()
 
 # "Round trip voltage drop" meaning due to the Type 1 and Type 2 cables
-def Vdrop_RoundTrip_type1and2(Ihalfsubstructure) :
+def VdropLV_RoundTrip_type1and2(Ihalfsubstructure) :
     return Ihalfsubstructure * Resistance_LVType1and2()
 
 def Ppp2_LV(Ihalfsubstructure,vdrop_tape_r5) :
@@ -71,19 +64,23 @@ def Ppp2_LV(Ihalfsubstructure,vdrop_tape_r5) :
 def ILVtype3andType4(Ihalfsubstructure,vdrop_tape_r5) :
     return ( Vout_LV_pp2(Ihalfsubstructure,vdrop_tape_r5)/float(PP2InputVoltage) ) * Ihalfsubstructure / float(PP2Efficiency)
 
-def PlossCables(Ihalfsubstructure,vdrop_tape_r5) :
-    return (Ihalfsubstructure**2) * Resistance_LVType1and2() + (ILVtype3andType4(Ihalfsubstructure,vdrop_tape_r5)**2) * Resistance_LVType3and4()
+def PlossLVCablesType1and2(Ihalfsubstructure) :
+    return (Ihalfsubstructure**2) * Resistance_LVType1and2()
+
+def PlossLVCablesType3and4(Ihalfsubstructure,vdrop_tape_r5) :
+    return (ILVtype3andType4(Ihalfsubstructure,vdrop_tape_r5)**2) * Resistance_LVType3and4()
 
 # Factor of 2 is for half-substructure -> full substructure
 def PLVservicesFullSubstructure(Ihalfsubstructure,vdrop_tape_r5) :
-    return 2 * ( Ppp2_LV(Ihalfsubstructure,vdrop_tape_r5) + PlossCables(Ihalfsubstructure,vdrop_tape_r5) )
+    return 2 * ( Ppp2_LV(Ihalfsubstructure,vdrop_tape_r5) + PlossLVCablesType1and2(Ihalfsubstructure) + PlossLVCablesType3and4(Ihalfsubstructure,vdrop_tape_r5) )
 
 #
 # High-voltage
 #
 
+# Barrel: Tape resistance calculated for the longest HV trace: 8.3 Ohms (SS), 8.3 Ohms (LS)
 RHVtape = 0 # Get from Graham?
-RHV = 0 # What is this?
+RHV = 0 # This is the series resistor! Fix!
 
 def Resistance_HVType1and2() :
     return (HVType1ResistancePerMeter*Type1LengthOneWay*2 + HVType2ResistancePerMeter*Type2LengthOneWay*2)
@@ -91,8 +88,10 @@ def Resistance_HVType1and2() :
 def Resistance_HVType3and4() :
     return (HVType3ResistancePerMeter*Type3LengthOneWay*2 + HVType4ResistancePerMeter*Type4LengthOneWay*2)
 
+# Type I and II HV current
 # separate HV lines will serve modules: R5, R4, R3 and R2, and R1 and R0.
 def iSensors_HV_Type1Type2PP2_Petal(names,ring,disk,result_dicts,itime) :
+
     index = PlotUtils.GetResultDictIndex(names,ring,disk)
     isensors = result_dicts[index]['isensor'].GetY()[itime]
 
@@ -106,12 +105,13 @@ def iSensors_HV_Type1Type2PP2_Petal(names,ring,disk,result_dicts,itime) :
 
     return isensors
 
+# Type III and IV HV current
 # For now assume that the multiplexing is the same as in Type1Type2PP2
 def iSensors_HV_Type3Type4_Petal(names,ring,disk,result_dicts,itime) :
     return iSensors_HV_Type1Type2PP2_Petal(names,ring,disk,result_dicts,itime)
 
 # separate HV lines will serve modules: R5, R4, R3 and R2, and R1 and R0.
-# RHV is related to the EOS somehow... ?
+# RHV is from the module I think...?
 def DeltaVHV_halfsubstructure_Type1Type2PP2(isensors_type12) :
     return isensors_type12 * (RHVtape + Resistance_HVType1and2() + PP2HVFilterResistance )
 

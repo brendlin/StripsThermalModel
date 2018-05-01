@@ -138,10 +138,10 @@ for scenario in scenarios :
     #
     # Calculate maximum total value (input to tables)
     #
-    for quantity_name in ['pmodule','phv_wleakage'] :
+    for quantity_name in ['pnoservices','phv_wleakage'] :
         if runaway :
-            tmp_dict['%s_maxval_str'%(quantity_name)] = RunawayText
-            tmp_dict['%s_minval_str'%(quantity_name)] = RunawayText
+            tmp_dict['%s_maxTotal_str'%(quantity_name)] = RunawayText
+            tmp_dict['%s_minTotal_str'%(quantity_name)] = RunawayText
             continue
         nstep = tmp_dict[quantity_name+'total'].GetN()
 
@@ -152,8 +152,8 @@ for scenario in scenarios :
             maxval = maxval/1000.
             minval = minval/1000.
 
-        tmp_dict['%s_maxval_str'%(quantity_name)] = StringWithNSigFigs(maxval,3)
-        tmp_dict['%s_minval_str'%(quantity_name)] = StringWithNSigFigs(minval,3)
+        tmp_dict['%s_maxTotal_str'%(quantity_name)] = StringWithNSigFigs(maxval,3)
+        tmp_dict['%s_minTotal_str'%(quantity_name)] = StringWithNSigFigs(minval,3)
 
     #
     # Minimum / Maximum Module Value
@@ -252,7 +252,7 @@ for scenario in scenarios :
 #f.write('\\begin{landscape}\n')
 #f.write('\subsubsection{Main Summary Table 2}\n')
 olist = []
-hlines_new = [4,6,10,12,15,21,27,33,39,52,59]
+hlines_new = [4,6,11,12,15,21,27,33,39,52,59]
 #
 olist.append(['','Fluence'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetyfluence','')          for scn in two_main_scenarios))
 olist.append(['','$R_{T}$'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetythermalimpedance','') for scn in two_main_scenarios))
@@ -263,13 +263,13 @@ olist.append(['','TID parameterization'] + list(all_configs[scn].GetValue('Safet
 olist.append(['','Voltage [V]'         ] + list(all_configs[scn].GetValue('SafetyFactors.vbias','')         for scn in two_main_scenarios))
 olist.append(['','Cooling [$^\circ$C]' ] + list(all_configs[scn].GetValue('cooling','').replace('-',' $-$') for scn in two_main_scenarios))
 
-olist.append(['','Total LV+HV, no services'] + list('%s/%s'%(all_results[scn][0]['pmodule_minval_str'],
-                                                             all_results[scn][0]['pmodule_maxval_str']) for scn in two_main_scenarios))
+olist.append(['','Total LV+HV, no services'] + list('%s/%s'%(all_results[scn][0]['pnoservices_minTotal_str'],
+                                                             all_results[scn][0]['pnoservices_maxTotal_str']) for scn in two_main_scenarios))
 olist.append(['',' + type 1 cables, PP1 (Cooling system power)'] + list('%s/%s'%('???','???') for scn in two_main_scenarios))
 olist.append(['',' + all services and power supplies (Wall power)'] + list('%s/%s'%('???','???') for scn in two_main_scenarios))
 olist.append(['','Service power only'] + list('%s/%s'%('???','???') for scn in two_main_scenarios))
+olist.append(['','Maximum $P_\text{HV}$ [kW]'      ] + list(all_results[scn][0]['phv_wleakage_maxTotal_str']     for scn in two_main_scenarios))
 
-olist.append(['','Maximum $P_\text{HV}$ [kW]'      ] + list(all_results[scn][0]['phv_wleakage_maxval_str']     for scn in two_main_scenarios))
 olist.append(['','Max petal power (LV+HV) [W]'     ] + list(all_results[scn][0]['pmodulepetal_maxPetal_str']   for scn in two_main_scenarios))
 
 olist.append(['','Max LV tape power load (incl. tape losses) [W]'] + list(all_results[scn][0]['petaltapepower_maxPetal_str' ] for scn in two_main_scenarios))
@@ -280,10 +280,10 @@ olist.append(['','Max $I_\text{tape}$ [A]'       ] + list(all_results[scn][0]['i
 #
 olist[0][0] = '\multirow{5}{*}{Safety Factors}'
 olist[5][0] = '\multirow{2}{*}{HV, Cooling}'
-olist[7][0] = '\multirow{2}{*}{Endcap System}'
-olist[8][0] = '\multirow{2}{*}{Min/Max}'
-olist[9][0] = '\multirow{2}{*}{Power [kW]}'
-olist[11][0] = '\multirow{2}{*}{Petal-level}'
+olist[7][0] = '\multirow{3}{*}{Endcap System}'
+olist[8][0] = '\multirow{3}{*}{Min/Max}'
+olist[9][0] = '\multirow{3}{*}{Power [kW]}'
+olist[12][0] = 'Petal-level'
 olist[13][0] = '\multirow{3}{*}{Petal LV tape}'
 
 def AddRingsDataMinMax(value,title) :
@@ -344,7 +344,7 @@ header = '\n\multicolumn{%d}{|c|}{%s} & $V_{bias}$ & Cooling & Endcaps max & End
 the_lists = []
 the_lists.append(list(a for a in safety_factor_list))
 the_lists[-1] += list(a for a in other_parameters)
-the_lists[-1] += list(a for a in ['\multicolumn{1}{l}{power [kW]}',
+the_lists[-1] += list(a for a in ['\multicolumn{1}{l}{power (nos) [kW]}',
                                   '\multicolumn{1}{l}{HV [kW]}',
                                   '\multicolumn{1}{l}{headroom}', # [$Q_{s,crit}/Q_s$]
                                   '\multicolumn{1}{l|}{headroom [$^\circ$C]}',
@@ -359,8 +359,8 @@ for scenario in scenarios :
 
     tmp_dict = all_results[scenario][0]
 
-    for quantity_name in ['pmodule','phv_wleakage'] :
-        the_lists[-1].append(tmp_dict['%s_maxval_str'%(quantity_name)])
+    for quantity_name in ['pnoservices','phv_wleakage'] :
+        the_lists[-1].append(tmp_dict['%s_maxTotal_str'%(quantity_name)])
 
     # maximum (or minimum) module value in full system
     for quantity_name in ['qsensor_headroom','tc_headroom'] :

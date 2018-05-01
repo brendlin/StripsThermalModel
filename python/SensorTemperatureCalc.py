@@ -58,6 +58,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     phv_wleakage = [] # HV power per module (leakage + resistors)
     isensor    = [] # Sensor current (Leakage current per module)
     phvr       = [] # HV power per module due to serial resistors
+    vhvr       = [] # Voltage drop of serial resistors
     phvmux     = [] # HV Power per module parallel resistor
     itape      = [] # Tape current (load) per module
     itape_cumulative = [] # Cumulative tape current (load) per module - adding the previous modules
@@ -220,7 +221,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
                 qref_rootsolve_list.append(y)
 
         if thermal_runaway :
-            for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pmodule,ptape_cumulative,phv_wleakage,isensor,phvr,
+            for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pmodule,ptape_cumulative,phv_wleakage,isensor,phvr,vhvr,
                            phvmux,itape,itape_cumulative,itape_eos,idig,ihcc_dig,iabc_dig,ihybrid0,ihybrid1,ihybrid2,ihybrid3,ifeast,ifeast_in,efffeast,qsensor,
                            tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
@@ -355,6 +356,10 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
         # HV power per module due to serial resistors
         phvr.append( NominalPower.Phv_R( isensor[i] ) )
 
+        # HV power per module due to serial resistors
+        # With two filters, the current is halved and thus the DeltaV is halved.
+        vhvr.append( isensor[i] * SensorProperties.Rhv / float(NominalPower.nfilter_nhvmux) )
+
         # HV per module due to parallel resistor
         phvmux.append(NominalPower.Phv_Mux)
 
@@ -422,6 +427,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     gr['isensor']    = MakeGraph('SensorCurrent'          ,'Sensor (leakage) current (one module side)',xtitle,'I_{%s} [mA]'%('sensor')       ,x,list(isensor[a]*1000. for a in range(len(isensor))))
     gr['qsensor']    = MakeGraph('HVSensorQ'              ,'Sensor Q (one side)'                       ,xtitle,'P [W]'                        ,x,qsensor   )
     gr['phvr']       = MakeGraph('HVPowerSerialResistors' ,'HV power serial resistors (one side)'      ,xtitle,'P_{%s} [W]'%('HV,Rseries')    ,x,phvr      )
+    gr['vhvr']       = MakeGraph('HVVdropSerialResistors' ,'HV #Delta^{}V serial resistors'            ,xtitle,'#Delta^{}V_{%s} [V]'%('HV,Rseries'),x,vhvr   )
     gr['phvmux']     = MakeGraph('HVPowerParallelResistor','HV power parallel resistor (one side)'     ,xtitle,'P_{%s} [W]'%('HV,Rparallel')  ,x,phvmux    )
     gr['itape']      = MakeGraph('TapeCurrentLV'          ,'LV tape current (one side) due to items on module',xtitle,'I_{%s} [A]'%('tape')   ,x,itape     )
     gr['itape_cumulative'] = MakeGraph('TapeCurrentLVCumulative','Cumulative LV tape current (one side)',xtitle,'I_{%s} [A]'%('tape')         ,x,itape_cumulative)
