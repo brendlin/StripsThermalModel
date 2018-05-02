@@ -2,13 +2,15 @@
 \section{LV and HV Tape, Supply and Cable Losses}
 
 \subsection{Low voltage}
+\label{low_voltage}
 
 \begin{figure}[ht!]
 \begin{center}
 \includegraphics[width=0.74\linewidth]{figures/LV_cartoon.pdf}
 \end{center}
 \caption{Simplified depcition of the petal LV circuit. The EOS effective resistance is in orange;
-the voltage drop from BPOL12V and linPOL12V is in red; the tape resistance is blue.}
+the voltage drop from BPOL12V and linPOL12V is in red; the tape resistance is blue.
+The type-I cables are counted in the cooling power.}
 \label{lv_circuit}
 \end{figure}
 
@@ -74,8 +76,19 @@ only, and ``Max LV $V_\text{out}$ at PP2'' represents the voltage drop of the ta
 %% module 0 is defined to be the module closest to the centre of the detector and module 13
 %% is adjacent to the EoS.
 
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[width=0.60\linewidth]{figures/HV_cartoon.pdf}
+\end{center}
+\caption{Simplified depcition of the petal HV circuit, showing the HV cable multiplexing scheme. HV filters are shown
+in orange. The type-I cables are counted in the cooling power.}
+\label{hv_circuit}
+\end{figure}
+
 { \bf Important note: the HV tape resistance is currently set to 0. } The expected impact on petal
 and total power results is very small.
+
+Figure~\ref{hv_circuit} depicts a simplified version of the LV circuit.
 
 There are four Type I and II HV lines per petal side, which serve modules in the following multiplexing
 scheme: (R0 + R1), (R2 + R3), R4, R5\footnote{ See

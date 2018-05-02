@@ -72,20 +72,21 @@ April 30, 2018: The following changes were made since December 18, 2018:}
 % New system architecture: https://edms.cern.ch/ui/file/1807716/1.14/Full_System_Architecture_1.14_EDMS.pdf
 \begin{itemize}
 \item TODDO The FEAST is replaced by the BPOL12V, however the modeling of this converter (temperature
-  and current dependence has not changed. The powering of the AMAC is now handled by the LINPOL12V
+  and current dependence) has not changed. The powering of the AMAC is now handled by the LINPOL12V
   instead of the BPOL12V (FEAST). This reduces the power associated to the FEAST, and thus the
   temperature.
 \item The treatment of LV tape losses and FEAST voltages has now been made more consistent. Previously,
   tape resistances were modeled with a flat 10 m$\Omega$ resistance and FEAST voltages were set by hand.
   Now, the BPOL12V voltages are calculated on-the-fly using the voltage drop of the BPOL12V+tape of
   the previous modules. Currently the tape resistances are set by hand to force a 1V voltage decrease
-  across the whole module. They should be updated with more realistic values. See Section~TODO.
-\item Modules R3, R4 and R5 have been updated to include two HV filters and two HVMUXes. Details on the
-implementation can be found in Section~\ref{highvoltage}.
-\item New quantities have been added to the endcap model:
-  \begin{itemize}
-    \item Round-trip LV voltage drop to/from PP2
-  \end{itemize}
+  across the whole petal. They should be updated with more realistic values. See Section~\ref{}.
+\item Modules R3, R4 and R5 have been updated to include two HV filters and two HVMUXes. The descriptions
+  of some quantities ($Q_\text{sensor}$ and leakage current) have been clarified in the cases where two sensors
+  exist on one module. Details on the implementation can be found in Section~\ref{highvoltage}.
+\item New quantities have been added to the endcap model--see Section~\ref{description_of_output}.
+\item The Type-I/II/III/IV LV and HV cable losses and the losses from PP2 are included in the model. New
+  estimates of the Cooling power and the Wall Power (descriptions in Section~\ref{description_of_output})
+  are included in the documentation.
 \end{itemize}
 
 \input{Sections/Introduction.tex}
