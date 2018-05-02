@@ -1,11 +1,48 @@
 
-\section{LV and HV Supply and Cable Losses}
+\section{LV and HV Tape, Supply and Cable Losses}
 
-\subsection{Low-voltage supply and cable losses}
+\subsection{Low voltage}
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[width=0.74\linewidth]{figures/LV_cartoon.pdf}
+\end{center}
+\caption{Simplified depcition of the petal LV circuit. The EOS effective resistance is in orange;
+the voltage drop from BPOL12V and linPOL12V is in red; the tape resistance is blue.}
+\label{lv_circuit}
+\end{figure}
+
+Figure~\ref{lv_circuit} depicts a simplified version of the LV circuit.
 
 The low-voltage is modeled as losing 1V over the length of the petal, with 11V at the EOS and
-dropping to 10V in R1\footnote{Estimates provided by Pepe Bernabeu.}.
-Table~\ref{voltage_drops} specifies the voltage input at each module.
+dropping to 10V in R1\footnote{Estimates provided by Pepe Bernabeu.} at beginning-of-life.
+To ensure consistency between
+the tape resistance and the voltage drop in the front-end components in each module, (and because I
+don't have good numbers for endcap tape resistances), tape resistance values are chosen to cause a
+1/6~V drop between modules.
+
+To correctly model the tape current and LV voltage in each module, the model performs its predictions
+of each module starting from R0, followed by R1, R2, ... R5. The voltage drop across the front-end (FE)
+components in R0 is set at 10~V. The current in the R0 tape is:
+%
+\[
+I^{R0}_\text{tape} = \frac{P^{R0}_{LV}}{V^{R0}_{LV}}.
+\]
+When calculating the next-highest module (e.g. R1), the FE voltage is set to the voltage drop of the
+previous FE, plus the additional voltage drop due to the tape in the previous module:
+\[
+V^{Rn}_{LV} = V^{R(n-1)}_{LV} + I^{R(n-1)}_\text{tape} R^{R(n-1)}_\text{tape}.
+\]
+Likewise, the tape current in module $Rn$ is equal to the current from the module's FE plus the
+accumulated current from the previous modules:
+\[
+I^{Rn}_\text{tape} = \frac{P^{Rn}_{LV}}{V^{Rn}_{LV}} + I^{R(n-1)}_\text{tape}.
+\]
+Note that this calculation occurs at each time step in the model, so power increases due to the TID
+bump affect both the FE voltages and the tape current.
+
+Table~\ref{voltage_drops} specifies the voltage input at each module and
+the corresponding chosen tape resistance values.
 
 \begin{table}[ht]
 \begin{center}
@@ -13,8 +50,9 @@ Table~\ref{voltage_drops} specifies the voltage input at each module.
 \begin{tabular}{|l|l|r|r|r|r|r|r|l|} \hline % data_below
 Quantity & Description           &     R0 &     R1 &     R2 &     R3 &     R4 &     R5 & Unit   \\ \hline
 \multirow{2}{*}{$V_{in}$} & Input voltage to the  &  \multirow{2}{*}{10.00} &  \multirow{2}{*}{10.17} &  \multirow{2}{*}{10.33} 
-&  \multirow{2}{*}{10.50} &  \multirow{2}{*}{10.67} &  \multirow{2}{*}{10.83} & \multirow{2}{*}{V}      \\ 
- & Feast and LDOs on each module & & & & & & & \\
+&  \multirow{2}{*}{10.50} &  \multirow{2}{*}{10.67} &  \multirow{2}{*}{10.83} & \multirow{2}{*}{V}      \\
+ & Feast and LDOs on each module & & & & & & & \\ \hline
+$R_\text{tape}$           & Tape resistance in each module &  0.320 & 0.145 & 0.110 & 0.068 & 0.057 & 0.050 & $\Omega$ \\
 \hline\end{tabular}
 } %% resize box after tabular
 \end{center}
@@ -22,7 +60,12 @@ Quantity & Description           &     R0 &     R1 &     R2 &     R3 &     R4 & 
 \label{voltage_drops}
 \end{table}
 
-\subsection{High-voltage supply and cable losses}
+Following Figure~\ref{lv_circuit}, the
+quantity ``LV round-trip $\Delta V$ from PP2'' consists of voltage drops from type I and II cables
+only, and ``Max LV $V_\text{out}$ at PP2'' represents the voltage drop of the tape plus FE
+($\Delta V_{R0} + \Delta V_\text{tape}$), plus the voltage drop of the type I and II cables.
+
+\subsection{High voltage}
 
 % https://edms.cern.ch/ui/file/1889475/10/Bus_Tapes_specs_v10_300118.pdf
 %% There will be 4 separate HV lines for barrel and petals. For the petals, the
@@ -30,6 +73,9 @@ Quantity & Description           &     R0 &     R1 &     R2 &     R3 &     R4 & 
 %% barrels, the HV lines will serve modules: 0 to 3, 4 to 7, 8 to 10 and 11 to 13, where
 %% module 0 is defined to be the module closest to the centre of the detector and module 13
 %% is adjacent to the EoS.
+
+{ \bf Important note: the HV tape resistance is currently set to 0. } The expected impact on petal
+and total power results is very small.
 
 There are four Type I and II HV lines per petal side, which serve modules in the following multiplexing
 scheme: (R0 + R1), (R2 + R3), R4, R5\footnote{ See
@@ -56,12 +102,12 @@ assumed to be (R0 + R1 + R2 + R3) and (R4 + R5).
 Then the HV voltage drops of the services (including the filters on the module) are:
 \def\dvservices{\Delta V^\text{services}}
 \begin{align}
-\dvservices_\text{HV,R5} =&                                I^{R5}_S \cdot \left(\frac{R_{HV}}{2} +\rhvmuxI \right) + \left(\sum_{X=4,5} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
-\dvservices_\text{HV,R4} =&                                I^{R4}_S \cdot \left(\frac{R_{HV}}{2} +\rhvmuxI \right) + \left(\sum_{X=4,5} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
-\dvservices_\text{HV,R3} =& \left(\sum_{X=2,3} I^\text{RX}_S\right) \cdot \left(\frac{R_{HV}}{2} +\rhvmuxI \right) + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
-\dvservices_\text{HV,R2} =& \left(\sum_{X=2,3} I^\text{RX}_S\right) \cdot \left(R_{HV} +\rhvmuxI \right)           + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
-\dvservices_\text{HV,R1} =& \left(\sum_{X=0,1} I^\text{RX}_S\right) \cdot \left(R_{HV} +\rhvmuxI \right)           + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
-\dvservices_\text{HV,R0} =& \left(\sum_{X=0,1} I^\text{RX}_S\right) \cdot \left(R_{HV} +\rhvmuxI \right)           + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R0} =& I^{R0}_S \cdot R_{HV}           + \left(\sum_{X=0,1} I^\text{RX}_S\right) \cdot \rhvmuxI + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R1} =& I^{R1}_S \cdot R_{HV}           + \left(\sum_{X=0,1} I^\text{RX}_S\right) \cdot \rhvmuxI + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R2} =& I^{R2}_S \cdot R_{HV}           + \left(\sum_{X=2,3} I^\text{RX}_S\right) \cdot \rhvmuxI + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R3} =& I^{R3}_S \cdot \frac{R_{HV}}{2} + \left(\sum_{X=2,3} I^\text{RX}_S\right) \cdot \rhvmuxI + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R4} =&                                I^{R4}_S \cdot \left(\frac{R_{HV}}{2} +\rhvmuxI \right)   + \left(\sum_{X=4,5} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R5} =&                                I^{R5}_S \cdot \left(\frac{R_{HV}}{2} +\rhvmuxI \right)   + \left(\sum_{X=4,5} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
 \end{align}
 %
 where the contribution from the on-module HV filter is halved in R3, R4 and R5 because of the
@@ -104,7 +150,7 @@ Type1LengthOneWay         & Type 1 LV/HV cable one-way length    &        2.6 & 
 Type2LengthOneWay         & Type 2 LV/HV cable one-way length    &       15.0 & m           \\
 Type3LengthOneWay         & Type 3 LV/HV cable one-way length    &       32.0 & m           \\
 Type4LengthOneWay         & Type 4 LV/HV cable one-way length    &       70.0 & m           \\
-Rhv tape                  & !!!!!!!!!!                           &    !!!     & !!!         \\
+HV tape resistance        & HV tape resistance                   &        0.0 & $\Omega$    \\
 \hline\end{tabular}
 } %% resize box after tabular
 \end{center}

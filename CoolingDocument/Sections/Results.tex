@@ -15,22 +15,24 @@ and EOS.
 Reported power values for each module: 
 \begin{itemize}
 \setlength\itemsep{0.0em}
-\item Sensor Q (one side)
+\item Sensor Q (one side). {\bf If there are two sensors on a module, then this quantity is the sum of
+their Q.}
 \item EOS power (one side)
 \item LV tape power loss due to items on module (one side)
 \item Cumulative LV tape power loss (one module one side):
 Power loss in the tape associated to this module, due to the current from items on the module, plus
-current from previous modules.
+current from previous modules. It does not include the power dissipated by tape in other modules.
 \item HV power serial resistors (one side)
 \item HV power parallel resistor (one side)
-\item Total HV power (including leakage) (one side)
+\item Total HV power (including leakage and resistors) (one side)
 \item Module power (one side) (no EOS): front-end + HV + tape
 \end{itemize}
 
 Reported current values for each module:
 \begin{itemize}
 \setlength\itemsep{0.0em}
-\item Sensor (leakage) current (one module side)
+\item Sensor (leakage) current (one module side). {\bf If there are two sensors on a module, then this
+quantity is the sum of their leakage currents.}
 \item LV tape current (one side) due to items on module
 \item LV tape current (one side)
 \item Tape current load due to EOS (one side)
@@ -57,7 +59,10 @@ The following items are reported for petals at each disk position:
 \item Total power in petal located at Disk $n$ (including the EOS) (one petal side)
 \item Total sensor Q in petal located at Disk $n$ (one side)
 \item HV power in petal located at Disk $n$ (one side)
-\item LV tape current in petal located at Disk $n$ (including the EOS) (one side)
+\item ``LV tape power load (incl. tape losses)'': Total power dissipated by the petal tape and LV
+FE components (e.g. total module LV power)
+\item $\Delta V_\text{tape}$: voltage drop through the petal tape alone.
+\item $I_\text{tape}$: LV tape current in petal located at Disk $n$ (including the EOS) (one side)
 \item Total sensor (leakage) current in petal located at Disk $n$ (one side)
 \end{itemize}
 
@@ -65,10 +70,27 @@ The following items are reported for petals at each disk position:
 
 \begin{itemize}
 \setlength\itemsep{0.0em}
-\item Total power in both endcaps, including cable losses -- modeled as 
-5\%$\times$5\% for cable losses from the service modules and cable losses from PP1 to USA15 (10.25\% total loss).
-More realistic cable losses are under construction.
+%% \item Total power in both endcaps, including cable losses -- modeled as
+%% 5\%$\times$5\% for cable losses from the service modules and cable losses from PP1 to USA15 (10.25\% total loss).
+%% More realistic cable losses are under construction.
+\item Power in both endcaps (LV+HV), excluding services (e.g. excluding cables, patch-panels)
+\item Cooling system power (e.g. with Type I cables and PP1, though no power from PP1 is modeled)
+\item Wall power (e.g. including all services and power supplies). This means the ``Cooling system power''
+  above, plus LV and HV type-II/III/IV cable power losses, and LV and HV losses in PP2.
 \item Total HV power (sensor + resistors) in both endcaps
+\item Service power (e.g. power lost in Type I, II, III and IV cables and PP2) % add HV tape later
+\end{itemize}
+
+\subsubsection{New cabling and tape quantities}
+
+\begin{itemize}
+\setlength\itemsep{0.0em}
+\item $\Delta V_{HV}$ (filters, \sout{tape}, cables, PP2): HV voltage drop from type
+III/IV cables, PP2, type I/II cables, and on-module HV filter. (e.g. from PP4 out to sensor in).
+This is a module-level quantity since $\Delta V$ of the HV filter differs per module.
+\item LV round-trip $\Delta V$ from PP2 (meaning type I/II cables only)
+\item LV $V_\text{out}$ at PP2. This includes voltage drops from the type I and II cables, in the
+  petal tape, and the module components (BPOL12V/LinPOL12V).
 \end{itemize}
 
 \subsection{Nominal and Pessimistic scenarios}
