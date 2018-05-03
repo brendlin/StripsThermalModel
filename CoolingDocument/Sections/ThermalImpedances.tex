@@ -8,23 +8,23 @@ are used to calculate all thermal resistances using the system of equations rela
 to one another. (Note that this strategy is the same one as used in the barrel to extract thermal
 impedances.)
 
-If a component (e.g. the FEAST) is powered on the module, then the temperatures of each component
+If a component (e.g. the BPOL12V) is powered on the module, then the temperatures of each component
 can be expressed as:
 %
 \begin{align}
-\Delta T_\text{FEAST} =& P_\text{FEAST} \cdot (R_\text{FEAST} + R_{CM}) \label{eq:powered}\\
-\Delta T_\text{ABC}   =& P_\text{FEAST} \cdot R_{CM}\\
-\Delta T_\text{HCC}   =& P_\text{FEAST} \cdot R_{CM}\\
-\Delta T_\text{AMAC}  =& P_\text{FEAST} \cdot R_{CM}\\
-\Delta T_\text{Sensor}=& P_\text{FEAST} \cdot R_{CM}
+\Delta T_\text{BPOL12V} =& P_\text{BPOL12V} \cdot (R_\text{BPOL12V} + R_{CM}) \label{eq:powered}\\
+\Delta T_\text{ABC}   =& P_\text{BPOL12V} \cdot R_{CM}\\
+\Delta T_\text{HCC}   =& P_\text{BPOL12V} \cdot R_{CM}\\
+\Delta T_\text{AMAC}  =& P_\text{BPOL12V} \cdot R_{CM}\\
+\Delta T_\text{Sensor}=& P_\text{BPOL12V} \cdot R_{CM}
 \end{align}
 
 By measuring\footnote{
 ``Measuring'' in this case means running the thermal FEA and extracting the temperatures of each
 component.
-} $\Delta T_{X}$ of all $X$ components when the FEAST is powered by a known amount, we can
+} $\Delta T_{X}$ of all $X$ components when the BPOL12V is powered by a known amount, we can
 extract $R_{CM}$ (which is overconstrained) and, inputting the measured $R_{CM}$ into the first
-equation, we can then extract $R_\text{FEAST}$.
+equation, we can then extract $R_\text{BPOL12V}$.
 
 We can repeat the procedure by individual simulations where the HCCs only are powered, and when the
 ABCs only are powered, to obtain 8 additional ``independent measurements'' of $R_{CM}$ and to
@@ -41,25 +41,25 @@ representative power numbers are used to power each component. In each simulatio
 of one type of component (e.g. the ABCs) are powered on in all six modules, keeping the rest
 off.\footnote{Powering all instances of one type of component is intended to capture effects of
 cross-talk between modules.}
-Average temperatures are measured for the HCC, ABC, FEAST, AMAC and sensor.
+Average temperatures are measured for the HCC, ABC, BPOL12V, AMAC and sensor.
 
 \def\thcc{\ensuremath{\overline{T}_\text{nHCC}}}
 \def\tabc{\ensuremath{\overline{T}_\text{nABC}}}
-\def\tfeast{\ensuremath{\overline{T}_\text{FEAST}}}
+\def\tfeast{\ensuremath{\overline{T}_\text{BPOL12V}}}
 \def\tsensor{\ensuremath{T_\text{sensor}}}
 \def\Rm{\ensuremath{{\text{R}m}}}
 
 A brief description of each component and its properties, as well as other details
 of the simulation, is below:
 \begin{itemize}
-\item FEAST: the current FEA models the feast as a $3\times3$~mm$^2$ $\times~350~\mu$m chip inside
-the shield box. The actual FEAST should be a $3\times3$~mm$^2$ chip on top of a $3.6\times3.6$~mm$^2$
+\item BPOL12V: the current FEA models the BPOL12V as a $3\times3$~mm$^2$ $\times~350~\mu$m chip inside
+the shield box. The actual BPOL12V should be a $3\times3$~mm$^2$ chip on top of a $3.6\times3.6$~mm$^2$
 copper pad. Thus, the thermal impedances obtained here should be conservative. We will 
 consider scaling the thermal impedance down by a factor of ($3.6\times3.6$)/($3\times3$).
 \item AMAC: a $3\times3$~mm $\times~350~\mu$m chip, roughly in the center of the power board.
   \begin{itemize}
-    \item The AMAC is powered using regulators located in the FEAST chip, with a power dissipation
-      of the regulators corresponding to the voltage drop in the regulator (0.415~W) -- see Eq.~\ref{eq:amac_regulator}.
+    \item The AMAC is powered using a regulator (the linPOL12V) located on the powerboard, with a power dissipation
+      of the linPOL12V corresponding to the voltage drop in the regulator (0.415~W) -- see Eq.~\ref{eq:amac_regulator}.
   \end{itemize}
 \item EOS: The placement of the EOS power sources is not exact, but this should have a small impact
   on the results.
@@ -87,7 +87,7 @@ Simulation \# & Description                        & Input parameters           
 [0]           & The nominal petal simulation       & Nominal -- not used to extract impedances \\
 1             & All HCCs powered on, rest off      & $P_\text{HCC}=0.413$~W     \\
 2             & All ABCs powered on, rest off      & $P_\text{ABC}=0.149$~W     \\
-3             & All FEASTs powered on, rest off    & $P_\text{FEAST}=1.5$~W$^*$ \\
+3             & All BPOL12Vs powered on, rest off  & $P_\text{BPOL12V}=1.5$~W$^*$ \\
 %% \hline
 %% \multicolumn{3}{|c|}{Extended simulations} \\ \hline
 %% 4             & Tape ``powered'' on, rest off      & skip for now \\
@@ -103,10 +103,10 @@ Simulation \# & Description                        & Input parameters           
 \end{table}
 \let\arraystretch\arraystretcha
 
-$^*$ The actual nominal power of the FEAST varies for each module; however, for the simulation to extract
-the thermal impedances, the power is set to 1.5~W for all FEASTs in the petal.\\
+$^*$ The actual nominal power of the BPOL12V varies for each module; however, for the simulation to extract
+the thermal impedances, the power is set to 1.5~W for all BPOL12Vs in the petal.\\
 %
-Note also that in R3, the 1.5~W are shared by two FEASTs, each with 0.75~W of power.
+Note also that in R3, the 1.5~W are shared by two BPOL12Vs, each with 0.75~W of power.
 
 
 
@@ -119,13 +119,13 @@ Note also that in R3, the 1.5~W are shared by two FEASTs, each with 0.75~W of po
 The average, min and max temperatures are taken over the volume of the elements.
 %
 The average/min/max temperatures for a given component are taken as the average/min/max of the
-component on either side of the petal (e.g. the R0 FEAST average temperature is taken as the average of
-the R0 FEASTs on the front and back sides).
+component on either side of the petal (e.g. the R0 BPOL12V average temperature is taken as the average of
+the R0 BPOL12Vs on the front and back sides).
 
 \begin{itemize}
 \item $(\thcc)_\Rm$: The average HCC temperature of the $n$ HCCs in the module, for each module R$m$ (R0, R1, ... R5) (6~total)
 \item $(\tabc)_\Rm$: The average ABC temperature of the $n$ ABCs in the module, for each module R$m$ (6~total)
-\item $(\tfeast)_\Rm$: The temperature of the FEAST in the module, for each module R$n$ (6~total)
+\item $(\tfeast)_\Rm$: The temperature of the BPOL12V in the module, for each module R$n$ (6~total)
 \item \tsensor, taken for R0, R1, R2, R3, R4, R5 (6~total)
 \begin{itemize}
   \item $\tsensor^\text{Avg}$: The average sensor temperature taken over the volume of the sensor
@@ -157,9 +157,9 @@ module; this value is extracted by fitting the data points using the equation
 $\Delta T= P\cdot R_{CM}$. A few points are excluded from the fit to data because of either too-remote
 or too-close
 proximity between the powered component and the component whose temperature is measured. 
-This applies to the AMAC and FEAST in R4 and R5 when the HCC is powered--the HCC is fairly thermally 
-isolated from these two components. In R0, the opposite effect occurs: the AMAC and FEAST are too
-close and share a common thermal pathway, so the AMAC measurement is ignored when the FEAST is powered.
+This applies to the AMAC and BPOL12V in R4 and R5 when the HCC is powered--the HCC is fairly thermally
+isolated from these two components. In R0, the opposite effect occurs: the AMAC and BPOL12V are too
+close and share a common thermal pathway, so the AMAC measurement is ignored when the BPOL12V is powered.
 Except for these cases, all other data points are used to fit for $R_{CM}$.
 
 \begin{figure}[ht!]
@@ -169,7 +169,7 @@ Except for these cases, all other data points are used to fit for $R_{CM}$.
 \includegraphics[width=0.49\linewidth]{figures/ThermalImpedanceFit_R3_Rcm.eps}\\
 \includegraphics[width=0.49\linewidth]{figures/ThermalImpedanceFit_R4_Rcm.eps}
 \includegraphics[width=0.49\linewidth]{figures/ThermalImpedanceFit_R5_Rcm.eps}
-\caption{Measurements of $\Delta T$ of module components when certain components (ABC, HCC, FEAST)
+\caption{Measurements of $\Delta T$ of module components when certain components (ABC, HCC, BPOL12V)
 are powered on with the values given in Table~\ref{tab:simulation_runs}. 
 The error bars represent the standard deviation of temperatures of that particular
 component. A fit to the slope of the data determines $R_{CM}$; note that the fit does not consider
@@ -179,7 +179,7 @@ the error bars shown, i.e. in the fit all errors are 0.
 \end{figure}
 
 Once $R_{CM}$ is determined, it can be plugged into equations like Eq.~\ref{eq:powered} to extract
-$R_\text{FEAST}$, $R_\text{ABC}$ and $R_\text{HCC}$.
+$R_\text{BPOL12V}$, $R_\text{ABC}$ and $R_\text{HCC}$.
 Table~\ref{tab:thermal_impedances} shows the thermal impedances calculated
 from the FEA simulations.
 
@@ -187,7 +187,7 @@ from the FEA simulations.
 %% \def\insulhcc{$R_\text{HCC}\times n_\text{HCC}$\xspace}
 \def\insulabc{$(R\times n)_\text{ABC}$\xspace}
 \def\insulhcc{$(R\times n)_\text{HCC}$\xspace}
-\def\insulfeast{$(R\times n)_\text{FEAST}$\xspace}
+\def\insulfeast{$(R\times n)_\text{BPOL12V}$\xspace}
 
 %
 \let\arraystretcha\arraystretch
@@ -196,8 +196,8 @@ from the FEA simulations.
 \begin{center}
 \adjustbox{max width=\textwidth}{ %% just before tabular
 \begin{tabular}{|l|cc|c|c|c|c|c|c|} \hline
-       &             &              &  \multicolumn{2}{c|}{FEAST}     & \multicolumn{2}{c|}{ABC}   & \multicolumn{2}{c|}{HCC}   \\
-Module & $R_C$ [K/W] & $R_M$ [K/W]  & $ R_\text{FEAST}$ & \insulfeast & $R_\text{ABC}$ & \insulabc & $R_\text{HCC}$ & \insulhcc \\ \hline
+       &             &              &  \multicolumn{2}{c|}{BPOL12V}   & \multicolumn{2}{c|}{ABC}   & \multicolumn{2}{c|}{HCC}   \\
+Module & $R_C$ [K/W] & $R_M$ [K/W]  & $ R_\text{BPOL12V}$ & \insulfeast & $R_\text{ABC}$ & \insulabc & $R_\text{HCC}$ & \insulhcc \\ \hline
 R0     & \multicolumn{2}{c|}{0.793} &            16.627 &      16.627 &          0.927 &    15.759 &         12.485 &    24.970 \\
 R1     & \multicolumn{2}{c|}{1.004} &            17.936 &      17.936 &          0.661 &    13.881 &         12.719 &    25.438 \\
 R2     & \multicolumn{2}{c|}{1.432} &            18.282 &      18.282 &          1.529 &    18.348 &         13.833 &    27.666 \\
@@ -208,7 +208,7 @@ SS EOS    &           0.719 & 0.393      & \multicolumn{2}{c|}{19.650} &        
 SS middle &   \multicolumn{2}{c|}{1.160} & \multicolumn{2}{c|}{19.752} &         0.928 &    18.560 &         13.157 &    26.314 \\
 LS EOS    &           0.811 & 0.427      & \multicolumn{2}{c|}{19.602} &         2.194 &    21.940 &         24.195 &    24.195 \\
 LS middle &   \multicolumn{2}{c|}{1.360} & \multicolumn{2}{c|}{19.663} &         2.141 &    21.410 &         25.174 &    25.174 \\
-%% in [degC/W]  RC       RM       RS      REOS    RABC     RHCC      RFEAST
+%% in [degC/W]  RC       RM       RS      REOS    RABC     RHCC      RBPOL12V
 %% SS EOS       0.719    0.393    0.02    15.0    1.003    12.305    19.650
 %% SS middle    1.160             0.02       -    0.928    13.157    19.752
 %% LS EOS       0.811    0.427    0.02    15.0    2.194    24.195    19.602
@@ -275,15 +275,15 @@ The impact of an incorrect assumption on the above quantities is expected to be 
 \label{thermal_validation}
 
 The common treatment of S0 and S1 in R3-R5 comes with other imperfect assumptions.
-For instance, the heat from the HCCs will affect S1 more than S0, and likewise the heat from the FEAST
+For instance, the heat from the HCCs will affect S1 more than S0, and likewise the heat from the BPOL12V
 will affect S0 more than S1. The model assumes that these effects are small: the power dissipated on
-the HCC relative to the other components is roughly 10\% of the full module, and the FEAST is centrally
-located, roughly affecting S0 and S1 equally. If the FEAST location is dramatically changed or the
+the HCC relative to the other components is roughly 10\% of the full module, and the BPOL12V is centrally
+located, roughly affecting S0 and S1 equally. If the BPOL12V location is dramatically changed or the
 relative power of the HCCs increases, then the assumption should be revisited.
 
 Another assumption made in the model relates to cross-talk between modules. The thermal impedances were
-extracted using simulations where e.g. all of the FEASTs were powered simultaneously, in order to see
-the effect of the FEASTs on the sensor temperature. If at any point the FEASTs of two adjacent modules
+extracted using simulations where e.g. all of the BPOL12Vs were powered simultaneously, in order to see
+the effect of the BPOL12Vs on the sensor temperature. If at any point the BPOL12Vs of two adjacent modules
 dissipate different amounts of power, then the model will not account for this. The effect should be
 small, but should be checked nonetheless.
 

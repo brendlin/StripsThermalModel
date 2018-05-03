@@ -8,7 +8,9 @@ current sources, thermal impedances comparable to resistors, temperature to volt
 ``circuit'' follows the rule $\Delta T=P\times R$ (by analogy with $V=I\times R$).
 
 \begin{figure}[ht!]
-\includegraphics[width=.99\textwidth]{figures/thermoelectric_model.pdf}
+\begin{center}
+\includegraphics[width=.80\textwidth]{figures/thermoelectric_model_bpol12v.pdf}
+\end{center}
 \caption{
 The thermo-electric model, its analogy with electrical circuits, and definitions of terms.
 }
@@ -17,7 +19,7 @@ The thermo-electric model, its analogy with electrical circuits, and definitions
 
 Note that e.g. all ABCs are treated as a single node in this description, meaning the ABC power refers
 to the total power in all ABCs, and the thermal resistance is an effective thermal resistance for all
-ABCs (the same applies to the FEAST and HCC).
+ABCs (the same applies to the BPOL12V and HCC).
 
 Note also that the effect of the AMAC as a power source affecting the module temperature is neglected
 in the following; however, the AMAC represents roughly 1\% of the total module power, so the impact on
@@ -32,7 +34,7 @@ data by measuring the temperature. The two are related according to $R_{CM} = R_
 Unless otherwise stated, the Barrel and Endcap models are identical. This includes:
 \begin{itemize}
   \item The parameterization used to model the TID bump
-  \item The parameterization used to model the FEAST efficiency as a function of temperature 
+  \item The parameterization used to model the BPOL12V efficiency as a function of temperature
     and current
   \item The procedure used to extract thermal impedances from thermal FEA simulations
   \item The thermal model itself, which calculates the temperature and power of each component in 

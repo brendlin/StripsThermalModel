@@ -10,7 +10,7 @@
 \subsubsection{Module-level quantities}
 %% \let\itemsepa\itemsep
 %% \renewcommand\itemsep{1.0}
-Avearage temperatures are reported on each module for each of the following: sensor, ABC, HCC, Feast,
+Avearage temperatures are reported on each module for each of the following: sensor, ABC, HCC, BPOL12V,
 and EOS.
 
 Reported power values for each module: 
@@ -39,14 +39,14 @@ quantity is the sum of their leakage currents.}
 \item Tape current load due to EOS (one side)
 \item ABC and HCC digital current
 \item Hybrid 0 (1,2,3) current (if applicable)
-\item FEAST current (load per Feasts, in case there is more than one Feast)
-\item FEAST current (input, both Feasts, in case there is more than one Feast.)
+\item BPOL12V current (load per BPOL12V, in case there is more than one BPOL12V)
+\item BPOL12V current (input, both BPOL12Vs, in case there is more than one BPOL12V.)
 \end{itemize}
 
 Other reported module-level values:
 \begin{itemize}
 \setlength\itemsep{0.0em}
-\item Feast efficiency
+\item BPOL12V efficiency
 \item Sensor Q headroom factor
 \item Coolant temperature headroom
 \end{itemize}
@@ -97,7 +97,7 @@ This is a module-level quantity since $\Delta V$ of the HV filter differs per mo
 \subsection{Nominal and Pessimistic scenarios}
 
 Table~\ref{results_summary} shows the power estimates, properties (temperature) of the sensor and
-FEAST, as well as HV and LV currents. Two scenarios are shown: one in which no safety factors are
+BPOL12V, as well as HV and LV currents. Two scenarios are shown: one in which no safety factors are
 applied, and one in which all safety factors (Fluence, thermal impedance, digital and analog current,
 TID parameterization, and HV bias) are applied. In both cases, a wide range of cooling scenarios
 (from $-35^\circ$C to $-35^\circ$C coolant temperature) are shown, as well as the ``ramp'' scenario
