@@ -119,7 +119,7 @@ def GetCoolingScenarioLabel(cooling_option) :
 def AddRunParameterLabels(legend,additionalinfo=[],wrap=False) :
     import SafetyFactors
     import CoolantTemperature
-    layout,fluence,thermalimpedance,currenta,currentd,vbias = '','','','','',''
+    layout,fluence,thermalimpedance,currenta,currentd,vbias,pess = '','','','','','',''
 
     if SafetyFactors.safetyfluence :
         fluence = 'flux_{ }#times^{ }%2.1f;  '%(SafetyFactors.safetyfluence + 1.0)
@@ -131,11 +131,14 @@ def AddRunParameterLabels(legend,additionalinfo=[],wrap=False) :
         currenta = '^{}I_{a }#times^{ }%2.2f;  '%(SafetyFactors.safetycurrenta + 1.0)
     if (SafetyFactors.vbias) != 500. :
         vbias = '^{}V_{bias}=^{ }%2.0f;  '%(SafetyFactors.vbias)
+    if (SafetyFactors.TIDpessimistic) :
+        pess = ' pessimistic TID;'
 
     #text = ('%s%s%s%s%s'%(layout,fluence,thermalimpedance,current,vbias)).rstrip('; ')
     sf1 = ('%s%s%s'    %(layout,fluence,thermalimpedance)).rstrip('; ')
     sf2 = ('%s%s%s'    %(                               currentd,currenta,vbias)).rstrip('; ')
-    no_factors = ' none' if (not sf1 and not sf2) else ''
+    sf3 = pess
+    no_factors = ' none' if (not sf1 and not sf2 and not sf3) else pess
 
     nlines = 0
     if True :

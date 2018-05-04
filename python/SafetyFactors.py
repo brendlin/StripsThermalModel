@@ -22,3 +22,6 @@ safetycurrenta = Config.GetDouble('SafetyFactors.safetycurrenta',0.0,description
 # Bias voltage (default is 500V)
 vbias_descr = 'HV bias voltage (default is 500V)'
 vbias = Config.GetDouble('SafetyFactors.vbias',500.,unit='V',description=vbias_descr)
+
+# This is actually done elsewhere too:
+TIDpessimistic = Config.GetBool('SafetyFactors.TIDpessimistic',description='TID is pessimistic parameterization?')
