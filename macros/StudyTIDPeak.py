@@ -8,6 +8,7 @@ the_path = ('/').join(os.getcwd().split('/')[:-1])
 print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
 ROOT.gROOT.SetMacroPath(the_path)
+ROOT.gROOT.SetBatch(True)
 
 #-----------------------------------------------
 def main(options,args) :
@@ -129,7 +130,8 @@ def main(options,args) :
     c5.Clear()
     time = []
     fT_and_DR = dict()
-    versions = ['v00','v01']
+    # versions = ['v00','v01','v02','Apr2018']
+    versions = ['Oct2017','Apr2018','Apr2018_nom','Apr2018_pess']
     temps = [-24,-18]
     rates = [1.,2.,3.]
 
@@ -151,8 +153,8 @@ def main(options,args) :
                 Dose = Dose * (180. / 1.) * (24. / 1.) * (0.3) # hours = year * (d/y) * (h/d) * efficiency
                 Dose = Dose * float(rate) # kRad = hours * (kRad/hr)
                 #print '%8.1f %8.1f %8.1f %8.1f'%(i,Dose,rate,temp)
-                fT_and_DR['v00'][temp][rate].append(AbcTidBump.tid_scalePlusShape_Kyle(temp,rate,Dose,options.pess))
-                fT_and_DR['v01'][temp][rate].append(AbcTidBump.tid_scalePlusShape_Kyle_Oct2017(temp,rate,Dose,options.pess))
+                fT_and_DR['Oct2017'][temp][rate].append(AbcTidBump.tid_scalePlusShape_Kyle_Oct2017(temp,rate,Dose,options.pess))
+                fT_and_DR['Apr2018'][temp][rate].append(AbcTidBump.tid_scalePlusShape_Kyle_Apr2018(temp,rate,Dose,options.pess))
 
     dummy = dict()
     for j,rate in enumerate(rates) :
@@ -163,14 +165,76 @@ def main(options,args) :
         dummy[rate] = gr
 
     dummy_old = ROOT.TGraph(1,array('d',[0]),array('d',[0]))
-    dummy_old.SetTitle('Old TID function')
+    dummy_old.SetTitle('Oct2017 TID parameterization')
     dummy_old.SetLineWidth(1)
 
+    ##
+    ## Parameterization Comparison Plot
+    ##
     gComb = dict()
-    leg5 = ROOT.TLegend(0.47,0.83,0.84,0.94)
+    leg5 = ROOT.TLegend(0.47,0.70,0.84,0.94)
     leg5.SetNColumns(2)
+    leg5.AddEntry('','^{ }'+('Pessimistic' if options.pess else 'Nominal') + ' scenarios','')
+    leg5.AddEntry('','','')
     PlotUtils.SetStyleLegend(leg5)
-    for v,version in enumerate(['v00','v01']) :
+    nominal = None
+    temps_comparison = [-24]
+    for v,version in enumerate(['Oct2017','Apr2018']) :
+        gComb[version] = dict()
+        for i,temp in enumerate(temps_comparison) :
+            gComb[version][temp] = dict()
+            for j,rate in enumerate(rates) :
+                title = ('T = %3d#circ C'%(temp)).replace('-','#minus')
+                gr = PlotUtils.MakeGraph('TIDScaleCombined',title,'Time [year]','Scale factor',time,fT_and_DR[version][temp][rate])
+                gr.SetLineColor(PlotUtils.ColorGradient(i,len(temps_comparison)))
+                gr.SetFillColor(PlotUtils.ColorGradient(i,len(temps_comparison)))
+                gr.SetLineStyle([1,15,16,17,18][j])
+                gr.SetLineWidth(2*v+1)
+                gr.Draw('l' if i+j+v else 'al')
+
+                # Add the "current" version to the plot
+                if not j and not i and v :
+                    # will be added later... see below.
+                    nominal = gr
+
+                # Add temperature and rate legend entries
+                if (not j) and v :
+                    # Temperature legend entries. Only one temperature at a time, or else too busy!
+                    leg5.AddEntry('','^{ }'+gr.GetTitle(),'')
+                    # Rate legend entries:
+                    if i < len(rates) :
+                        leg5.AddEntry(dummy[rates[i]],'^{ }'+dummy[rates[i]].GetTitle(), "l")
+                gComb[version][temp][rate] = gr
+
+    # Add additional legend items
+    if len(temps_comparison) < len(rates) :
+        for j,rate in enumerate(rates) :
+            if j < len(temps_comparison) :
+                continue
+            leg5.AddEntry('','','')
+            leg5.AddEntry(dummy[rates[j]],'^{ }'+dummy[rates[j]].GetTitle(), "l")
+
+    # Add legend item for old function
+    leg5.AddEntry(dummy_old,'^{ }'+dummy_old.GetTitle(),'l')
+    leg5.AddEntry('','','')
+    leg5.AddEntry(nominal,'^{ }Apr2018 TID parameterization','l')
+    leg5.AddEntry('','','')
+    leg5.Draw()
+    TAxisFunctions.AutoFixYaxis(c5)
+
+    c5.Print('%s/plots/AbcTidBump/AbcTidBumpVersionComparison_%s.eps'%(the_path,('Pessimistic' if options.pess else 'Nominal')))
+
+    ##
+    ## Different temperatures (one parameterization)
+    ##
+    gComb = dict()
+    leg5 = ROOT.TLegend(0.47,0.74,0.84,0.94)
+    leg5.SetNColumns(2)
+    leg5.AddEntry('','^{ }'+('Pessimistic' if options.pess else 'Nominal') + ' scenarios','')
+    leg5.AddEntry('','','')
+    PlotUtils.SetStyleLegend(leg5)
+    nominal = None
+    for v,version in enumerate(['Apr2018']) :
         gComb[version] = dict()
         for i,temp in enumerate(temps) :
             gComb[version][temp] = dict()
@@ -178,15 +242,21 @@ def main(options,args) :
                 title = ('T = %3d#circ C'%(temp)).replace('-','#minus')
                 gr = PlotUtils.MakeGraph('TIDScaleCombined',title,'Time [year]','Scale factor',time,fT_and_DR[version][temp][rate])
                 gr.SetLineColor(PlotUtils.ColorGradient(i,len(temps)))
+                gr.SetFillColor(PlotUtils.ColorGradient(i,len(temps)))
                 gr.SetLineStyle([1,15,16,17,18][j])
-                gr.SetLineWidth(2*v+1)
+                gr.SetLineWidth(2)
                 gr.Draw('l' if i+j+v else 'al')
-                if (not j) and v :
-                    leg5.AddEntry(gr,'^{ }'+gr.GetTitle(), "l")
+
+                # Add temperature and rate legend entries
+                if (not j) :
+                    # Temperature legend entries
+                    leg5.AddEntry(gr,'^{ }'+gr.GetTitle(), "f")
+                    # Rate legend entries:
                     if i < len(rates) :
                         leg5.AddEntry(dummy[rates[i]],'^{ }'+dummy[rates[i]].GetTitle(), "l")
                 gComb[version][temp][rate] = gr
 
+    # Add additional legend items
     if len(temps) < len(rates) :
         for j,rate in enumerate(rates) :
             if j < len(temps) :
@@ -194,11 +264,13 @@ def main(options,args) :
             leg5.AddEntry('','','')
             leg5.AddEntry(dummy[rates[j]],'^{ }'+dummy[rates[j]].GetTitle(), "l")
 
-    leg5.AddEntry(dummy_old,'^{ }'+dummy_old.GetTitle(),'l')
+    # Add legend item for old function
+    leg5.AddEntry('','^{ }Apr2018 TID parameterization','')
+    leg5.AddEntry('','','')
     leg5.Draw()
     TAxisFunctions.AutoFixYaxis(c5)
 
-    c5.Print('%s/plots/AbcTidBump/AbcTidBumpCombinedSF_1.eps'%(the_path))
+    c5.Print('%s/plots/AbcTidBump/AbcTidBumpVersionRatesAndTemps_%s.eps'%(the_path,('Pessimistic' if options.pess else 'Nominal')))
     
 
 #-----------------------------------------------
