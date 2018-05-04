@@ -88,6 +88,14 @@ April 30, 2018: The following changes were made since December 18, 2018:}
   estimates of the Cooling power and the Wall Power (descriptions in Section~\ref{description_of_output})
   are included in the documentation. (Previously, the type-1 losses were modeled as adding 5\% additional power,
   and the outer service losses were also modeled as adding 5\% additional power.)
+\item The HCC currents have changed to 95~mA digital, 53~mA analog (148~mA total). (Previous values
+  were 125~mA digital, 75~mA analog, 200~mA total.) The digital current is assumed to be 100\% bumped, but
+  with a maximum TID bump that is 57\% the size of the ABC TID bump.
+\item The ABC currents have remained the same (42.5~mA digital, 70~mA analog).
+  The 42.5~mA digital current is now assumed to be 69\% bumped (29~mA), 31\% un-bumped (13~mA).
+\item The TID parameterization has been switched to the ABC130$^{*}$ parameterization derived by Kyle
+  and referred to as the ``Apr2018'' parameterization in the text. For more details see
+  Section~\ref{tid_parameterization_details}.
 \end{itemize}
 
 \input{Sections/Introduction.tex}
