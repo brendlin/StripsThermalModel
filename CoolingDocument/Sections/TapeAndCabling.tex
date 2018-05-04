@@ -77,7 +77,10 @@ $R_\text{tape}$           & Tape resistance in each module &  \multicolumn{6}{c|
 
 \subsection{Low voltage cables}
 
-Following Figure~\ref{lv_circuit}, the
+The low-voltage power calculations follow Georg's treatment, with the exception of the
+calculations of module voltages described above.
+Several quantities are quoted in the main summary tables:
+following Figure~\ref{lv_circuit}, the
 quantity ``LV round-trip $\Delta V$ from PP2'' consists of voltage drops from type I and II cables
 only, and ``Max LV $V_\text{out}$ at PP2'' represents the voltage drop of the tape plus FE
 ($\Delta V_{R0} + \Delta V_\text{tape}$), plus the voltage drop of the type I and II cables.
@@ -96,22 +99,25 @@ only, and ``Max LV $V_\text{out}$ at PP2'' represents the voltage drop of the ta
 \includegraphics[width=0.60\linewidth]{figures/HV_cartoon.pdf}
 \end{center}
 \caption{Simplified depcition of the petal HV circuit, showing the HV cable multiplexing scheme. HV filters are shown
-in orange. The type-I cables are counted in the cooling power.}
+in orange. The type-I cables are counted in the cooling power. The HV return current will use the LV return line.}
 \label{hv_circuit}
 \end{figure}
 
-{ \bf Important note: the HV tape resistance is currently set to 0. } The expected impact on petal
+Figure~\ref{hv_circuit} depicts a simplified version of the HV circuit. Most of the treatment of the
+HV voltage and power calculations use the same strategies and equations described in Georg's text, with
+the exceptions described below.
+{ \bf Important note: the endcap HV tape resistance is currently set to 0. } The expected impact on petal
 and total power results is very small.
 
-Figure~\ref{hv_circuit} depicts a simplified version of the LV circuit.
+\def\rhvmuxI{R^\text{HV,cables}_\text{muxI/II}}
+\def\rhvmuxIII{R^\text{HV,cables}_\text{muxIII/IV}}
 
 There are four Type I and II HV lines per petal side, which serve modules in the following multiplexing
 scheme: (R0 + R1), (R2 + R3), R4, R5\footnote{ See
 https://edms.cern.ch/ui/file/1889475/10/Bus\_Tapes\_specs\_v10\_300118.pdf
-}. The HV tape and PP2 HV filters are also assumed to be a part of this multiplex block:
-
-\def\rhvmuxI{R^\text{HV,cables}_\text{muxI/II}}
-\def\rhvmuxIII{R^\text{HV,cables}_\text{muxIII/IV}}
+}. The HV tape and PP2 HV filters are also assumed to be multiplexed in this way. Thus, we can define
+a quantity $\rhvmuxI$ to refer to the sum of these resistances:
+%
 \def\rtape{R^\text{HV}_\text{tape}}
 \def\rtypeI{R^\text{HV}_\text{typeI}}
 \def\rtypeII{R^\text{HV}_\text{typeII}}
@@ -122,12 +128,13 @@ https://edms.cern.ch/ui/file/1889475/10/Bus\_Tapes\_specs\_v10\_300118.pdf
 \]
 
 The multiplexing of the Type III and IV cables is currently
-assumed to be (R0 + R1 + R2 + R3) and (R4 + R5).
+assumed to be (R0 + R1 + R2 + R3) and (R4 + R5). We can define an effective resistance for these
+too:
 \[
 \rhvmuxIII = \rtypeIII + \rtypeIV
 \]
 
-Then the HV voltage drops of the services (including the filters on the module) are:
+Then the HV voltage drops of the services (including the filters on the module) are then:
 \def\dvservices{\Delta V^\text{services}}
 \begin{align}
 \dvservices_\text{HV,R0} =& I^{R0}_S \cdot R_{HV}           + \left(\sum_{X=0,1} I^\text{RX}_S\right) \cdot \rhvmuxI + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
@@ -135,7 +142,7 @@ Then the HV voltage drops of the services (including the filters on the module) 
 \dvservices_\text{HV,R2} =& I^{R2}_S \cdot R_{HV}           + \left(\sum_{X=2,3} I^\text{RX}_S\right) \cdot \rhvmuxI + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
 \dvservices_\text{HV,R3} =& I^{R3}_S \cdot \frac{R_{HV}}{2} + \left(\sum_{X=2,3} I^\text{RX}_S\right) \cdot \rhvmuxI + \left(\sum^3_{X=0} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
 \dvservices_\text{HV,R4} =&                                I^{R4}_S \cdot \left(\frac{R_{HV}}{2} +\rhvmuxI \right)   + \left(\sum_{X=4,5} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
-\dvservices_\text{HV,R5} =&                                I^{R5}_S \cdot \left(\frac{R_{HV}}{2} +\rhvmuxI \right)   + \left(\sum_{X=4,5} I^\text{RX}_S\right) \cdot \rhvmuxIII \\
+\dvservices_\text{HV,R5} =&                                I^{R5}_S \cdot \left(\frac{R_{HV}}{2} +\rhvmuxI \right)   + \left(\sum_{X=4,5} I^\text{RX}_S\right) \cdot \rhvmuxIII
 \end{align}
 %
 where the contribution from the on-module HV filter is halved in R3, R4 and R5 because of the
@@ -156,6 +163,8 @@ as part of the module), is:
 \]
 
 Table~\ref{cableHVInputs} describes the cable inputs used for the HV power losses.
+Note that the HV return current will use the LV return line, meaning the cable one-way
+length is not doubled in the HV case when calculating $\Delta V_\text{HV}$ and $\phvservices$.
 
 \begin{table}[ht]
 \begin{center}

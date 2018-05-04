@@ -94,17 +94,21 @@ def PLVservicesFullSubstructure(Ihalfsubstructure,vdrop_tape_r5) :
 RHVtape = 0 # Get from Graham?
 RHV = 0 # This is the series resistor! Fix!
 
+# NOT round-trip
 def Resistance_HVType1and2() :
-    return (HVType1ResistancePerMeter*Type1LengthOneWay*2 + HVType2ResistancePerMeter*Type2LengthOneWay*2)
+    return (HVType1ResistancePerMeter*Type1LengthOneWay + HVType2ResistancePerMeter*Type2LengthOneWay)
 
+# NOT round-trip
 def Resistance_HVType1() :
-    return (HVType1ResistancePerMeter*Type1LengthOneWay*2)
+    return (HVType1ResistancePerMeter*Type1LengthOneWay)
 
+# NOT round-trip
 def Resistance_HVType2() :
-    return (HVType2ResistancePerMeter*Type2LengthOneWay*2)
+    return (HVType2ResistancePerMeter*Type2LengthOneWay)
 
+# NOT round-trip
 def Resistance_HVType3and4() :
-    return (HVType3ResistancePerMeter*Type3LengthOneWay*2 + HVType4ResistancePerMeter*Type4LengthOneWay*2)
+    return (HVType3ResistancePerMeter*Type3LengthOneWay + HVType4ResistancePerMeter*Type4LengthOneWay)
 
 # Type I and II HV current
 # separate HV lines will serve modules: R5, R4, R3 and R2, and R1 and R0.
