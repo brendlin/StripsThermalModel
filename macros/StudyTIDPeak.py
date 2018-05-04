@@ -58,72 +58,6 @@ def main(options,args) :
         data_all['z'].append(float(datapoint[2]))
         
     #-------------------------
-    # Projections for 3 Temps
-    #-------------------------
-    c = ROOT.TCanvas('tid_scalefactor_GeorgGraham_tf2', 'TID Overall scale factor',500,500)
-    
-    # Caveat: hardcoded temp splits + need to plot T=-15 first 
-    # 1D projection for data points T = -15
-    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-15].SetLineColor(8) # green
-    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-15].Draw()
-    
-    tid_overall_Tm15 = ROOT.TGraph(len(data_m15['y']),array('d',data_m15['y']),array('d',data_m15['z']))
-    tid_overall_Tm15.SetMarkerSize(1)
-    tid_overall_Tm15.SetMarkerStyle(20)
-    tid_overall_Tm15.SetMarkerColor(8) # green
-    tid_overall_Tm15.Draw('same p') 
-    
-    # 1D projection for data points T = -10
-    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-10].SetLineColor(96) # red
-    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-10].Draw('same')
-    
-    tid_overall_Tm10 = ROOT.TGraph(len(data_m10['y']),array('d',data_m10['y']),array('d',data_m10['z']))
-    tid_overall_Tm10.SetMarkerSize(1)
-    tid_overall_Tm10.SetMarkerStyle(20)
-    tid_overall_Tm10.SetMarkerColor(2) # red
-    tid_overall_Tm10.Draw('same p')
-
-    # 1D projection for data points T = -25
-    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-25].SetLineColor(62) # blue
-    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-25].Draw('same')
-    
-    tid_overall_Tm25 = ROOT.TGraph(len(data_m25['y']),array('d',data_m25['y']),array('d',data_m25['z']))
-    tid_overall_Tm25.SetMarkerSize(1)
-    tid_overall_Tm25.SetMarkerStyle(20)
-    tid_overall_Tm25.SetMarkerColor(60) # blue
-    tid_overall_Tm25.Draw('same p')
-    
-        
-    # Legending
-    leg= ROOT.TLegend(0.4, 0.15, 0.9, 0.3)
-    PlotUtils.SetStyleLegend(leg)
-    leg.SetNColumns(2)
-    #leg.AddEntry(tid_overall_Tm10, "Data points, T = -10 C", "p")
-    #leg.AddEntry(AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-10],"Fit result,   T = -10 C","l")
-    leg.AddEntry(tid_overall_Tm10, "Data", "p")
-    leg.AddEntry(AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-10],"Fit result, T = -10 C","l")
-    leg.AddEntry(tid_overall_Tm15, "Data", "p")
-    leg.AddEntry(AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-15],"Fit result, T = -15 C","l")
-    leg.AddEntry(tid_overall_Tm25, "Data", "p")
-    leg.AddEntry(AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-25],"Fit result, T = -25 C","l")
-       
-    leg.Draw()
-    
-    PlotUtils.SetStyleTitles(AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-15], "TID overall scale factor", "Dose rate [kRad/hr]", "TID scale factor")
-    
-    #c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_Tm10.eps'%(the_path))
-    c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_factor_vs_d.eps'%(the_path))
-    
-    #c.SetLogx()
-    #c.SetLogy()
-    #c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_factor_vs_d_log.eps'%(the_path))
-    
-    # Let's remove that -15 point at d = 62
-    AbcTidBump.tid_scalefactor_GeorgGraham_tf2_fixedTemp[-15].GetXaxis().SetRangeUser(0.,4.)
-    c.Update()
-    c.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_factor_vs_d_restr.eps'%(the_path))
-    
-    #-------------------------
     # Overall 3D plot 
     #-------------------------
     c3 = ROOT.TCanvas("tid_scalefactor_3d","TID Overall scale factor",0,0,600,400);
@@ -141,7 +75,6 @@ def main(options,args) :
     g2D.Draw('same p')
     
     c3.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_all.eps'%(the_path))
-    c3.Print('%s/plots/AbcTidBump/AbcTidBumpOverall_all.root'%(the_path))
 
     #-------------------------
     # Shape vs collected dose 
@@ -193,7 +126,6 @@ def main(options,args) :
     ##
     # Overal * shape, temperature and doserate grid
     ##
-
     c5.Clear()
     time = []
     fT_and_DR = dict()
