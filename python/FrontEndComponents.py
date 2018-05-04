@@ -11,15 +11,17 @@ hybridV = Config.GetDouble('FrontEndComponents.hybridV',1.5,unit='V',description
 
 # HCC digital
 descr_hccId = 'HCC digital current'
-hccId = Config.GetDouble('FrontEndComponents.hccId',0.125,unit='A',description=descr_hccId) * (1 + SafetyFactors.safetycurrentd)
+hccId = Config.GetDouble('FrontEndComponents.hccId',0.095,unit='A',description=descr_hccId) * (1 + SafetyFactors.safetycurrentd)
+hccScaleCorrection = Config.GetDouble('FrontEndComponents.hccScaleCorrection',0.57,description='Difference in scale from ABC to HCC (default is 57%)')
 
 # HCC analog
 descr_hccIa = 'HCC analog current'
-hccIa = Config.GetDouble('FrontEndComponents.hccIa',0.075,unit='A',description=descr_hccIa) * (1 + SafetyFactors.safetycurrenta)
+hccIa = Config.GetDouble('FrontEndComponents.hccIa',0.053,unit='A',description=descr_hccIa) * (1 + SafetyFactors.safetycurrenta)
 
 # ABC digital
 descr_abcId = 'ABC digital current'
 abcId = Config.GetDouble('FrontEndComponents.abcId',0.0425,unit='A',description=descr_abcId) * (1 + SafetyFactors.safetycurrentd)
+abcBumpedFraction  = Config.GetDouble('FrontEndComponents.abcBumpedFraction' ,0.69,description='Fraction of digital ABC current that is bumped (default is 69%)')
 
 # ABC analog
 descr_abcIa = 'ABC analog current'

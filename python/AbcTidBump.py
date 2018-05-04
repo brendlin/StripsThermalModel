@@ -57,9 +57,26 @@ def tid_scalePlusShape_GeorgGraham(T, doserate, collecteddose,pess):
     return 1 + (tid_scalefactor_GeorgGraham_tf2.Eval(T, doserate)-1)*tid_shape_GeorgGraham(T, doserate, collecteddose,pess)
 
 # Get the model version:
-ModelVersion = Config.GetStr('AbcTidBump.ModelVersion','v02',description='TID parameterization Model Version')
+ModelVersion = Config.GetStr('AbcTidBump.ModelVersion','Apr2018',description='TID parameterization Model Version')
 # Can access only Pessimistic or Optimistic in a given RunModel run - cannot access both (would need to reload).
 PessimisticBool = Config.GetBool('SafetyFactors.TIDpessimistic',description='TID is pessimistic parameterization?')
+
+##
+# Newer TID parameterization, Apr 2018
+##
+ROOT.gROOT.LoadMacro('share/toyTIDbumpShape_Apr2018.C')
+def tid_scalefactor_Kyle_Apr2018(T, doserate, collecteddose,pess) :
+    return 1+ROOT.getAprBumpHeightScale(doserate,T,pess)
+
+def tid_shape_Kyle_Apr2018(T, dosereate, collecteddose,pess) :
+    # these numbers (0.8) are taken from toyTIDbumpShape_Apr2017, method getAprBumpShape
+    # Our collected dose is in kRad, but theirs is in MRad
+    value = ROOT.getAprShape(1.,0.8).Eval(collecteddose/1000.)
+    norm = ROOT.getAprShape(1.,0.8).Eval(999999.)
+    return value/float(norm) - 1.
+
+def tid_scalePlusShape_Kyle_Apr2018(T, doserate, collecteddose,pess) :
+    return ROOT.tid_new_apr2018(T,doserate,collecteddose,pess)
 
 ##
 # New TID parameterization, Oct 2017
@@ -109,10 +126,14 @@ elif (ModelVersion == 'v01') :
     scalefactor_used_in_model = tid_scalefactor_Kyle
     shape_used_in_model = tid_shape_Kyle
     parameterization_used_in_model = tid_scalePlusShape_Kyle
-elif (ModelVersion == 'v02') :
+elif (ModelVersion == 'Oct2017') :
     scalefactor_used_in_model = tid_scalefactor_Kyle_Oct2017
     shape_used_in_model = tid_shape_Kyle_Oct2017
     parameterization_used_in_model = tid_scalePlusShape_Kyle_Oct2017
+elif (ModelVersion == 'Apr2018') :
+    scalefactor_used_in_model = tid_scalefactor_Kyle_Apr2018
+    shape_used_in_model = tid_shape_Kyle_Apr2018
+    parameterization_used_in_model = tid_scalePlusShape_Kyle_Apr2018
 else :
     print 'Error! TID parameterization AbcTidBump.ModelVersion %s is unknown! Exiting.'%(ModelVersion)
     import sys; sys.exit()
