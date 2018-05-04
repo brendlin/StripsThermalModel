@@ -491,7 +491,10 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
             c.SetLogy(False)
 
     text.Clear()
-    PlotUtils.AddRunParameterLabels(text)
+    additionalinfo = []
+    if options.ring_lay != None :
+        additionalinfo = ['Endcap Disk 5, R%s'%(options.ring_lay)]
+    PlotUtils.AddRunParameterLabels(text,additionalinfo=additionalinfo)
 
     # Extra graphs that you may not want to save individually
     extr = dict()
@@ -499,7 +502,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     extr['pabc']          = MakeGraph('ABCPower'               ,'ABC power'                                 ,xtitle,'P_{%s} [W]'%('ABC'   )        ,x,pabc      )
     extr['phcc']          = MakeGraph('HCCPower'               ,'HCC power'                                 ,xtitle,'P_{%s} [W]'%('HCC'   )        ,x,phcc      )
     extr['pfeast']        = MakeGraph('FeastPower'             ,'FEAST power'                               ,xtitle,'P_{%s} [W]'%('FEAST' )        ,x,pfeast    )
-    extr['plinpol12v']    = MakeGraph('LinPOL12VPower'         ,'LinPOL12V power (powers AMAC)'             ,xtitle,'P_{%s} [W]'%('linPOL12V' )    ,x,plinpol12v)
+    extr['plinpol12v']    = MakeGraph('LinPOL12VPower'         ,'LinPOL12V power (for AMAC)'                ,xtitle,'P_{%s} [W]'%('linPOL12V' )    ,x,plinpol12v)
     extr['tid_shape']     = MakeGraph('TID_Shape'              ,'TID shape #times 1.45'                     ,xtitle,'shape'                        ,x,tid_shape )
     extr['ihcc_dig']      = MakeGraph('HCCDigitalCurrent'      ,'HCC digital current'                       ,xtitle,'I_{%s} [A]'%('HCC')           ,x,ihcc_dig  )
     extr['ihcc_a']        = MakeGraph('HCCAnalogCurrent'       ,'HCC analog current'                        ,xtitle,'I_{%s} [A]'%('HCC')           ,x,ihcc_a    )
@@ -646,7 +649,9 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     #taxisfunc.SetYaxisRanges(c,0,20)
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'PowerStackPlot'))
-
+    elif options.ring_lay != None :
+        tmp_outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
+        c.Print('%s/%s_EndcapR%s.eps'%(tmp_outputpath,'SummaryPowerPerModule',options.ring_lay))
 
     #
     # Total LV plot
@@ -674,6 +679,9 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     taxisfunc.AutoFixYaxis(c,ignorelegend=False,minzero=True)
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'LVCurrentHCCABCStackPlot'))
+    elif options.ring_lay != None :
+        tmp_outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
+        c.Print('%s/%s_EndcapR%s.eps'%(tmp_outputpath,'LVCurrentHCCABCStackPlot',options.ring_lay))
 
     #
     # Thermal balance curve
@@ -826,6 +834,9 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     taxisfunc.AutoFixYaxis(c)
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'TIDBumpCharacterization'))
+    elif options.ring_lay != None :
+        tmp_outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
+        c.Print('%s/%s_EndcapR%s.eps'%(tmp_outputpath,'TIDBumpCharacterization',options.ring_lay))
 
     #
     # TID Characterization vs dose
@@ -854,6 +865,9 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     taxisfunc.AutoFixYaxis(c)
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'TIDBumpCharacterizationVsDose'))
+    elif options.ring_lay != None :
+        tmp_outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
+        c.Print('%s/%s_EndcapR%s.eps'%(tmp_outputpath,'TIDBumpCharacterizationVsDose',options.ring_lay))
 
     # Kurt, put any extra plots here -- End.
 

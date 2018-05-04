@@ -76,6 +76,11 @@ def main(options,args):
     results = []
     config_text = ''
 
+    # Add some output directory specifications
+    barrel_endcap = 'ExtendedModelBarrel' if options.barrel else 'ExtendedModelEndcap'
+    coolingtag = PlotUtils.GetCoolingOutputTag(CoolantTemperature.cooling)
+    options.outdir = '_'.join([barrel_endcap,options.outdir,coolingtag]).lstrip('_').replace('__','_')
+
     #
     # All configurations :
     #
@@ -114,6 +119,11 @@ def main(options,args):
                     for tmp_i in range(tmp_gr.GetN()) :
                         vdrop_previous_list.append(tmp_gr.GetY()[tmp_i])
 
+                # Save last disk summary plots
+                options.ring_lay = None
+                if (disk_mod+1 == Layout.nmodules_or_disks) :
+                    options.ring_lay = ring_lay
+
                 results.append(SensorTemperatureCalc.CalculateSensorTemperature(options,itape_previous_list=itape_previous_list,vdrop_previous_list=vdrop_previous_list))
                 if options.endcap :
                     structure_names.append('R%dD%d'%(ring_mod,disk_layer))
@@ -125,11 +135,6 @@ def main(options,args):
 
         config_text += Config.FancyPrintLatexTables(saved_configs,structure_names)
         config_text += '\n\n\\clearpage\n'
-
-    # Add some output directory specifications
-    barrel_endcap = 'ExtendedModelBarrel' if options.barrel else 'ExtendedModelEndcap'
-    coolingtag = PlotUtils.GetCoolingOutputTag(CoolantTemperature.cooling)
-    options.outdir = '_'.join([barrel_endcap,options.outdir,coolingtag]).lstrip('_').replace('__','_')
 
     ExtendedModelSummaryPlots.ProcessSummaryPlots(results,structure_names,options,speciallegend=True,plotaverage=False)
 

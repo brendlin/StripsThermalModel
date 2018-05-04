@@ -73,6 +73,9 @@ def tid_shape_Kyle_Apr2018(T, dosereate, collecteddose,pess) :
     # Our collected dose is in kRad, but theirs is in MRad
     value = ROOT.getAprShape(1.,0.8).Eval(collecteddose/1000.)
     norm = ROOT.getAprShape(1.,0.8).Eval(999999.)
+    import math
+    if math.isnan(value) :
+        return 0.
     return value/float(norm) - 1.
 
 def tid_scalePlusShape_Kyle_Apr2018(T, doserate, collecteddose,pess) :
