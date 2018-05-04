@@ -127,6 +127,22 @@ P_\text{linPOL12V} = (I^{1.5V}_\text{AMAC} + I^\text{q}_\text{linPOL12V})\left( 
 \end{equation}
 where the calculation of $\Delta V_\text{linPOL12V}$ is described in Section~\ref{low_voltage}.
 
+\subsection{BPOL12V (FEAST) efficiency}
+
+The BPOL12V efficiency varies as a function of temperature and load current. The parameterization used
+is the one derived by Georg. Figure~\ref{feast_vs_temperature} highlights the agreement between the
+measured FEAST efficiencies and the parameterized fit.
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[width=0.49\linewidth]{figures/FeastEfficiency_isoCurrent}
+\end{center}
+\caption{FEAST efficiency data versus temperature ($x$-axis) and current (indicated with different
+colors). The parameterization of the data is represented by the fit lines at fixed current.
+}
+\label{feast_vs_temperature}
+\end{figure}
+
 \subsection{TID bump parameterization}
 \label{tid_parameterization_details}
 
