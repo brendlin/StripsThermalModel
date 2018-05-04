@@ -14,7 +14,7 @@ import PlotUtils
 
 descr = 'Type %d LV cable resistance per meter'
 
-LVType1ResistancePerMeter = Config.GetDouble('CableLosses.LVType1ResistancePerMeter',0.025438,unit='$\Omega$/m',description=descr%(1))
+LVType1ResistancePerMeter = Config.GetDouble('CableLosses.LVType1ResistancePerMeter',0.021   ,unit='$\Omega$/m',description=descr%(1))
 LVType2ResistancePerMeter = Config.GetDouble('CableLosses.LVType2ResistancePerMeter',0.0148  ,unit='$\Omega$/m',description=descr%(2))
 LVType3ResistancePerMeter = Config.GetDouble('CableLosses.LVType3ResistancePerMeter',0.0095  ,unit='$\Omega$/m',description=descr%(3))
 LVType4ResistancePerMeter = Config.GetDouble('CableLosses.LVType4ResistancePerMeter',0.00127 ,unit='$\Omega$/m',description=descr%(4))
@@ -22,7 +22,7 @@ LVType4ResistancePerMeter = Config.GetDouble('CableLosses.LVType4ResistancePerMe
 descr = 'Type %d LV/HV cable one-way length'
 
 # (Have to multiply by two to get the round-trip length.)
-Type1LengthOneWay = Config.GetDouble('CableLosses.Type1LengthOneWay',2.6,unit='m',description=descr%(1))
+Type1LengthOneWay = Config.GetDouble('CableLosses.Type1LengthOneWay',2.44,unit='m',description=descr%(1))
 Type2LengthOneWay = Config.GetDouble('CableLosses.Type2LengthOneWay',15.,unit='m',description=descr%(2))
 Type3LengthOneWay = Config.GetDouble('CableLosses.Type3LengthOneWay',32.,unit='m',description=descr%(3))
 Type4LengthOneWay = Config.GetDouble('CableLosses.Type4LengthOneWay',70.,unit='m',description=descr%(4))
