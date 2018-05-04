@@ -19,8 +19,8 @@ import AbcTidBump
 # Module power (including powering efficiency)
 # General parameters
 
-Rtape_descr = 'tape resistance is 0.01 $\Omega$ per module worst case'
-Rtape = Config.GetDouble('NominalPower.Rtape',0.01,unit='$\Omega$',description=Rtape_descr)
+Rtape_descr = 'tape resistance is 0.02 $\Omega$ per module worst case'
+Rtape = Config.GetDouble('NominalPower.Rtape',0.02,unit='$\Omega$',description=Rtape_descr)
 
 # Total amac power given n amacs on the module
 namac  = Config.GetInt('NominalPower.namac',1,description='Number of AMACs on the power board')

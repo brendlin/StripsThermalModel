@@ -55,7 +55,7 @@ for i in [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0] :
     feast_func_fixedCurr_new[i].SetParameters(*feastfitconstants_new)
 
 descr_Vfeast = 'Minimum Feast input voltage (farthest from EOS)'
-VfeastMin = Config.GetDouble('PoweringEfficiency.VfeastMin',10.0,unit='V',description=descr_Vfeast)
+VfeastMin = Config.GetDouble('PoweringEfficiency.VfeastMin',10.790,unit='V',description=descr_Vfeast)
 
 # EOS DCDC converter
 descr_DCDC2eff = 'Efficiency of EOS DCDC2 converter'

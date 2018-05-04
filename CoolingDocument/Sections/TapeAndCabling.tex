@@ -16,16 +16,26 @@ The type-I cables are counted in the cooling power.}
 
 Figure~\ref{lv_circuit} depicts a simplified version of the LV circuit.
 
-The low-voltage is modeled as losing 1V over the length of the petal, with 11V at the EOS and
-dropping to 10V in R1\footnote{Estimates provided by Pepe Bernabeu.} at beginning-of-life.
-To ensure consistency between
-the tape resistance and the voltage drop in the front-end components in each module, (and because I
-don't have good numbers for endcap tape resistances), tape resistance values are chosen to cause a
-1/6~V drop between modules.
+%% The low-voltage is modeled as losing 1V over the length of the petal, with 11V at the EOS and
+%% dropping to 10V in R1\footnote{Estimates provided by Pepe Bernabeu.} at beginning-of-life.
+%% To ensure consistency between
+%% the tape resistance and the voltage drop in the front-end components in each module, (and because I
+%% don't have good numbers for endcap tape resistances), tape resistance values are chosen to cause a
+%% 1/6~V drop between modules.
 
-To correctly model the tape current and LV voltage in each module, the model performs its predictions
-of each module starting from R0, followed by R1, R2, ... R5. The voltage drop across the front-end (FE)
-components in R0 is set at 10~V. The current in the R0 tape is:
+
+The low-voltage will be sensed at the EOS at 11 V, and expected to drop up to 1 V through the length of
+the tape, depending on the tape resistance. Estimates of the tape resistance are under investigation;
+for now a worst-case tape resistance of 20 m$\Omega$ is used in the endcap.
+
+To ensure consistency between
+the tape resistance and the voltage drop in the front-end components in each module,
+the voltage drop in the R0 front-end is strategically chosen such that the $\Delta V$
+of the R0 front-end plus the total tape $\Delta V$ equals 11 V at the EOS.
+The procedure is as follows:
+to correctly model the tape current and LV voltage in each module, the model performs its predictions
+of each module starting from R0, followed by R1, R2, ... R5. The voltage drop across the front-end
+components in R0 is set at 10.79~V. The current in the R0 tape is:
 %
 \[
 I^{R0}_\text{tape} = \frac{P^{R0}_{LV}}{V^{R0}_{LV}}.
@@ -40,27 +50,32 @@ accumulated current from the previous modules:
 \[
 I^{Rn}_\text{tape} = \frac{P^{Rn}_{LV}}{V^{Rn}_{LV}} + I^{R(n-1)}_\text{tape}.
 \]
+With $\Delta V$ at R0 set at 10.79~V, the voltage at the EOS is 11~V in beginning-of-life conditions
+(without safety factors).
 Note that this calculation occurs at each time step in the model, so power increases due to the TID
 bump affect both the FE voltages and the tape current.
+(The effect of the bump is less than 0.1~V at the TID bump maximum.)
 
-Table~\ref{voltage_drops} specifies the voltage input at each module and
-the corresponding chosen tape resistance values.
+Table~\ref{voltage_drops} specifies the voltage input at each module given the
+chosen tape resistance value of 20~m$\Omega$.
 
 \begin{table}[ht]
 \begin{center}
 \adjustbox{max width=\textwidth}{ %% just before tabular
 \begin{tabular}{|l|l|r|r|r|r|r|r|l|} \hline % data_below
 Quantity & Description           &     R0 &     R1 &     R2 &     R3 &     R4 &     R5 & Unit   \\ \hline
-\multirow{2}{*}{$V_{in}$} & Input voltage to the BPOL12V &  \multirow{2}{*}{10.00} &  \multirow{2}{*}{10.17} &  \multirow{2}{*}{10.33}
-&  \multirow{2}{*}{10.50} &  \multirow{2}{*}{10.67} &  \multirow{2}{*}{10.83} & \multirow{2}{*}{V}      \\
+\multirow{2}{*}{$V_{in}$} & Input voltage to the BPOL12V &  \multirow{2}{*}{10.79} &  \multirow{2}{*}{10.80} &  \multirow{2}{*}{10.82}
+&  \multirow{2}{*}{10.85} &  \multirow{2}{*}{10.89} &  \multirow{2}{*}{10.94} & \multirow{2}{*}{V}      \\
  & and linPOL12V on each module & & & & & & & \\ \hline
-$R_\text{tape}$           & Tape resistance in each module &  0.320 & 0.145 & 0.110 & 0.068 & 0.057 & 0.050 & $\Omega$ \\
+$R_\text{tape}$           & Tape resistance in each module &  \multicolumn{6}{c|}{20} & m$\Omega$ \\
 \hline\end{tabular}
 } %% resize box after tabular
 \end{center}
 \caption{Voltage inputs for each endcap module. The EOS is assumed to have an 11V input voltage.}
 \label{voltage_drops}
 \end{table}
+
+\subsection{Low voltage cables}
 
 Following Figure~\ref{lv_circuit}, the
 quantity ``LV round-trip $\Delta V$ from PP2'' consists of voltage drops from type I and II cables
