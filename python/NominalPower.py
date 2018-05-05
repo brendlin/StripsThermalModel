@@ -77,7 +77,10 @@ def Pabc(Tabc,d,D) :
     return FrontEndComponents.hybridV * Iabc(Tabc, d, D)
 
 def Ihcc_digital(Thcc,d,D) :
-    return nhcc * (AbcTidBump.tid_scalePlusShape(Thcc, d, D) * FrontEndComponents.hccId * FrontEndComponents.hccScaleCorrection)
+    tmp_dig = FrontEndComponents.hccId
+    scale_corr = FrontEndComponents.hccScaleCorrection
+    bump = AbcTidBump.tid_scalePlusShape(Thcc, d, D)
+    return nhcc * ( (bump - 1.) * scale_corr + 1.) * tmp_dig
 
 def Ihcc(Thcc,d,D) :
     return Ihcc_digital(Thcc,d,D) + (nhcc * FrontEndComponents.hccIa)
