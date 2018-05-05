@@ -117,8 +117,9 @@ def Itape_Cumulative(Tabc,Thcc,Tfeast,vdrop,d,D,itape_previous_modules) :
 def Ptape_Cumulative(Tabc,Thcc,Tfeast,vdrop,d,D,itape_previous_modules) :
     return ( Itape_Cumulative(Tabc,Thcc,Tfeast,vdrop,d,D,itape_previous_modules) )**2 * Rtape
 
+# Needed to add PlinPOL12V(vdrop)
 def Pmod(Tabc,Thcc,Tfeast,vdrop,d,D,Is,itape_previous_modules) :
-    return Pabc(Tabc,d,D) + Phcc(Thcc,d,D) + Pamac + Pfeast(Tabc,Thcc,Tfeast,d,D) + Ptape_Cumulative(Tabc,Thcc,Tfeast,vdrop,d,D,itape_previous_modules) + Phv_R(Is) + Phv_Mux
+    return Pabc(Tabc,d,D) + Phcc(Thcc,d,D) + Pamac + PlinPOL12V(vdrop) + Pfeast(Tabc,Thcc,Tfeast,d,D) + Ptape_Cumulative(Tabc,Thcc,Tfeast,vdrop,d,D,itape_previous_modules) + Phv_R(Is) + Phv_Mux
 
 # EOS current (load) on FEAST
 eosI  = ( (nlpgbt * EOSComponents.lpgbtI + ngbld * EOSComponents.gbld12I) / float(PoweringEfficiency.DCDC2eff) ) * (EOSComponents.eosV12/float(EOSComponents.eosV25))
