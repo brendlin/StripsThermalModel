@@ -29,7 +29,7 @@ the tape, depending on the tape resistance. Estimates of the tape resistance are
 for now a worst-case tape resistance of 20 m$\Omega$ is used in the endcap.
 
 To ensure consistency between
-the tape resistance and the voltage drop in the front-end components in each module,
+the tape resistance and the voltage drop in the front-end (FE) components in each module,
 the voltage drop in the R0 front-end is strategically chosen such that the $\Delta V$
 of the R0 front-end plus the total tape $\Delta V$ equals 11 V at the EOS.
 The procedure is as follows:
@@ -113,8 +113,8 @@ and total power results is very small.
 \def\rhvmuxIII{R^\text{HV,cables}_\text{muxIII/IV}}
 
 There are four Type I and II HV lines per petal side, which serve modules in the following multiplexing
-scheme: (R0 + R1), (R2 + R3), R4, R5\footnote{ See
-https://edms.cern.ch/ui/file/1889475/10/Bus\_Tapes\_specs\_v10\_300118.pdf
+scheme: (R0 + R1), (R2 + R3), (R4), (R5)\footnote{ See
+\url{https://edms.cern.ch/ui/file/1889475/10/Bus_Tapes_specs_v10_300118.pdf}
 }. The HV tape and PP2 HV filters are also assumed to be multiplexed in this way. Thus, we can define
 a quantity $\rhvmuxI$ to refer to the sum of these resistances:
 %

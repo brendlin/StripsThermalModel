@@ -63,36 +63,53 @@ describe the worst-case safety factor scenario.
 \begin{centering}\adjustbox{max width=\textwidth}{ %% just before tabular
 \begin{tabular}{|l|l|r|l|} \hline % data_below
 Configurable Item                    & Description                                                  &      Value & Unit        \\ \hline
-AbcTidBump.ModelVersion              & TID parameterization Model Version                           &        v02 & --          \\ 
-CableLosses.lossouter                & Cable losses from PP1 to USA15                               &       0.05 & --          \\ 
-CableLosses.losstype1                & Cable losses from service modules                            &       0.05 & --          \\ 
+AbcTidBump.ModelVersion               & TID parameterization Model Version                          &    Apr2018 & --          \\ 
+CableLosses.HVType1ResistancePerMeter & Type 1 HV cable resistance per meter                        &      0.213 & $\Omega$/m  \\ 
+CableLosses.HVType2ResistancePerMeter & Type 2 HV cable resistance per meter                        &      0.213 & $\Omega$/m  \\ 
+CableLosses.HVType3ResistancePerMeter & Type 3 HV cable resistance per meter                        &      0.139 & $\Omega$/m  \\ 
+CableLosses.HVType4ResistancePerMeter & Type 4 HV cable resistance per meter                        &    0.14286 & $\Omega$/m  \\ 
+CableLosses.LVType1ResistancePerMeter & Type 1 LV cable resistance per meter                        &      0.021 & $\Omega$/m  \\ 
+CableLosses.LVType2ResistancePerMeter & Type 2 LV cable resistance per meter                        &     0.0148 & $\Omega$/m  \\ 
+CableLosses.LVType3ResistancePerMeter & Type 3 LV cable resistance per meter                        &     0.0095 & $\Omega$/m  \\ 
+CableLosses.LVType4ResistancePerMeter & Type 4 LV cable resistance per meter                        &    0.00127 & $\Omega$/m  \\ 
+CableLosses.PP2Efficiency            & PP2 Efficiency                                               &       0.85 &             \\ 
+CableLosses.PP2HVFilterResistance    & PP2 Efficiency                                               &      100.0 & $\Omega$    \\ 
+CableLosses.PP2InputVoltage          & PP2 input voltage                                            &       48.0 & V           \\ 
+CableLosses.PowerSuppliesEfficency   & Power supplies efficiency                                    &        0.8 &             \\ 
+CableLosses.Type1LengthOneWay        & Type 1 LV/HV cable one-way length                            &       2.44 & m           \\ 
+CableLosses.Type2LengthOneWay        & Type 2 LV/HV cable one-way length                            &       15.0 & m           \\ 
+CableLosses.Type3LengthOneWay        & Type 3 LV/HV cable one-way length                            &       32.0 & m           \\ 
+CableLosses.Type4LengthOneWay        & Type 4 LV/HV cable one-way length                            &       70.0 & m           \\ 
 EOSComponents.Veos                   & EOS input voltage                                            &       11.0 & V           \\ 
 EOSComponents.gbld12I                & Current in GBLD10 1.2V circuit                               &     0.0095 & A           \\ 
 EOSComponents.gbld25I                & Current in GBLD10 2.5V circuit                               &      0.018 & A           \\ 
 EOSComponents.gbtiaI                 & Current in GBTIA (voltage is 2.5 V)                          &      0.053 & A           \\ 
 EOSComponents.lpgbtI                 & Current in lpGBT (voltage is 1.2 V)                          &      0.625 & A           \\ 
+FrontEndComponents.abcBumpedFraction & Fraction of digital ABC current that is bumped (default is 69\%) &       0.69 & --          \\ 
 FrontEndComponents.abcIa             & ABC analog current                                           &       0.07 & A           \\ 
 FrontEndComponents.abcId             & ABC digital current                                          &     0.0425 & A           \\ 
 FrontEndComponents.amac15I           & AMAC current of 1.5V circuit                                 &     0.0517 & A           \\ 
 FrontEndComponents.amac3I            & AMAC current of 3V circuit                                   &     0.0012 & A           \\ 
-FrontEndComponents.hccIa             & HCC analog current                                           &      0.075 & A           \\ 
-FrontEndComponents.hccId             & HCC digital current                                          &      0.125 & A           \\ 
+FrontEndComponents.hccIa             & HCC analog current                                           &      0.053 & A           \\ 
+FrontEndComponents.hccId             & HCC digital current                                          &      0.095 & A           \\ 
+FrontEndComponents.hccScaleCorrection& Difference in scale from ABC to HCC (default is 57\%)        &       0.57 & --          \\ 
 FrontEndComponents.hybridV           & Hybrid voltage                                               &        1.5 & V           \\ 
 FrontEndComponents.ldoI              & LDO quiescent current                                        &     0.0019 & A           \\ 
 Layout.Detector                      & barrel or endcap geometry                                    &     Endcap & --          \\ 
 Layout.npetals                       & Number of petals per ring                                    &         32 & --          \\ 
-NominalPower.Rtape                   & tape resistance is 0.01 $\Omega$ per module worst case       &       0.01 & $\Omega$    \\ 
+NominalPower.Rtape                   & tape resistance is 0.02 $\Omega$ per module worst case       &       0.02 & $\Omega$    \\ 
 PoweringEfficiency.DCDC2eff          & Efficiency of EOS DCDC2 converter                            &       0.88 & --          \\ 
 PoweringEfficiency.ModelVersion      & Feast Efficiency Model Version                               &        v01 & --          \\ 
+PoweringEfficiency.VfeastMin         & Minimum Feast input voltage (farthest from EOS)              &      10.79 & V           \\ 
 SafetyFactors.TIDpessimistic         & TID is pessimistic parameterization?                         &       True & --          \\ 
 SafetyFactors.safetycurrenta         & Fractional analog current safety factor increase             &       0.05 & --          \\ 
 SafetyFactors.safetycurrentd         & Fractional digital current safety factor increase            &        0.2 & --          \\ 
 SafetyFactors.safetyfluence          & Fractional safety factor increase over 3935 fb$^{-1}$        &        0.5 & --          \\ 
 SafetyFactors.safetythermalimpedance & Fractional thermal impedance safety factor increase          &        0.2 & --          \\ 
 SafetyFactors.vbias                  & HV bias voltage (default is 500V)                            &      700.0 & V           \\ 
-SensorProperties.Rhv                 & HV resistors are 2 times 5k                                  &    10000.0 & $\Omega$    \\ 
+SensorProperties.Rhv                 & HV filter resistors are 2 times 5k                           &    10000.0 & $\Omega$    \\ 
 SensorProperties.Rhvmux              & parallel resistor for MUX operation is 10M                   & 10000000.0 & $\Omega$    \\ 
-StripsThermalModel.GitHash           & Git hash (for internal use)                                  &    6191523 & --          \\ 
+StripsThermalModel.GitHash           & Git hash (for internal use)                                  &    9e7eed0 & --          \\ 
 ThermalImpedances.reos               & Thermal impedance of EOS                                     &       15.0 & K/W         \\ 
 ThermalImpedances.rs                 & Thermal impedance of Sensor                                  &       0.02 & K/W         \\ 
 cooling                              & Coolant temperature scenario (usually flat, or ramping down) &    flat-35 & $^{\circ}$C \\ 
@@ -114,14 +131,14 @@ NominalPower.Hybrid0.nhcc & --                                             &    
 NominalPower.Hybrid1.nhcc & --                                             &      1 &      1 &      0 &      2 &      2 &      2 & --     \\ 
 NominalPower.Hybrid2.nhcc & --                                             &      0 &      0 &      0 &      0 &      0 &      0 & --     \\
 NominalPower.Hybrid3.nhcc & --                                             &      0 &      0 &      0 &      2 &      0 &      0 & --     \\ 
+NominalPower.nFilters\_nHVMUX & Number of HV filters (= number of HVMUX)       &      1 &      1 &      1 &      2 &      2 &      2 & --     \\ 
 NominalPower.nabc         & Number of ABCs on the hybrid                   &     17 &     21 &     12 &     28 &     16 &     18 & --     \\ 
-NominalPower.namac        & Number of AMACs on the hybrid                  &      1 &      1 &      1 &      2 &      1 &      1 & --     \\ 
+NominalPower.namac        & Number of AMACs on the power board             &      1 &      1 &      1 &      2 &      1 &      1 & --     \\ 
 NominalPower.nfeast       & Number of FEAST chips on the hybrid            &      1 &      1 &      1 &      2 &      1 &      1 & --     \\ 
 NominalPower.ngbld        & Number of GBLDs on this module's EOS           &      0 &      0 &      0 &      0 &      0 &      1 & --     \\ 
 NominalPower.ngbtia       & Number of GBTIAs on this module's EOS          &      0 &      0 &      0 &      0 &      0 &      1 & --     \\ 
 NominalPower.nhcc         & Number of HCCs on the hybrid                   &      2 &      2 &      2 &      4 &      2 &      2 & --     \\ 
 NominalPower.nlpgbt       & Number of lpGBTs on this module's EOS          &      0 &      0 &      0 &      0 &      0 &      1 & --     \\ 
-PoweringEfficiency.Vfeast & Feast input voltage                            &  10.00 &  10.17 &  10.33 &  10.50 &  10.67 &  10.83 & V      \\ 
 SensorProperties.area     & Sensor area on the module                      &   92.0 &   91.0 &   76.0 &  164.0 &  178.0 &  186.0 & cm$^2$ \\ 
 ThermalImpedances.rabc    & Thermal impedance of ABCs                      &  0.927 &  0.661 &  1.529 &  0.582 &  1.316 &  1.151 & K/W    \\ 
 ThermalImpedances.rc      & Thermal impedance of Module+EOS common pathway &  0.000 &  0.000 &  0.000 &  0.000 &  0.000 &  0.091 & K/W    \\ 

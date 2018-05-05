@@ -76,10 +76,10 @@ April 30, 2018: The following changes were made since December 18, 2018:}
   instead of the BPOL12V (FEAST). This reduces the power associated to the FEAST, and thus the
   temperature.
 \item The treatment of LV tape losses and BPOL12V voltages has now been made more consistent. Previously,
-  tape resistances were modeled with a flat 10 m$\Omega$ resistance and FEAST voltages were set by hand.
-  Now, the BPOL12V voltages are calculated on-the-fly using the voltage drop of the BPOL12V+tape of
-  the previous modules. Currently the tape resistances are set by hand to force a 1V voltage decrease
-  across the whole petal. They should be updated with more realistic values. See Section~\ref{}.
+  tape resistances were modeled with a flat 10~m$\Omega$ resistance and FEAST voltages were set by hand.
+  Now, the tape resistance is set to 20~m$\Omega$ (more conservative) and the
+  BPOL12V voltages are calculated on-the-fly using the voltage drop of the BPOL12V+tape of
+  the previous modules. These should be updated with more realistic values. See Section~\ref{low_voltage}.
 \item Modules R3, R4 and R5 have been updated to include two HV filters and two HVMUXes. The descriptions
   of some quantities ($Q_\text{sensor}$ and leakage current) have been clarified in the cases where two sensors
   exist on one module. Details on the implementation can be found in Section~\ref{highvoltage}.

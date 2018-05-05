@@ -31,8 +31,12 @@ R5     &      1 &     1 &   18 &    2 &                186.0 \\
 \hline \end{tabular}
 } %% resizebox after tabular
 \end{center}
-\caption{Number of components on each module.}
+\caption{Number of components on each module. The sensor area refers to the total sensor area, e.g.
+for R3, R4, and R5 it refers to the sum of the two sensors on the module.}
 \label{tab:layout_parameters}
 \end{table}
 \let\arraystretch\arraystretcha
 
+Note that the sensor area quoted above refers to the total sensor area. For R3, R4, and R5, which
+consist of two sensors, this means the total area of the two sensors. More details of how those sensors
+are treated in the model is described in Section~\ref{highvoltage}.
