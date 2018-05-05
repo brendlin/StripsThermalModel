@@ -222,7 +222,8 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
 
         if thermal_runaway :
             for i_list in [tsensor,tabc,thcc,tfeast,teos,pabc,phcc,peos,pfeast,pmodule,ptape_cumulative,phv_wleakage,isensor,phvr,vhvr,
-                           phvmux,itape,itape_cumulative,itape_eos,idig,ihcc_dig,iabc_dig,ihybrid0,ihybrid1,ihybrid2,ihybrid3,ifeast,ifeast_in,efffeast,qsensor,
+                           phvmux,itape,itape_cumulative,itape_eos,idig,ihcc_dig,iabc_dig,ihybrid0,ihybrid1,ihybrid2,ihybrid3,ifeast,ifeast_in,efffeast,vfeast,qsensor,
+                           vdrop_tape,plinpol12v,
                            tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
             qsensor_headroom.append(0.1)
