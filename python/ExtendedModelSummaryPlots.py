@@ -126,6 +126,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     # One-per-module items that nonetheless need to know about the other modules.
     # We put this here in order to print out the plot.
     for disk_layer in range(Layout.nlayers_or_disks) :
+        if not full_system :
+            continue
         for ring_mod in range(Layout.nmodules_or_rings) :
             deltavhvservices = []
             for i in range(GlobalSettings.nstep) :

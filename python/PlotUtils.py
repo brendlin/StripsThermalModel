@@ -187,10 +187,8 @@ def ColorPalette() :
             ,21,22,23,24,25,26,27,28,29,30
             ]
 
-def ColorGradient(i,ntotal) :
+def InitColorGradient() :
     import ROOT
-    if ntotal == 1 :
-        return ROOT.kBlack
     from array import array
     NCont = 255
     # Blue -> Green -> Red
@@ -226,7 +224,18 @@ def ColorGradient(i,ntotal) :
     ROOT.TColor.CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont)
 
     #ROOT.gStyle.SetPalette(ROOT.kThermometer)
-    ROOT.gStyle.SetNumberContours(255)
+    ROOT.gStyle.SetNumberContours(NCont)
+
+    return
+
+InitColorGradient()
+
+def ColorGradient(i,ntotal,reverse=False) :
+    import ROOT
+    if ntotal == 1 :
+        return ROOT.kBlack
+    if reverse :
+        i = ntotal - i - 1
     the_int = int(254*i/float(ntotal-1))
     return ROOT.gStyle.GetColorPalette(the_int)
 

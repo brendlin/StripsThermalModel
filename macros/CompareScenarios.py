@@ -49,6 +49,8 @@ def FindAutoLabel(config,nom,changed='') :
                 value = str(float(value) + 1.0)
             if tenvrec.GetName() == 'SensorProperties.Rhvmux' :
                 value = '%s M#Omega'%(float(value)/1000000.)
+            if tenvrec.GetName() == 'cooling' :
+                value = '%s #circ^{}C'%(value).replace('-',' #minus^{}')
             name += '%s^{ }=^{ }%s'%(variable,value)
 
     return name

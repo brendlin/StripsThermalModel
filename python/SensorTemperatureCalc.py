@@ -493,7 +493,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
 
     text.Clear()
     additionalinfo = []
-    if options.ring_lay != None :
+    if hasattr(options,'ring_lay') and options.ring_lay != None :
         additionalinfo = ['Endcap Disk 5, R%s'%(options.ring_lay)]
     PlotUtils.AddRunParameterLabels(text,additionalinfo=additionalinfo)
 
@@ -650,7 +650,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     #taxisfunc.SetYaxisRanges(c,0,20)
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'PowerStackPlot'))
-    elif options.ring_lay != None :
+    elif hasattr(options,'ring_lay') and options.ring_lay != None :
         tmp_outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
         c.Print('%s/%s_EndcapR%s.eps'%(tmp_outputpath,'SummaryPowerPerModule',options.ring_lay))
 
@@ -680,7 +680,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     taxisfunc.AutoFixYaxis(c,ignorelegend=False,minzero=True)
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'LVCurrentHCCABCStackPlot'))
-    elif options.ring_lay != None :
+    elif hasattr(options,'ring_lay') and options.ring_lay != None :
         tmp_outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
         c.Print('%s/%s_EndcapR%s.eps'%(tmp_outputpath,'LVCurrentHCCABCStackPlot',options.ring_lay))
 
@@ -835,7 +835,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     taxisfunc.AutoFixYaxis(c)
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'TIDBumpCharacterization'))
-    elif options.ring_lay != None :
+    elif hasattr(options,'ring_lay') and options.ring_lay != None :
         tmp_outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
         c.Print('%s/%s_EndcapR%s.eps'%(tmp_outputpath,'TIDBumpCharacterization',options.ring_lay))
 
@@ -866,7 +866,7 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     taxisfunc.AutoFixYaxis(c)
     if dosave :
         c.Print('%s/%s.eps'%(outputpath,'TIDBumpCharacterizationVsDose'))
-    elif options.ring_lay != None :
+    elif hasattr(options,'ring_lay') and options.ring_lay != None :
         tmp_outputpath = PlotUtils.GetOutputPath('ExtendedModelSummaryPlots',options)
         c.Print('%s/%s_EndcapR%s.eps'%(tmp_outputpath,'TIDBumpCharacterizationVsDose',options.ring_lay))
 
