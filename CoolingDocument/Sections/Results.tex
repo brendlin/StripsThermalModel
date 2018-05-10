@@ -126,11 +126,11 @@ at the TID bump.
 \begin{subtable}[t]{.99\linewidth}
 \begin{centering}\adjustbox{max width=\textwidth}{ %% just before tabular
 \begin{tabular}{|l|l|r|r|r|r|r|r|} \hline % data_below
-\multirow{5}{*}{Safety Factors} & Fluence                                                               &           0.0 &           0.0 &           0.0 &           0.0 &               &           0.0 \\
-                                & $R_{T}$                                                               &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 \\
-                                & $I_D$                                                                 &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 \\
-                                & $I_A$                                                                 &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 &           0.0 \\
-                                & TID parameterization                                                  &       nominal &       nominal &       nominal &       nominal &       nominal &       nominal \\ \hline
+\multirow{5}{*}{Safety Factors} & Fluence                                                               & \multicolumn{6}{c|}{    0.0} \\
+                                & $R_{T}$                                                               & \multicolumn{6}{c|}{    0.0} \\
+                                & $I_D$                                                                 & \multicolumn{6}{c|}{    0.0} \\
+                                & $I_A$                                                                 & \multicolumn{6}{c|}{    0.0} \\
+                                & TID parameterization                                                  & \multicolumn{6}{c|}{nominal} \\ \hline
 \multirow{2}{*}{HV, Cooling}    & Voltage [V]                                                           &         500.0 &         500.0 &         500.0 &         500.0 &         500.0 &         500.0 \\
                                 & Cooling [$^\circ$C]                                                   &    flat $-$35 &    flat $-$30 &    flat $-$25 &    flat $-$20 &    flat $-$15 &    ramp $-$35 \\ \hline
 \multirow{3}{*}{Endcap System}  & Total LV+HV, no services                                              &     28.1/32.6 &     28.2/31.8 &     28.3/31.7 &     28.4/35.0 &               &     28.7/31.2 \\
@@ -169,11 +169,11 @@ R5                              &                                               
 \begin{subtable}[t]{.99\linewidth}
 \begin{centering}\adjustbox{max width=\textwidth}{ %% just before tabular
 \begin{tabular}{|l|l|r|r|r|r|r|r|} \hline % data_below
-\multirow{5}{*}{Safety Factors} & Fluence                                                               &            0.5 &           0.5 &           0.5 &           0.5 &           0.5 &           0.5 \\
-                                & $R_{T}$                                                               &            0.2 &           0.2 &           0.2 &           0.2 &           0.2 &           0.2 \\
-                                & $I_D$                                                                 &            0.2 &           0.2 &           0.2 &           0.2 &           0.2 &           0.2 \\
-                                & $I_A$                                                                 &           0.05 &          0.05 &          0.05 &          0.05 &          0.05 &          0.05 \\
-                                & TID parameterization                                                  &    pessimistic &   pessimistic &   pessimistic &   pessimistic &   pessimistic &   pessimistic \\ \hline
+\multirow{5}{*}{Safety Factors} & Fluence                                                               & \multicolumn{6}{c|}{        0.5} \\
+                                & $R_{T}$                                                               & \multicolumn{6}{c|}{        0.2} \\
+                                & $I_D$                                                                 & \multicolumn{6}{c|}{        0.2} \\
+                                & $I_A$                                                                 & \multicolumn{6}{c|}{       0.05} \\
+                                & TID parameterization                                                  & \multicolumn{6}{c|}{pessimistic} \\ \hline
 \multirow{2}{*}{HV, Cooling}    & Voltage [V]                                                           &          700.0 &         700.0 &         700.0 &         700.0 &         700.0 &         700.0 \\
                                 & Cooling [$^\circ$C]                                                   &     flat $-$35 &    flat $-$30 &    flat $-$25 &    flat $-$20 &    flat $-$15 &    ramp $-$35 \\ \hline
 \multirow{3}{*}{Endcap System}  & Total LV+HV, no services                                              &      32.1/39.6 &     32.2/38.5 &               &               &               &     32.9/39.2 \\
@@ -260,27 +260,27 @@ sensor $Q$ headroom.
 \begin{tabular}{|ccccc|cc|rrrr|r|r|} \hline % data_below
 \multicolumn{5}{|c|}{Safety factor} & $V_{bias}$ & Cooling & Endcaps max & Endcaps max & Min sensor $Q$ & Min Coolant\\
 Fluence & $R_{T}$ & $I_D$ & $I_A$ &   TID &   [V] & [$^\circ$C] & \multicolumn{1}{l}{power [kW]} & \multicolumn{1}{l}{HV [kW]} & \multicolumn{1}{l}{headroom} & \multicolumn{1}{l|}{headroom [$^\circ$C]} \\ \hline
-0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      32.6 &    1.11 &      7.97 &       19.4 \\
-0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      33.3 &    1.60 &      5.29 &       15.3 \\
-0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$35 flat &      34.9 &    1.60 &      5.29 &       15.3 \\
-0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$35 flat &      37.9 &    1.74 &      4.71 &       14.3 \\
-0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$35 flat &      33.4 &    2.37 &      3.76 &       12.0 \\
-0.5     &     0.2 &   0.0 &   0.0 & False & 500.0 &  $-$35 flat &      32.9 &    1.84 &      3.66 &       11.9 \\
-0.5     &     0.2 &   0.2 &  0.05 &  True & 700.0 &  $-$35 flat &      39.6 &    3.06 &      2.26 &       7.44 \\ \hline
-0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      31.8 &    1.95 &      4.49 &       14.3 \\
-0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      32.3 &    2.93 &      2.95 &       10.2 \\
-0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$30 flat &      33.8 &    2.93 &      2.95 &       10.2 \\
-0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$30 flat &      36.7 &    3.21 &      2.63 &       9.10 \\
-0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$30 flat &      32.5 &    4.33 &      2.10 &       6.87 \\
-0.5     &     0.2 &   0.0 &   0.0 & False & 500.0 &  $-$30 flat &      32.1 &    3.45 &      2.03 &       6.65 \\
-0.5     &     0.2 &   0.2 &  0.05 &  True & 700.0 &  $-$30 flat &      38.5 &    5.92 &      1.25 &       2.06 \\ \hline
-0.0     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$25 flat &      31.7 &    3.56 &      2.55 &       9.07 \\
-0.5     &     0.0 &   0.0 &   0.0 & False & 500.0 &  $-$25 flat &      33.7 &    5.61 &      1.63 &       4.67 \\
-0.5     &     0.0 &   0.0 &   0.0 &  True & 500.0 &  $-$25 flat &      33.7 &    5.61 &      1.63 &       4.67 \\
-0.5     &     0.0 &   0.2 &  0.05 & False & 500.0 &  $-$25 flat &      38.1 &    6.23 &      1.44 &       3.50 \\
-0.5     &     0.0 &   0.0 &   0.0 & False & 700.0 &  $-$25 flat &      36.7 &    8.56 &      1.16 &       1.39 \\
-0.5     &     0.2 &   0.0 &   0.0 & False & 500.0 &  $-$25 flat &      35.3 &    7.02 &      1.09 &      0.854 \\
-0.5     &     0.2 &   0.2 &  0.05 &  True & 700.0 &  $-$25 flat &     \multicolumn{4}{c|}{\bf Runaway Year 11} \\
+0.0       & 0.0       & 0.0       & 0.0        & False      & 500       & $-$35 flat &      32.6 &    1.11 &      7.97 &       19.4 \\
+{\bf 0.5} & 0.0       & 0.0       & 0.0        & False      & 500       & $-$35 flat &      33.3 &    1.60 &      5.29 &       15.3 \\
+{\bf 0.5} & 0.0       & 0.0       & 0.0        & {\bf True} & 500       & $-$35 flat &      34.9 &    1.60 &      5.29 &       15.3 \\
+{\bf 0.5} & 0.0       & {\bf 0.2} & {\bf 0.05} & False      & 500       & $-$35 flat &      37.9 &    1.74 &      4.71 &       14.3 \\
+{\bf 0.5} & 0.0       & 0.0       & 0.0        & False      & {\bf 700} & $-$35 flat &      33.4 &    2.37 &      3.76 &       12.0 \\
+{\bf 0.5} & {\bf 0.2} & 0.0       & 0.0        & False      & 500       & $-$35 flat &      32.9 &    1.84 &      3.66 &       11.9 \\
+{\bf 0.5} & {\bf 0.2} & {\bf 0.2} & {\bf 0.05} & {\bf True} & {\bf 700} & $-$35 flat &      39.6 &    3.06 &      2.26 &       7.44 \\ \hline
+0.0       & 0.0       & 0.0       & 0.0        & False      & 500       & $-$30 flat &      31.8 &    1.95 &      4.49 &       14.3 \\
+{\bf 0.5} & 0.0       & 0.0       & 0.0        & False      & 500       & $-$30 flat &      32.3 &    2.93 &      2.95 &       10.2 \\
+{\bf 0.5} & 0.0       & 0.0       & 0.0        & {\bf True} & 500       & $-$30 flat &      33.8 &    2.93 &      2.95 &       10.2 \\
+{\bf 0.5} & 0.0       & {\bf 0.2} & {\bf 0.05} & False      & 500       & $-$30 flat &      36.7 &    3.21 &      2.63 &       9.10 \\
+{\bf 0.5} & 0.0       & 0.0       & 0.0        & False      & {\bf 700} & $-$30 flat &      32.5 &    4.33 &      2.10 &       6.87 \\
+{\bf 0.5} & {\bf 0.2} & 0.0       & 0.0        & False      & 500       & $-$30 flat &      32.1 &    3.45 &      2.03 &       6.65 \\
+{\bf 0.5} & {\bf 0.2} & {\bf 0.2} & {\bf 0.05} & {\bf True} & {\bf 700} & $-$30 flat &      38.5 &    5.92 &      1.25 &       2.06 \\ \hline
+0.0       & 0.0       & 0.0       & 0.0        & False      & 500       & $-$25 flat &      31.7 &    3.56 &      2.55 &       9.07 \\
+{\bf 0.5} & 0.0       & 0.0       & 0.0        & False      & 500       & $-$25 flat &      33.7 &    5.61 &      1.63 &       4.67 \\
+{\bf 0.5} & 0.0       & 0.0       & 0.0        & {\bf True} & 500       & $-$25 flat &      33.7 &    5.61 &      1.63 &       4.67 \\
+{\bf 0.5} & 0.0       & {\bf 0.2} & {\bf 0.05} & False      & 500       & $-$25 flat &      38.1 &    6.23 &      1.44 &       3.50 \\
+{\bf 0.5} & 0.0       & 0.0       & 0.0        & False      & {\bf 700} & $-$25 flat &      36.7 &    8.56 &      1.16 &       1.39 \\
+{\bf 0.5} & {\bf 0.2} & 0.0       & 0.0        & False      & 500       & $-$25 flat &      35.3 &    7.02 &      1.09 &      0.854 \\
+{\bf 0.5} & {\bf 0.2} & {\bf 0.2} & {\bf 0.05} & {\bf True} & {\bf 700} & $-$25 flat & \multicolumn{4}{c|}{\bf Runaway Year 11} \\
 \hline\end{tabular}
 } %% resize box after tabular
 \caption{Summary of all safety factor scenarios and their effect on the maximum power in the

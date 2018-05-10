@@ -147,11 +147,11 @@ Compared to the current ramp, the new scenario has +2.5\% more LV power but 1/2 
 \begin{table}[ht]
 \begin{centering}\adjustbox{max width=\textwidth,max totalheight=\textheight}{ %% just before tabular
 \begin{tabular}{|l|l|r|r|r|r|r|r|} \hline % data_below
-\multirow{5}{*}{Safety Factors} & Fluence                                                               &           0.0 &           0.0 &           0.0 &            0.5 &           0.5 &            0.5 \\ 
-                                & $R_{T}$                                                               &           0.0 &           0.0 &           0.0 &            0.2 &           0.2 &            0.2 \\ 
-                                & $I_D$                                                                 &           0.0 &           0.0 &           0.0 &            0.2 &           0.2 &            0.2 \\ 
-                                & $I_A$                                                                 &           0.0 &           0.0 &           0.0 &           0.05 &          0.05 &           0.05 \\ 
-                                & TID parameterization                                                  &       nominal &       nominal &       nominal &    pessimistic &   pessimistic &    pessimistic \\ \hline
+\multirow{5}{*}{Safety Factors} & Fluence                                                               & \multicolumn{3}{c|}{          0.0}            & \multicolumn{3}{c|}{           0.5} \\
+                                & $R_{T}$                                                               & \multicolumn{3}{c|}{          0.0}            & \multicolumn{3}{c|}{           0.2} \\
+                                & $I_D$                                                                 & \multicolumn{3}{c|}{          0.0}            & \multicolumn{3}{c|}{           0.2} \\
+                                & $I_A$                                                                 & \multicolumn{3}{c|}{          0.0}            & \multicolumn{3}{c|}{          0.05} \\
+                                & TID parameterization                                                  & \multicolumn{3}{c|}{      nominal}            & \multicolumn{3}{c|}{   pessimistic} \\ \hline
 \multirow{2}{*}{HV, Cooling}    & Voltage [V]                                                           &         500.0 &         500.0 &         500.0 &          700.0 &         700.0 &          700.0 \\ 
                                 & Cooling [$^\circ$C]                                                   &    flat $-$35 &    ramp $-$35 & {\bf Proposed ramp} &     flat $-$35 &    ramp $-$35 & {\bf Proposed ramp} \\ \hline
 \multirow{3}{*}{Endcap System}  & Total LV+HV, no services                                              &     28.1/32.6 &     28.7/31.2 &     28.7/30.9 &      32.1/39.6 &     32.9/39.2 &      32.9/37.5 \\ 
