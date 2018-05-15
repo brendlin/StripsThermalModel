@@ -68,7 +68,7 @@ This increases the maximum power estimates slightly, in the worst-case scenario.
 \end{itemize}
 
 { \bf
-April 30, 2018: The following changes were made since December 18, 2018:}
+April 30, 2018: The following changes were made since December 18, 2017:}
 % New system architecture: https://edms.cern.ch/ui/file/1807716/1.14/Full_System_Architecture_1.14_EDMS.pdf
 \begin{itemize}
 \item The FEAST is replaced by the BPOL12V, however the modeling of this converter (temperature
@@ -98,6 +98,13 @@ April 30, 2018: The following changes were made since December 18, 2018:}
   Section~\ref{tid_parameterization_details}.
 \end{itemize}
 
+{ \bf
+May 15, 2018: The following changes were made since the review on May 5, 2018:}
+\begin{itemize}
+  \item Added ``new ramp'' scenario as a column on all relevant tables.
+  \item Added max sensor leakage currents to detailed results tables.
+\end{itemize}
+
 \input{Sections/Introduction.tex}
 %\clearpage
 \input{Sections/Layout.tex}
@@ -110,13 +117,14 @@ April 30, 2018: The following changes were made since December 18, 2018:}
 \input{Sections/TapeAndCabling.tex}
 \clearpage
 \input{Sections/OtherInputs.tex}
+\input{Sections/CoolingScenarios.tex}
 \clearpage
 \input{Sections/Results.tex}
 \clearpage
 \input{Sections/AdditionalStudies.tex}
 \clearpage
 
-\newgeometry{top=15mm, bottom=10mm, left=0.75in, right=0.75in,foot=0mm, marginparsep=0mm}
+\newgeometry{top=10mm, bottom=10mm, left=0.6in, right=0.6in,foot=0mm, marginparsep=0mm}
 \begin{appendices}
 \input{Sections/Results_detailed.tex}
 \end{appendices}

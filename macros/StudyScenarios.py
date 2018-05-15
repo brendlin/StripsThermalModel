@@ -52,7 +52,7 @@ ordering = [
 
 for i in reversed(ordering) :
     scenarios.sort(key = lambda x: (i+'_' not in x))
-for i in reversed(['flat_m35','flat_m30','flat_m25','flat_m20','flat_m15','ramp_m35']) :
+for i in reversed(['flat_m35','flat_m30','flat_m25','flat_m20','flat_m15','_ramp_m35','_newramp_m35']) :
     scenarios.sort(key = lambda x: (i not in x))
 
 # different ordering (used for "two main scenarios")
@@ -252,7 +252,7 @@ for scenario in scenarios :
 #f.write('\\begin{landscape}\n')
 #f.write('\subsubsection{Main Summary Table 2}\n')
 olist = []
-hlines_new = [4,6,11,12,15,21,27,33,39,52,59]
+hlines_new = [4,6,11,12,15,21,27,33,39,45,58,65]
 #
 olist.append(['','Fluence'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetyfluence','')          for scn in two_main_scenarios))
 olist.append(['','$R_{T}$'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetythermalimpedance','') for scn in two_main_scenarios))
@@ -301,6 +301,7 @@ AddRingsDataMinMax('pmodule'     ,'(LV+HV) Power [W]')
 AddRingsDataMinMax('pmodule_noHV','LV power [W]'     )
 AddRingsDataMinMax('phv_wleakage','HV power [W]'     )
 AddRingsDataMinMax('ifeast'      ,'Feast load [A]'   )
+AddRingsDataMinMax('isensor'     ,'sensor leakage [A]')
 
 for ring in range(6) :
     index_rXd0 = structure_names.index('R%dD%d'%(ring,0))

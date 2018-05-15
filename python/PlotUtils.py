@@ -103,6 +103,8 @@ def MakeGraph(name,title,xtitle,ytitle,xlist,ylist,xerrlist=None,yerrlist=None) 
 def GetCoolingOutputTag(cooling_option) :
     if 'flat' in cooling_option :
         return cooling_option.replace('flat','flat_').replace('-','m')
+    if 'newramp' in cooling_option :
+        return cooling_option.replace('newramp','newramp_').replace('-','m')
     if 'ramp' in cooling_option :
         return cooling_option.replace('ramp','ramp_').replace('-','m')
     return 'unknownScenario'
@@ -111,6 +113,9 @@ def GetCoolingScenarioLabel(cooling_option) :
     if 'flat' in cooling_option :
         temp = int(cooling_option.replace('flat',''))
         return ('Flat %s#circ cooling scenario'%(temp)).replace('-','#minus')
+    if 'newramp' in cooling_option :
+        temp = int(cooling_option.replace('newramp',''))
+        return ('NewRamp %s#circ cooling scenario'%(temp)).replace('-','#minus')
     if 'ramp' in cooling_option :
         temp = int(cooling_option.replace('ramp',''))
         return ('Ramp %s#circ cooling scenario'%(temp)).replace('-','#minus')

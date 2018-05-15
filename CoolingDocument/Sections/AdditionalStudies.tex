@@ -1,5 +1,6 @@
 
 \section{Optimizing the Ramp scenario}
+\label{ramp_optimization}
 
 Figure~\ref{summary_currentramp} shows the full endcap results showing the coolant temperature,
 BPOL12V load current (from ABCs and HCCs), sensor leakage current, and sensor power headroom factor
@@ -125,9 +126,7 @@ current) is the one used to visually guide the coolant temperature selection.
 \end{figure}
 
 Figure~\ref{new_proposal2} shows the performance of this new ramp scenario on the rest of the endcap
-modules. The full endcap results are also calculated in Table~\ref{tab:proposal2_fullresults} and
-compared to the flat $-35^\circ$~C scenario and the other ramp scenaro (with and without safety factors
-applied).
+modules. The full endcap results are also calculated in the main tables in Section~\ref{results}.
 Compared to the current ramp, the new scenario has +2.5\% more LV power but 1/2 as much HV power and
 58\% less sensor current (from 5.42~mA $\rightarrow$ 2.28~mA in R3).
 
@@ -142,71 +141,6 @@ Compared to the current ramp, the new scenario has +2.5\% more LV power but 1/2 
 }
 \label{new_proposal2}
 \end{figure}
-
-\def\arraystretch{1.05}
-\begin{table}[ht]
-\begin{centering}\adjustbox{max width=\textwidth,max totalheight=\textheight}{ %% just before tabular
-\begin{tabular}{|l|l|r|r|r|r|r|r|} \hline % data_below
-\multirow{5}{*}{Safety Factors} & Fluence                                                               & \multicolumn{3}{c|}{          0.0}            & \multicolumn{3}{c|}{           0.5} \\
-                                & $R_{T}$                                                               & \multicolumn{3}{c|}{          0.0}            & \multicolumn{3}{c|}{           0.2} \\
-                                & $I_D$                                                                 & \multicolumn{3}{c|}{          0.0}            & \multicolumn{3}{c|}{           0.2} \\
-                                & $I_A$                                                                 & \multicolumn{3}{c|}{          0.0}            & \multicolumn{3}{c|}{          0.05} \\
-                                & TID parameterization                                                  & \multicolumn{3}{c|}{      nominal}            & \multicolumn{3}{c|}{   pessimistic} \\ \hline
-\multirow{2}{*}{HV, Cooling}    & Voltage [V]                                                           &         500.0 &         500.0 &         500.0 &          700.0 &         700.0 &          700.0 \\ 
-                                & Cooling [$^\circ$C]                                                   &    flat $-$35 &    ramp $-$35 & {\bf Proposed ramp} &     flat $-$35 &    ramp $-$35 & {\bf Proposed ramp} \\ \hline
-\multirow{3}{*}{Endcap System}  & Total LV+HV, no services                                              &     28.1/32.6 &     28.7/31.2 &     28.7/30.9 &      32.1/39.6 &     32.9/39.2 &      32.9/37.5 \\ 
-\multirow{3}{*}{Min/Max}        &  + type 1 cables, PP1 (Cooling system power)                          &     28.9/33.7 &     29.6/32.2 &     29.6/31.9 &      33.2/41.2 &     34.1/40.4 &      34.1/38.8 \\ 
-\multirow{3}{*}{Power [kW]}     &  + all services and power supplies (Wall power)                       &     39.0/46.4 &     39.8/43.0 &     39.8/43.4 &      45.5/58.3 &     46.9/54.3 &      46.9/53.5 \\ 
-                                & Service power only                                                    &     10.9/13.8 &     11.0/12.1 &     11.0/12.5 &      13.4/18.7 &     13.4/15.6 &      13.4/16.3 \\ 
-                                & Maximum $P_\text{HV}$ [kW]                                            &          1.11 &          2.08 &          1.11 &           3.06 &          6.18 &           3.06 \\ \hline
-Petal-level                     & Max petal power (LV+HV) [W]                                           &          42.9 &          41.4 &          40.6 &           53.0 &          53.7 &           50.1 \\ \hline
-\multirow{3}{*}{Petal LV tape}  & Max LV tape power load (incl. tape losses) [W]                        &          40.8 &          37.1 &          38.1 &           50.4 &          43.7 &           44.8 \\ 
-                                & Max $\Delta V_\text{tape}$ [V]                                        &         0.265 &         0.234 &         0.240 &          0.334 &         0.281 &          0.286 \\ 
-                                & Max $I_\text{tape}$ [A]                                               &          3.86 &          3.52 &          3.61 &           4.72 &          4.13 &           4.23 \\ \hline
-R0                              & \multirow{6}{*}{Min/Max (LV+HV) Power [W]}                            &   5.11 / 7.27 &   5.18 / 5.89 &   5.18 / 5.96 &    5.81 / 9.58 &   5.96 / 7.49 &    5.96 / 7.62 \\ 
-R1                              &                                                                       &   6.12 / 8.01 &   6.21 / 6.99 &   6.21 / 7.01 &    6.99 / 10.6 &   7.21 / 8.90 &    7.21 / 8.84 \\ 
-R2                              &                                                                       &   4.01 / 4.83 &   4.08 / 4.54 &   4.08 / 4.51 &    4.55 / 6.03 &   4.64 / 5.78 &    4.64 / 5.46 \\ 
-R3                              &                                                                       &   8.96 / 10.7 &   9.16 / 10.2 &   9.16 / 10.1 &    10.2 / 13.1 &   10.5 / 14.3 &    10.5 / 12.6 \\ 
-R4                              &                                                                       &   5.04 / 6.06 &   5.16 / 5.90 &   5.16 / 5.70 &    5.78 / 7.50 &   5.92 / 7.75 &    5.92 / 7.21 \\ 
-R5                              &                                                                       &   5.57 / 6.63 &   5.71 / 6.40 &   5.71 / 6.26 &    6.39 / 8.39 &   6.57 / 8.10 &    6.57 / 7.79 \\ \hline
-R0                              & \multirow{6}{*}{Min/Max LV power [W]}                                 &   5.08 / 7.24 &   5.08 / 5.72 &   5.08 / 5.84 &    5.76 / 9.52 &   5.76 / 7.12 &    5.76 / 7.38 \\ 
-R1                              &                                                                       &   6.09 / 7.98 &   6.10 / 6.71 &   6.10 / 6.93 &    6.95 / 10.5 &   6.95 / 8.30 &    6.95 / 8.51 \\ 
-R2                              &                                                                       &   3.98 / 4.80 &   3.98 / 4.29 &   3.98 / 4.42 &    4.50 / 5.96 &   4.50 / 5.05 &    4.50 / 5.17 \\ 
-R3                              &                                                                       &   8.91 / 10.7 &   8.92 / 9.59 &   8.92 / 9.87 &    10.1 / 12.9 &   10.1 / 11.2 &    10.1 / 11.6 \\ 
-R4                              &                                                                       &   4.99 / 5.99 &   5.00 / 5.38 &   5.00 / 5.53 &    5.68 / 7.36 &   5.68 / 6.43 &    5.68 / 6.71 \\ 
-R5                              &                                                                       &   5.52 / 6.56 &   5.53 / 5.97 &   5.53 / 6.09 &    6.29 / 8.25 &   6.30 / 7.17 &    6.30 / 7.49 \\ \hline
-R0                              & \multirow{6}{*}{Min/Max HV power [W]}                                 & 0.025 / 0.274 & 0.025 / 0.545 & 0.025 / 0.274 &  0.049 / 0.717 &  0.049 / 1.50 &  0.049 / 0.717 \\ 
-R1                              &                                                                       & 0.025 / 0.290 & 0.025 / 0.569 & 0.025 / 0.290 &  0.049 / 0.861 &  0.049 / 1.84 &  0.049 / 0.861 \\ 
-R2                              &                                                                       & 0.025 / 0.207 & 0.025 / 0.398 & 0.025 / 0.207 &  0.049 / 0.588 &  0.049 / 1.22 &  0.049 / 0.588 \\ 
-R3                              &                                                                       & 0.050 / 0.516 & 0.050 / 0.999 & 0.050 / 0.516 &  0.0979 / 1.72 & 0.0979 / 4.04 &  0.0979 / 1.72 \\ 
-R4                              &                                                                       & 0.050 / 0.329 & 0.050 / 0.632 & 0.050 / 0.329 & 0.0979 / 0.874 & 0.0979 / 1.81 & 0.0979 / 0.874 \\ 
-R5                              &                                                                       & 0.050 / 0.273 & 0.050 / 0.516 & 0.050 / 0.273 & 0.0979 / 0.668 & 0.0979 / 1.31 & 0.0979 / 0.668 \\ \hline
-R0                              & \multirow{6}{*}{Min/Max Feast load [A]}                               &   2.21 / 3.17 &   2.21 / 2.45 &   2.21 / 2.51 &    2.46 / 3.93 &   2.46 / 2.96 &    2.46 / 3.08 \\ 
-R1                              &                                                                       &   2.66 / 3.44 &   2.66 / 2.85 &   2.66 / 2.98 &    2.95 / 4.23 &   2.95 / 3.38 &    2.95 / 3.47 \\ 
-R2                              &                                                                       &   1.65 / 2.04 &   1.65 / 1.77 &   1.65 / 1.84 &    1.83 / 2.49 &   1.83 / 2.04 &    1.83 / 2.12 \\ 
-R3                              &                                                                       &   1.87 / 2.27 &   1.87 / 1.99 &   1.87 / 2.07 &    2.08 / 2.68 &   2.08 / 2.28 &    2.08 / 2.39 \\ 
-R4                              &                                                                       &   2.10 / 2.53 &   2.10 / 2.23 &   2.10 / 2.31 &    2.33 / 3.03 &   2.33 / 2.59 &    2.33 / 2.73 \\ 
-R5                              &                                                                       &   2.32 / 2.77 &   2.32 / 2.49 &   2.32 / 2.54 &    2.58 / 3.36 &   2.58 / 2.87 &    2.58 / 3.03 \\ \hline
-\multirow{6}{*}{Module-level}   & Max sensor $I_{HV}$ per module [mA]                                   &    0.923 (R3) &     1.86 (R3) &    0.923 (R3) &      2.28 (R3) &     5.42 (R3) &      2.28 (R3) \\ 
-\multirow{6}{*}{Components}     & Max sensor T [$^\circ$C], Y1                                          &    -27.3 (R3) &     7.86 (R3) &     7.86 (R3) &     -24.5 (R3) &     10.8 (R3) &      10.8 (R3) \\ 
-                                & Max sensor T [$^\circ$C], Y14                                         &    -26.9 (R3) &    -26.9 (R3) &    -26.9 (R3) &     -22.7 (R3) &    -22.7 (R3) &     -22.7 (R3) \\ 
-                                & Max sensor T [$^\circ$C], Max                                         &    -25.8 (R3) &     8.13 (R3) &     8.13 (R3) &     -21.5 (R3) &     11.9 (R3) &      11.9 (R3) \\ 
-                                & Max $T_\text{Feast}$                                                  &     11.9 (R1) &     37.1 (R1) &     37.1 (R1) &      49.6 (R1) &     59.3 (R1) &      59.3 (R1) \\ 
-                                & Min $Q_{sensor}$ Headroom [$Q_{S,crit}/Q_{S}$]                        &     7.97 (R3) &     4.59 (R3) &     7.97 (R3) &      2.26 (R3) &     1.31 (R3) &      2.26 (R3) \\ 
-                                & Min Coolant Temperature Headroom [$^\circ$C]                          &     19.4 (R3) &     15.8 (R3) &     19.4 (R3) &      7.44 (R3) &     2.70 (R3) &      7.44 (R3) \\ \hline
-\multirow{3}{*}{Services}       & Max $\Delta V_\text{HV}$ (filters, \sout{tape}, EOS, cables, PP2) [V] &     5.38 (R1) &     10.9 (R1) &     5.38 (R1) &      11.8 (R3) &     28.0 (R3) &      11.8 (R3) \\ 
-                                & Max LV round-trip $\Delta V$ from PP2 (type I/II cables only) [V]     &          2.11 &          1.93 &          1.97 &           2.58 &          2.26 &           2.31 \\ 
-                                & Max LV $V_\text{out}$ at PP2 [V]                                      &          13.2 &          13.0 &          13.0 &           13.7 &          13.3 &           13.4 \\ 
-\hline\end{tabular}
-} %% resize box after tabular
-\caption*{Comparison of the flat $-35^\circ$~C cooling, the original ramp scenario, and the newly
-proposed ramp scenario (Eq.~\ref{eq:proposal2}, comparing all endcap quantities in the No-Safety and
-All-Safety scenarios. In particular, the
-HV current and power are significantly reduced, with only a small increase in the LV power.
-}
-\end{centering}
-\label{tab:proposal2_fullresults}
-\end{table}
 
 \subsection{Summary of studies}
 

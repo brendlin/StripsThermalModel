@@ -1,25 +1,27 @@
 
-name='ItkWeek1711_v2'
+name='May4'
 
 
-for i in {30,35,25,20,15}; do
+for i in {35,30,25,20,15}; do
     echo python ExtendedRunModel.py --endcap --cooling flat-${i} --outdir ${name}_No_Safety                              
+    echo python ExtendedRunModel.py --endcap --cooling flat-${i} --outdir ${name}_BasePlusBumpASICThermalBias --safetyf 0.5 --safetyid 0.2 --safetyia 0.05 --safetyr 0.2 --vbias 700 --tidpess
     echo python ExtendedRunModel.py --endcap --cooling flat-${i} --outdir ${name}_Base_assumptions            --safetyf 0.5
     echo python ExtendedRunModel.py --endcap --cooling flat-${i} --outdir ${name}_BasePlusBumpParam           --safetyf 0.5                                                          --tidpess
     echo python ExtendedRunModel.py --endcap --cooling flat-${i} --outdir ${name}_BasePlusASIC                --safetyf 0.5 --safetyid 0.2 --safetyia 0.05
     echo python ExtendedRunModel.py --endcap --cooling flat-${i} --outdir ${name}_BasePlusThermal             --safetyf 0.5                                --safetyr 0.2
     echo python ExtendedRunModel.py --endcap --cooling flat-${i} --outdir ${name}_BasePlusBias                --safetyf 0.5                                              --vbias 700
-    echo python ExtendedRunModel.py --endcap --cooling flat-${i} --outdir ${name}_BasePlusBumpASICThermalBias --safetyf 0.5 --safetyid 0.2 --safetyia 0.05 --safetyr 0.2 --vbias 700 --tidpess
 done
 
-for i in 35; do
-    echo python ExtendedRunModel.py --endcap --cooling ramp-${i} --outdir ${name}_No_Safety                              
-    echo python ExtendedRunModel.py --endcap --cooling ramp-${i} --outdir ${name}_Base_assumptions            --safetyf 0.5
-    echo python ExtendedRunModel.py --endcap --cooling ramp-${i} --outdir ${name}_BasePlusBumpParam           --safetyf 0.5                                                          --tidpess
-    echo python ExtendedRunModel.py --endcap --cooling ramp-${i} --outdir ${name}_BasePlusASIC                --safetyf 0.5 --safetyid 0.2 --safetyia 0.05
-    echo python ExtendedRunModel.py --endcap --cooling ramp-${i} --outdir ${name}_BasePlusThermal             --safetyf 0.5                                --safetyr 0.2
-    echo python ExtendedRunModel.py --endcap --cooling ramp-${i} --outdir ${name}_BasePlusBias                --safetyf 0.5                                              --vbias 700
-    echo python ExtendedRunModel.py --endcap --cooling ramp-${i} --outdir ${name}_BasePlusBumpASICThermalBias --safetyf 0.5 --safetyid 0.2 --safetyia 0.05 --safetyr 0.2 --vbias 700 --tidpess
+for j in ramp newramp; do
+    for i in 35; do
+        echo python ExtendedRunModel.py --endcap --cooling ${j}-${i} --outdir ${name}_No_Safety
+        echo python ExtendedRunModel.py --endcap --cooling ${j}-${i} --outdir ${name}_BasePlusBumpASICThermalBias --safetyf 0.5 --safetyid 0.2 --safetyia 0.05 --safetyr 0.2 --vbias 700 --tidpess
+        echo python ExtendedRunModel.py --endcap --cooling ${j}-${i} --outdir ${name}_Base_assumptions            --safetyf 0.5
+        echo python ExtendedRunModel.py --endcap --cooling ${j}-${i} --outdir ${name}_BasePlusBumpParam           --safetyf 0.5                                                          --tidpess
+        echo python ExtendedRunModel.py --endcap --cooling ${j}-${i} --outdir ${name}_BasePlusASIC                --safetyf 0.5 --safetyid 0.2 --safetyia 0.05
+        echo python ExtendedRunModel.py --endcap --cooling ${j}-${i} --outdir ${name}_BasePlusThermal             --safetyf 0.5                                --safetyr 0.2
+        echo python ExtendedRunModel.py --endcap --cooling ${j}-${i} --outdir ${name}_BasePlusBias                --safetyf 0.5                                              --vbias 700
+    done
 done
 
 # echo 'Order:'

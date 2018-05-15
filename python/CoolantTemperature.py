@@ -28,6 +28,11 @@ if 'flat' in cooling :
     # print 'Setting cooling to \"%s\" (constant at %2.0f C)'%(cooling,temp)
     internal_coolantT[0] = [temp]*GlobalSettings.nyears
 
+elif 'newramp' in cooling :
+    min_t = float(cooling.replace('newramp',''))
+    ramp_shape = [0, -10, -20] + [-20]*2 + [-25,-30] + [-30, -30] + [-35]*5
+    internal_coolantT[0] = list(int(max(min_t,i)) for i in ramp_shape)
+
 elif 'ramp' in cooling :
     min_t = float(cooling.replace('ramp',''))
     # print 'Setting cooling to \"%s\" (ramping down to %2.0f C)'%(cooling,min_t)
