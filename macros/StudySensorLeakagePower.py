@@ -23,6 +23,7 @@ import python.PlotUtils as PlotUtils
 def main(options,args) :
 
     PlotUtils.ApplyGlobalStyle()
+    PlotUtils.InitColorGradient()
     
     c = ROOT.TCanvas('SensorLeakage','Sensor Leakage',600,500)
     

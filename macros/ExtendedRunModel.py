@@ -29,6 +29,7 @@ def usage() :
 def main(options,args):
 
     PlotUtils.ApplyGlobalStyle()
+    PlotUtils.InitColorGradient()
 
     if options.barrel :
         config_files = ['Barrel_B0.config',

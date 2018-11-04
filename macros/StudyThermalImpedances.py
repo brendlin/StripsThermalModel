@@ -23,6 +23,7 @@ import python.TAxisFunctions as taxisfunc
 def main(options,args) :
 
     PlotUtils.ApplyGlobalStyle()
+    PlotUtils.InitColorGradient()
 
     c = ROOT.TCanvas('blah','blah',600,500)
     feast_data = open('%s/data/%s'%(the_path,options.data),'r')

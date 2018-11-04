@@ -27,6 +27,7 @@ def usage() :
 def main(options,args):
 
     PlotUtils.ApplyGlobalStyle()
+    PlotUtils.InitColorGradient()
 
     config_text = ''
 

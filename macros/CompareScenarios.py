@@ -61,6 +61,7 @@ def FindAutoLabel(config,nom,changed='') :
 def main(options,args):
 
     PlotUtils.ApplyGlobalStyle()
+    PlotUtils.InitColorGradient()
 
     structure_names = []
 

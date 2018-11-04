@@ -17,6 +17,7 @@ import python.TAxisFunctions as taxisfunc
 def main(options,args) :
 
     PlotUtils.ApplyGlobalStyle()
+    PlotUtils.InitColorGradient()
 
     if options.barrel :
         config_files = ['Barrel_SS_B1.config',
