@@ -126,6 +126,10 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     ts_vs_q_thermalbalance = [] # Thermal balance Q vs sensor temperature
     q_minus_qthermalbalance = [] # Needed for Tcoolant headroom
 
+    x = GlobalSettings.time_step_list[1:] # for time that you want to stop at runaway.
+    x_qsensor_headroom = GlobalSettings.time_step_list[1:]
+    x_noRunaway = GlobalSettings.time_step_list[1:] # (for operational variables)
+
     # Not sure whether nstep+1 is required...
     for i in range(GlobalSettings.nstep) :
 
@@ -226,8 +230,18 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
                            vdrop_tape,plinpol12v,
                            tid_sf_abc,tid_sf_hcc,tid_bump_abc,tid_bump_hcc,tid_shape] :
                 i_list.append(i_list[-1])
-            qsensor_headroom.append(0.1)
+            qsensor_headroom.append(1)
             tc_crit.append(Tcoolant_i)
+
+            # Advance one increment before shutting down
+            if (thermal_runaway_index+1 < i) :
+                x[i] = x[i-1]
+
+            # Qsensor headroom has its own version:
+            if (thermal_runaway_index < i) :
+                x_qsensor_headroom[i] = x_qsensor_headroom[i-1]
+                qsensor_headroom[-1] = 0.7
+
             continue
 
         # interpolate using TGraph "Eval" function
@@ -250,12 +264,12 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
         # Critical Temperature Coolant calculation
         tmp_graph = ROOT.TGraph(len(ts_vs_q_thermalbalance[-1]),array('d',ts_vs_q_thermalbalance[-1]),array('d',ts_sweep_list[-1][:len(ts_vs_q_thermalbalance[-1])]))
         tmp_headroom_list = [-1]
-        for x in range(len(ts_vs_q[-1])) :
-            if ts_vs_q[-1][x] > ts_vs_q_thermalbalance[-1][-1] :
+        for xx in range(len(ts_vs_q[-1])) :
+            if ts_vs_q[-1][xx] > ts_vs_q_thermalbalance[-1][-1] :
                 continue
-            if ts_vs_q[-1][x] == 0 :
+            if ts_vs_q[-1][xx] == 0 :
                 continue
-            tmp_headroom_list.append( ts_sweep_list[-1][x] - tmp_graph.Eval(ts_vs_q[-1][x]) )
+            tmp_headroom_list.append( ts_sweep_list[-1][xx] - tmp_graph.Eval(ts_vs_q[-1][xx]) )
 
         tc_crit.append( Tcoolant_i + max(tmp_headroom_list) )
         if len(tc_crit) == 2 :
@@ -409,7 +423,6 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
 
         continue # end of loop
 
-    x = GlobalSettings.time_step_list[1:]
     xtitle = 'Time [years]'
     tid_max_index = idig.index(max(idig))
 
@@ -443,13 +456,13 @@ def CalculateSensorTemperature(options,itape_previous_list=[],vdrop_previous_lis
     gr['efffeast']   = MakeGraph('FeastEfficiency'        ,'Feast efficiency'                          ,xtitle,'Efficiency [%]'               ,x,efffeast  )
     gr['vfeast']     = MakeGraph('FeastVoltage'           ,'Vdrop over FEAST and linPOL12V'            ,xtitle,'#Delta^{}V [V]'               ,x,vfeast    )
     gr['vdrop_tape'] = MakeGraph('TapeVoltageDrop'        ,'Vdrop over FEAST, linPOL12V and tape'      ,xtitle,'#Delta^{}V [V]'               ,x,vdrop_tape)
-    gr['qsensor_headroom'] = MakeGraph('SensorQHeadroom'  ,'Sensor Q headroom factor'                  ,xtitle,'Power headroom factor [_{}Q_{S,crit}/Q_{S}]',x,qsensor_headroom)
-    gr['tcoolant']   = MakeGraph('CoolantTemperature'     ,'Coolant temperature'                       ,xtitle,'T_{%s} [#circ^{}C]'%('coolant'),x,CoolantTemperature.GetTimeStepTc())
-    gr['tid_sf_abc'] = MakeGraph('ABCTidBumpScaleFactor'  ,'ABC TID bump scale factor'                 ,xtitle,'scale factor'                 ,x,tid_sf_abc)
-    gr['tid_sf_hcc'] = MakeGraph('HCCTidBumpScaleFactor'  ,'HCC TID bump scale factor'                 ,xtitle,'scale factor'                 ,x,tid_sf_hcc)
-    gr['tid_bump_abc'] = MakeGraph('ABCTidBump'           ,'ABC TID bump'                              ,xtitle,'scale factor #times shape'    ,x,tid_bump_abc)
-    gr['tid_bump_hcc'] = MakeGraph('HCCTidBump'           ,'HCC TID bump'                              ,xtitle,'scale factor #times shape'    ,x,tid_bump_hcc)
-    gr['doserate']   = MakeGraph('DoseRate'               ,'Dose rate'                                 ,xtitle,'dose rate [kRad/hr]'          ,x,OperationalProfiles.doserate)
+    gr['qsensor_headroom'] = MakeGraph('SensorQHeadroom'  ,'Sensor Q headroom factor'                  ,xtitle,'Power headroom factor [_{}Q_{S,crit}/Q_{S}]',x_qsensor_headroom,qsensor_headroom)
+    gr['tcoolant']   = MakeGraph('CoolantTemperature'     ,'Coolant temperature'                       ,xtitle,'T_{%s} [#circ^{}C]'%('coolant'),x_noRunaway,CoolantTemperature.GetTimeStepTc())
+    gr['tid_sf_abc'] = MakeGraph('ABCTidBumpScaleFactor'  ,'ABC TID bump scale factor'                 ,xtitle,'scale factor'                 ,x_noRunaway,tid_sf_abc)
+    gr['tid_sf_hcc'] = MakeGraph('HCCTidBumpScaleFactor'  ,'HCC TID bump scale factor'                 ,xtitle,'scale factor'                 ,x_noRunaway,tid_sf_hcc)
+    gr['tid_bump_abc'] = MakeGraph('ABCTidBump'           ,'ABC TID bump'                              ,xtitle,'scale factor #times shape'    ,x_noRunaway,tid_bump_abc)
+    gr['tid_bump_hcc'] = MakeGraph('HCCTidBump'           ,'HCC TID bump'                              ,xtitle,'scale factor #times shape'    ,x_noRunaway,tid_bump_hcc)
+    gr['doserate']   = MakeGraph('DoseRate'               ,'Dose rate'                                 ,xtitle,'dose rate [kRad/hr]'          ,x_noRunaway,OperationalProfiles.doserate)
 
     # pmodule_noHV is (Power per module including leakage) minus (HV power including leakage)
     pmodule_noHV  = list(pmodule[i] - phv_wleakage[i] for i in range(len(pmodule)))

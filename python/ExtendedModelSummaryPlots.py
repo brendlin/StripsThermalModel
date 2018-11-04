@@ -215,6 +215,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         if plotname in ['qsensor_headroom'] :
             c.SetLogy(True)
 
+        taxisfunc.FixXaxisRanges(c)
         taxisfunc.AutoFixYaxis(c,minzero=minzero,forcemin=forcemin)
 
         c.Print('%s/%s%s.eps'%(outputpath,barrel_endcap,graphs[0].GetName()))
