@@ -233,8 +233,6 @@ def InitColorGradient() :
 
     return
 
-InitColorGradient()
-
 def ColorGradient(i,ntotal,reverse=False) :
     import ROOT
     if ntotal == 1 :
@@ -305,4 +303,27 @@ def pdflatex(directory,file) :
     stdout, stderr = p.communicate()
     if 'Fatal error occurred' in stdout :
         print stdout
+    return
+
+##
+## Set x- and y-axis labels. Do this *after* you have added your first histogram to the canvas.
+##
+def SetAxisLabels(can,xlabel,ylabel,yratiolabel='ratio') :
+    if 'pad_top' in (a.GetName() for a in can.GetListOfPrimitives()) :
+        SetAxisLabels(can.GetPrimitive('pad_bot'),xlabel,yratiolabel)
+        SetAxisLabels(can.GetPrimitive('pad_top'),'',ylabel)
+    for i in can.GetListOfPrimitives() :
+        if hasattr(i,'GetXaxis') :
+            i.GetXaxis().SetTitle(xlabel)
+            differential = ''
+            if '/GeV' in i.GetYaxis().GetTitle() :
+                differential = '/GeV'
+            elif '/(bin width)' in i.GetYaxis().GetTitle() and 'GeV' in i.GetXaxis().GetTitle() :
+                differential = '/GeV'
+            elif '/(bin width)' in i.GetYaxis().GetTitle() :
+                differential = '/(bin width)'
+            i.GetYaxis().SetTitle(ylabel+differential)
+            break
+    can.Modified()
+    #can.Update()
     return

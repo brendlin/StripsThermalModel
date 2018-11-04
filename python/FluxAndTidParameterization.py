@@ -5,7 +5,7 @@
 def GetFluxEndcap(ring,disk) :
     # return 2e14 + (1e15 - 2e14)*((5-ring) + disk)/10.
     
-    # S2.2D -- 4000 fb-1
+    # S2.2D -- 4000 fb-1 - corrected below!
     # Table has units of 10^14 cm^-2
     return [[ 6.72 , 6.85 , 7.13 , 7.66 , 8.45 ,10.57 ] ,
             [ 5.26 , 5.40 , 5.70 , 6.16 , 6.95 , 8.67 ] ,
@@ -34,7 +34,7 @@ def GetFluxEndcap(ring,disk) :
 def GetTIDEndcap(ring,disk) :
     # return 3e3 + (3e4 - 3e3)*(5-ring)/5.
 
-    # S2.2D -- 4000 fb-1
+    # S2.2D -- 4000 fb-1 - corrected below!
     return [[ 0.313 , 0.325 , 0.338 , 0.367 , 0.405 , 0.438 ] ,
             [ 0.193 , 0.198 , 0.217 , 0.224 , 0.247 , 0.282 ] ,
             [ 0.145 , 0.154 , 0.160 , 0.163 , 0.176 , 0.199 ] ,

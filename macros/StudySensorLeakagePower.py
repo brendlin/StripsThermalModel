@@ -10,8 +10,10 @@ sys.path.append(the_path)
 
 # Dummy config must be loaded before loading any other module.
 import python.Config as Config
-Config.SetConfigFile('%s/data/%s'%(the_path,'Barrel_SS_B1.config'),doprint=False)
+Config.SetConfigFile('%s/data/%s'%(the_path,'Barrel_B1.config'),doprint=False)
+TIDpessimistic = Config.GetBool('SafetyFactors.TIDpessimistic',False)
 
+import python.SafetyFactors as SafetyFactors
 import python.GlobalSettings as GlobalSettings
 import python.SensorLeakage as SensorLeakage
 import python.PlotUtils as PlotUtils
@@ -41,7 +43,7 @@ def main(options,args) :
         pts['new500V'].append(timesMicroAmp* SensorLeakage.iref(f*10**14))
         pts['old500V'].append(timesMicroAmp* SensorLeakage.oldiref(f*10**14))
     
-    label = {'700V': '700 V','new500V': 'new 500 V','old500V': 'old 500 V'}
+    label = {'700V': '700 V','new500V': '500 V','old500V': 'old 500 V'}
     #colors = {'700V':ROOT.kGreen,'new500V':ROOT.kOrange,'old500V':ROOT.kBlue}
     leg = ROOT.TLegend(0.2,0.7,0.5,0.9)
     PlotUtils.SetStyleLegend(leg)
@@ -49,7 +51,7 @@ def main(options,args) :
     firstPlot = True
     drawOption = 'al'
     
-    for i,p in enumerate(['700V', 'new500V', 'old500V']) :
+    for i,p in enumerate(['700V', 'new500V']) :
         gr[p] = PlotUtils.MakeGraph(p, 'Sensor Leakage Power', 'Fluence [10^{14} n_{eq} /cm^{2}]', 'I_{ref} [#muA/cm^{2}]', pts['fluence'], pts[p])
         gr[p].SetLineColor(PlotUtils.ColorPalette()[i])
         leg.AddEntry(gr[p], label[p], 'l')

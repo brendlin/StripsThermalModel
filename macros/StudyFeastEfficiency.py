@@ -5,6 +5,8 @@ import os,sys
 from array import array
 import math
 
+ROOT.gROOT.SetBatch(True)
+
 the_path = ('/').join(os.getcwd().split('/')[:-1]) 
 print 'Adding %s to PYTHONPATH.'%(the_path)
 sys.path.append(the_path)
@@ -25,6 +27,7 @@ def isFloat(string):
 def main(options,args) :
 
     PlotUtils.ApplyGlobalStyle()
+    PlotUtils.InitColorGradient()
 
     feast_data = dict()
     feast_data['v00'] = dict()

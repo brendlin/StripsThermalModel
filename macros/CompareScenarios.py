@@ -52,7 +52,9 @@ def FindAutoLabel(config,nom,changed='') :
             if tenvrec.GetName() == 'cooling' :
                 value = '%s #circ^{}C'%(value).replace('-',' #minus^{}')
             name += '%s^{ }=^{ }%s'%(variable,value)
+            name = name.replace('SafetyFactors.TIDpessimistic^{ }=^{ }True','Pessimistic TID')
 
+    name = ' '+name
     return name
 
 #-----------------------------------------------
@@ -99,7 +101,7 @@ def main(options,args):
 
         if options.autolabel :
             if i == 0 :
-                name = 'nominal'
+                name = ' nominal'
             else :
                 name = FindAutoLabel(conf,nominal_config,changed=changed)
         if len(options.labels.split(',')) > i and options.labels.split(',')[i] :

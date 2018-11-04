@@ -23,6 +23,7 @@ def main(options,args) :
     import python.TAxisFunctions as TAxisFunctions
 
     PlotUtils.ApplyGlobalStyle()
+    PlotUtils.InitColorGradient()
     
     tid_overall_data = open('%s/data/AbcTidBumpData.txt'%(the_path),'r')
     
