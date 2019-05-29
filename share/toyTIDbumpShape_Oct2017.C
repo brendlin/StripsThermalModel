@@ -78,7 +78,7 @@ void toyTIDbumpShape_Oct2017(Double_t doseRate=2.5, Double_t temperature=-10., b
     TF1 * fTot = getNewBumpShape(doseRate, temperature, pessimistic, (doRandom) ? rangen : NULL);
 
     
-    fTot->SetLineColorAlpha(((int)rangen->Uniform(10))+1, std::min(1.,1./sqrt(maxIt)));
+    //fTot->SetLineColorAlpha(((int)rangen->Uniform(10))+1, std::min(1.,1./sqrt(maxIt)));
     
     if (!iT){
       double low = getNewBaselineCurr()*0.8;

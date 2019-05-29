@@ -97,7 +97,7 @@ void toyTIDbumpShape(Double_t doseRate=2.5, Double_t temperature=-10., bool pess
     TF1 * fTot = getBumpShape(doseRate, temperature, pessimistic, (doRandom) ? rangen : NULL);
 
     
-    fTot->SetLineColorAlpha(((int)rangen->Uniform(10))+1, std::min(1.,1./sqrt(maxIt)));
+//     fTot->SetLineColorAlpha(((int)rangen->Uniform(10))+1, std::min(1.,1./sqrt(maxIt)));
     
     if (!iT){
       double low = getBaselineCurr()*0.8;
