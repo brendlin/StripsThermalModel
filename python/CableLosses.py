@@ -15,7 +15,7 @@ import PlotUtils
 descr = 'Type %d LV cable resistance per meter'
 
 LVType1ResistancePerMeter = Config.GetDouble('CableLosses.LVType1ResistancePerMeter',0.021   ,unit='$\Omega$/m',description=descr%(1))
-LVType2ResistancePerMeter = Config.GetDouble('CableLosses.LVType2ResistancePerMeter',0.0148  ,unit='$\Omega$/m',description=descr%(2))
+LVType2ResistancePerMeter = Config.GetDouble('CableLosses.LVType2ResistancePerMeter',0.00942 ,unit='$\Omega$/m',description=descr%(2))
 LVType3ResistancePerMeter = Config.GetDouble('CableLosses.LVType3ResistancePerMeter',0.0095  ,unit='$\Omega$/m',description=descr%(3))
 LVType4ResistancePerMeter = Config.GetDouble('CableLosses.LVType4ResistancePerMeter',0.00127 ,unit='$\Omega$/m',description=descr%(4))
 

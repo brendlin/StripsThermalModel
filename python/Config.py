@@ -165,6 +165,7 @@ def AddConfigurationOptions(opt_parser) :
     opt_parser.add_option('--safetyf',type='float' ,default=None,dest='safetyf',help='Flux safety factor (default is 0.0)')
     opt_parser.add_option('--tidpess',action='store_true',default=False,dest='tidpess',help='TID pessimistic scenario (optimistic is False)')
     opt_parser.add_option('--vbias'  ,type='float' ,default=None,dest='vbias'  ,help='Vbias (default is 500V)')
+    opt_parser.add_option('--preirr' ,type='float' ,default=None,dest='preirr' ,help='Pre-irradiation (in MRad - default is 0)')
     return
 
 # --------------------------------
@@ -181,6 +182,7 @@ def SetMissingConfigsUsingCommandLine(options,config='') :
                     'SafetyFactors.safetyfluence'          : options.safetyf,
                     'SafetyFactors.vbias'                  : options.vbias,
                     'SafetyFactors.TIDpessimistic'         : options.tidpess,
+                    'OperationalProfiles.PreIrradiation'   : options.preirr,
                     }
 
     for k in value_to_set.keys() :

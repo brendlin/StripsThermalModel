@@ -42,17 +42,19 @@ for s in os.listdir(inputpath) :
 # Want to explore ordering for solving sensor headroom issue
 ordering = [
     'No_Safety',
+    'Base_assumptionsPreIrrad',
+    'BasePlusBumpASICThermalPreIrrad',
     'Base_assumptions',
     'BasePlusBumpParam',
     'BasePlusASIC',
     'BasePlusBias',
     'BasePlusThermal',
-    'BasePlusBumpASICThermalBias',
+    'BasePlusBumpASICThermal',
     ]
 
 for i in reversed(ordering) :
     scenarios.sort(key = lambda x: (i+'_' not in x))
-for i in reversed(['flat_m35','flat_m30','flat_m25','flat_m20','flat_m15','_ramp_m35','_newramp_m35']) :
+for i in reversed(['_newramp_m35','flat_m35','flat_m30','flat_m25','flat_m20','flat_m15','_ramp_m35']) :
     scenarios.sort(key = lambda x: (i not in x))
 
 # different ordering (used for "two main scenarios")
@@ -61,7 +63,7 @@ for i in reversed(ordering) :
     scenarios_o2.sort(key = lambda x: (i+'_' not in x))
 
 two_main_scenarios = []
-find_two_main_scenarios = ['No_Safety_','BasePlusBumpASICThermalBias_']
+find_two_main_scenarios = ['Base_assumptions','BasePlusBumpASICThermal']
 #find_two_main_scenarios = ['No_Safety_','blah']
 #find_two_main_scenarios = ['BasePlusBumpASICThermalBias_','blah']
 #find_two_main_scenarios = ['BasePlusASICThermalBias','BasePlusBumpASICThermal']
@@ -96,6 +98,7 @@ def GetSixScenarioParamters(a_list) :
     a_list.append(all_configs[scenario].GetValue('SafetyFactors.safetycurrentd',''))
     a_list.append(all_configs[scenario].GetValue('SafetyFactors.safetycurrenta',''))
     a_list.append(all_configs[scenario].GetValue('SafetyFactors.TIDpessimistic','False'))
+    a_list.append(all_configs[scenario].GetValue('OperationalProfiles.PreIrradiation','')+' MRad')
     a_list.append(all_configs[scenario].GetValue('SafetyFactors.vbias',''))
     cooling = all_configs[scenario].GetValue('cooling','')
     if 'flat' in cooling :
@@ -252,13 +255,14 @@ for scenario in scenarios :
 #f.write('\\begin{landscape}\n')
 #f.write('\subsubsection{Main Summary Table 2}\n')
 olist = []
-hlines_new = [4,6,11,12,15,21,27,33,39,45,58,65]
+hlines_new = [5,7,12,13,16,22,28,34,40,46,59,66]
 #
 olist.append(['','Fluence'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetyfluence','')          for scn in two_main_scenarios))
 olist.append(['','$R_{T}$'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetythermalimpedance','') for scn in two_main_scenarios))
 olist.append(['','$I_D$'      ] + list(all_configs[scn].GetValue('SafetyFactors.safetycurrentd','')         for scn in two_main_scenarios))
 olist.append(['','$I_A$'      ] + list(all_configs[scn].GetValue('SafetyFactors.safetycurrenta','')         for scn in two_main_scenarios))
 olist.append(['','TID parameterization'] + list(all_configs[scn].GetValue('SafetyFactors.TIDpessimistic','False').replace('False','nominal').replace('True','pessimistic') for scn in two_main_scenarios))
+olist.append(['','Pre-irradiation [MRad]'] + list(all_configs[scn].GetValue('OperationalProfiles.PreIrradiation','0') for scn in two_main_scenarios))
 
 olist.append(['','Voltage [V]'         ] + list(all_configs[scn].GetValue('SafetyFactors.vbias','')         for scn in two_main_scenarios))
 olist.append(['','Cooling [$^\circ$C]' ] + list(all_configs[scn].GetValue('cooling','').replace('-',' $-$') for scn in two_main_scenarios))
@@ -281,13 +285,13 @@ olist.append(['','Max $I_\text{tape}$ [A]'       ] + list(all_results[scn][0]['i
 #
 # Fill in the leftmost labels:
 #
-olist[0][0] = '\multirow{5}{*}{Safety Factors}'
-olist[5][0] = '\multirow{2}{*}{HV, Cooling}'
-olist[7][0] = '\multirow{3}{*}{Endcap System}'
-olist[8][0] = '\multirow{3}{*}{Min/Max}'
-olist[9][0] = '\multirow{3}{*}{Power [kW]}'
-olist[12][0] = 'Petal-level'
-olist[13][0] = '\multirow{3}{*}{Petal LV tape}'
+olist[0][0] = '\multirow{6}{*}{Safety Factors}'
+olist[6][0] = '\multirow{2}{*}{HV, Cooling}'
+olist[8][0] = '\multirow{3}{*}{Endcap System}'
+olist[9][0] = '\multirow{3}{*}{Min/Max}'
+olist[10][0] = '\multirow{3}{*}{Power [kW]}'
+olist[13][0] = 'Petal-level'
+olist[14][0] = '\multirow{3}{*}{Petal LV tape}'
 
 def AddRingsDataMinMax(value,title) :
     for ring in range(6) :
@@ -342,8 +346,8 @@ f.write(table)
 # Main Summary Table
 #
 safety_factor_list = ['Fluence','$R_{T}$','$I_D$','$I_A$','TID']
-other_parameters = ['[V]','[$^\circ$C]']
-header = '\n\multicolumn{%d}{|c|}{%s} & $V_{bias}$ & Cooling & Endcaps max & Endcaps max & Min sensor & Min Coolant\\\\'%(len(safety_factor_list),'Safety factor')
+other_parameters = ['[MRad]','[V]','[$^\circ$C]']
+header = '\n\multicolumn{%d}{|c|}{%s} & Pre-irradiation & $V_{bias}$ & Cooling & Endcaps max & Endcaps max & Min sensor & Min Coolant\\\\'%(len(safety_factor_list),'Safety factor')
 
 the_lists = []
 the_lists.append(list(a for a in safety_factor_list))
@@ -375,7 +379,7 @@ table = TableUtils.PrintLatexTable(the_lists,caption='Summary of all safety fact
 i_start_of_data = re.search("data_below\n",table).end()
 table = table[:i_start_of_data] + header + table[i_start_of_data:]
 table = re.sub('\|l%s\|r\|r\|r\|r\|'%('\\|r'*(len(safety_factor_list)-1)),
-               '|%s|cc|rrrr|'%('c'*len(safety_factor_list)),table)
+               '|%s|ccc|rrrr|'%('c'*len(safety_factor_list)),table)
 f.write(table)
 
 #
@@ -424,13 +428,13 @@ for quantity_name in ['pmodule','itape'] :
     caption = caption.replace(' due to items on module','')
 
     label_short = graph0.GetYaxis().GetTitle().split('[')[0]
-    disk_label = '\multicolumn{%d}{|c|}{%s} & $V_{bias}$ & Cooling & '%(len(safety_factor_list),'Safety factor')
+    disk_label = '\multicolumn{%d}{|c|}{%s} & Pre-irradiation & $V_{bias}$ & Cooling & '%(len(safety_factor_list),'Safety factor')
     disk_label += '\multicolumn{6}{c|}{Max $%s$ for full petal (1 side) on disk $n$ %s} \\\\\n'%(label_short,units_dict[quantity_name])
     table = TableUtils.PrintLatexTable(the_lists,caption=caption,hlines=hlines)
     # insert special headers
     i_start_of_data = re.search("data_below\n",table).end()
     table = table[:i_start_of_data] + disk_label + table[i_start_of_data:]
-    table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|','|ccccc|cc|rrrrrr|',table)
+    table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|','|ccccc|ccc|rrrrrr|',table)
     f.write(table)
 
 #
@@ -474,13 +478,13 @@ for quantity_name in ['phv_wleakage','tsensor','tfeast','qsensor_headroom','isen
     label_short = graph0.GetYaxis().GetTitle().split('[')[0].rstrip()
     label_short = '$%s$'%(label_short)
     label_short = label_short.replace('$Power headroom factor$','headroom')
-    disk_label = '\multicolumn{%d}{|c|}{%s} & $V_{bias}$ & Cooling & '%(len(safety_factor_list),'Safety factor')
+    disk_label = '\multicolumn{%d}{|c|}{%s} & Pre-irradiation & $V_{bias}$ & Cooling & '%(len(safety_factor_list),'Safety factor')
     disk_label += '\multicolumn{6}{c|}{Max %s for module of type R$n$ %s} \\\\\n'%(label_short,units_dict[quantity_name])
     table = TableUtils.PrintLatexTable(the_lists,caption=caption,hlines=hlines)
     # insert special headers
     i_start_of_data = re.search("data_below\n",table).end()
     table = table[:i_start_of_data] + disk_label + table[i_start_of_data:]
-    table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|','|ccccc|cc|rrrrrr|',table)
+    table = re.sub('\|l\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|r\|','|ccccc|ccc|rrrrrr|',table)
     f.write(table)
 
 f.close()
