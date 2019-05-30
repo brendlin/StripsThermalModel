@@ -103,7 +103,9 @@ def GetSixScenarioParamters(a_list) :
     cooling = all_configs[scenario].GetValue('cooling','')
     if 'flat' in cooling :
         cooling = cooling.replace('flat','').replace('-','$-$')+' flat'
-    if 'ramp' in cooling :
+    elif 'newramp' in cooling :
+        cooling = cooling.replace('newramp','').replace('-','$-$')+' newramp'
+    elif 'ramp' in cooling :
         cooling = cooling.replace('ramp','').replace('-','$-$')+' ramp'
     a_list.append(cooling)
     return
@@ -141,21 +143,32 @@ for scenario in scenarios :
     #
     # Calculate maximum total value (input to tables)
     #
-    for quantity_name in ['pnoservices','pcoolingsys','pwallpower','pservice','phv_wleakage'] :
+    for quantity_name in ['pnoservices','pcoolingsys','pwallpower','pservice','phv_wleakage',
+                          'plosslvcablest1','plosslvcablest2','plosslvcablest3','plosslvcablest4','plosslvpp2','plosslvPS'] :
         if runaway :
             tmp_dict['%s_maxTotal_str'%(quantity_name)] = RunawayText
             tmp_dict['%s_minTotal_str'%(quantity_name)] = RunawayText
             continue
         nstep = tmp_dict[quantity_name+'total'].GetN()
 
-        maxval = max(list(tmp_dict[quantity_name+'total'].GetY()[i] for i in range(nstep)))
+        # Find the maximum value AND store the index of this max.
+        max_i,maxval = -1,-1
+        for i in range(nstep) :
+            tmp_val = tmp_dict[quantity_name+'total'].GetY()[i]
+            if tmp_val > maxval :
+                max_i,maxval = i,tmp_val
+
         minval = min(list(tmp_dict[quantity_name+'total'].GetY()[i] for i in range(nstep)))
 
-        if quantity_name in ['pmodule','pnoservices','pcoolingsys','pwallpower','pservice','phv_wleakage'] :
+        if quantity_name in ['pmodule','pnoservices','pcoolingsys','pwallpower','pservice','phv_wleakage',
+                             'plosslvcablest1','plosslvcablest2','plosslvcablest3','plosslvcablest4','plosslvpp2','plosslvPS',
+                             ] :
             maxval = maxval/1000.
             minval = minval/1000.
 
         tmp_dict['%s_maxTotal_str'%(quantity_name)] = StringWithNSigFigs(maxval,3)
+        tmp_dict['%s_maxTotal_index'%(quantity_name)] = max_i
+        tmp_dict['%s_maxTotal_index_str'%(quantity_name)] = '%d (y%d, m%d)'%(max_i,max_i/12,max_i%12)
         tmp_dict['%s_minTotal_str'%(quantity_name)] = StringWithNSigFigs(minval,3)
 
     #
@@ -216,7 +229,9 @@ for scenario in scenarios :
             graph = tmp_dict[index][quantity_name]
             nstep = graph.GetN()
             maxval_thispetal = max(list(graph.GetY()[i] for i in range(nstep)))
+            all_results[scenario][index]['%s_maxOfDiskNo_str'%(quantity_name)] = StringWithNSigFigs(maxval_thispetal,3)
             maxpetalval = max(maxpetalval,maxval_thispetal)
+
         all_results[scenario][0]['%s_maxPetal_str'%(quantity_name)] = StringWithNSigFigs(maxpetalval,3)
 
 
@@ -249,6 +264,68 @@ for scenario in scenarios :
             all_results[scenario][index_rXd0]['%s_minOfRtype'%(quantity_name)] = StringWithNSigFigs(minval_ring,3)
             all_results[scenario][index_rXd0]['%s_maxOfRtype'%(quantity_name)] = StringWithNSigFigs(maxval_ring,3)
 
+    #
+    # Value at Maximum Wall Power, for disk-level quantities
+    #
+    for quantity_name in ['itapepetal'] :
+        for disk in range(6) :
+            index_r0dX = structure_names.index('R%dD%d'%(0,disk))
+            tmp_dict = all_results[scenario][index_r0dX]
+            max_i = all_results[scenario][0]['pwallpower_maxTotal_index']
+            tmp_dict['%s_ValueAtMax_pwallpower'%(quantity_name)] = StringWithNSigFigs(tmp_dict[quantity_name].GetY()[max_i],3)
+
+    #
+    # Value at Maximum Wall Power, for detector-level quantities
+    #
+    for quantity_name in ['avgitapepetal','rmsitapepetal',
+                          'plosslvcablest1total','plosslvcablest2total','plosslvcablest3total','plosslvcablest4total','plosslvpp2total','plosslvPStotal',
+                          ] :
+        max_i = all_results[scenario][0]['pwallpower_maxTotal_index']
+        val = all_results[scenario][0][quantity_name].GetY()[max_i]
+        if quantity_name in [
+            'plosslvcablest1total','plosslvcablest2total','plosslvcablest3total','plosslvcablest4total',
+            'plosslvpp2total','plosslvPStotal',
+            ] :
+            val = val/1000.
+        all_results[scenario][0]['%s_ValueAtMax_pwallpower'%(quantity_name)] = StringWithNSigFigs(val,3)
+
+
+
+def GetSafetyFactorHeaderRows(the_list,configs,scenarios) :
+    the_list.append(['','Fluence'    ] + list(configs[scn].GetValue('SafetyFactors.safetyfluence','')          for scn in scenarios))
+    the_list[-1][0] = '\multirow{6}{*}{Safety Factors}'
+    the_list.append(['','$R_{T}$'    ] + list(configs[scn].GetValue('SafetyFactors.safetythermalimpedance','') for scn in scenarios))
+    the_list.append(['','$I_D$'      ] + list(configs[scn].GetValue('SafetyFactors.safetycurrentd','')         for scn in scenarios))
+    the_list.append(['','$I_A$'      ] + list(configs[scn].GetValue('SafetyFactors.safetycurrenta','')         for scn in scenarios))
+    tmp_list = list(configs[scn].GetValue('SafetyFactors.TIDpessimistic','False') for scn in scenarios)
+    tid_list = list(a.replace('False','nominal').replace('True','pessimistic') for a in tmp_list)
+    the_list.append(['','TID parameterization'] + tid_list)
+    the_list.append(['','Pre-irradiation [MRad]'] + list(configs[scn].GetValue('OperationalProfiles.PreIrradiation','0') for scn in scenarios))
+    the_list.append(['','Voltage [V]'         ] + list(configs[scn].GetValue('SafetyFactors.vbias','')         for scn in scenarios))
+    the_list[-1][0] = '\multirow{2}{*}{HV, Cooling}'
+    the_list.append(['','Cooling [$^\circ$C]' ] + list(configs[scn].GetValue('cooling','').replace('-',' $-$') for scn in scenarios))
+    return
+
+# These values are calculated above...
+def RowWithDetectorMinMax(label,quantity,results_dict,scenario_list) :
+    row = ['',label]
+    row += list('%s/%s'%(results_dict[scn][0]['%s_minTotal_str'%(quantity)],
+                         results_dict[scn][0]['%s_maxTotal_str'%(quantity)]) for scn in scenario_list)
+    return row
+
+def RowWithDetectorVal(label,quantity,results_dict,scenario_list) :
+    row = ['',label]
+    row += list(results_dict[scn][0][quantity] for scn in scenario_list)
+    return row
+
+def RowWithDetectorMax(label,quantity,results_dict,scenario_list) :
+    return RowWithDetectorVal(label,'%s_maxTotal_str'%(quantity),results_dict,scenario_list)
+
+def RowWithPetalMax(label,quantity,results_dict,scenario_list) :
+    row = ['',label]
+    row += list(results_dict[scn][0]['%s_maxPetal_str'%(quantity)] for scn in scenario_list)
+    return row
+
 #
 # Main Summary Table
 #
@@ -257,36 +334,21 @@ for scenario in scenarios :
 olist = []
 hlines_new = [5,7,12,13,16,22,28,34,40,46,59,66]
 #
-olist.append(['','Fluence'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetyfluence','')          for scn in two_main_scenarios))
-olist.append(['','$R_{T}$'    ] + list(all_configs[scn].GetValue('SafetyFactors.safetythermalimpedance','') for scn in two_main_scenarios))
-olist.append(['','$I_D$'      ] + list(all_configs[scn].GetValue('SafetyFactors.safetycurrentd','')         for scn in two_main_scenarios))
-olist.append(['','$I_A$'      ] + list(all_configs[scn].GetValue('SafetyFactors.safetycurrenta','')         for scn in two_main_scenarios))
-olist.append(['','TID parameterization'] + list(all_configs[scn].GetValue('SafetyFactors.TIDpessimistic','False').replace('False','nominal').replace('True','pessimistic') for scn in two_main_scenarios))
-olist.append(['','Pre-irradiation [MRad]'] + list(all_configs[scn].GetValue('OperationalProfiles.PreIrradiation','0') for scn in two_main_scenarios))
+GetSafetyFactorHeaderRows(olist,all_configs,two_main_scenarios)
+tmp_args = all_results,two_main_scenarios
+olist.append( RowWithDetectorMinMax('Total LV+HV, no services','pnoservices',*tmp_args) )
+olist.append( RowWithDetectorMinMax(' + type 1 cables (Cooling system power)','pcoolingsys',*tmp_args) )
+olist.append( RowWithDetectorMinMax(' + all services and power supplies (Wall power)','pwallpower',*tmp_args) )
+olist.append( RowWithDetectorMinMax('Service power only (cables,PP2,PS)','pservice',*tmp_args) )
+olist.append( RowWithDetectorMax('Maximum $P_\text{HV}$ [kW]','phv_wleakage',*tmp_args) )
+olist.append( RowWithPetalMax('Max petal power (LV+HV) [W]','pmodulepetal',*tmp_args) )
+olist.append( RowWithPetalMax('Max LV tape power load (incl. tape losses) [W]','petaltapepower',*tmp_args) )
+olist.append( RowWithPetalMax('Max $\Delta V_\text{tape}$ [V]','petaltapedeltav',*tmp_args) )
+olist.append( RowWithPetalMax('Max $I_\text{tape}$ [A]','itapepetal',*tmp_args) )
 
-olist.append(['','Voltage [V]'         ] + list(all_configs[scn].GetValue('SafetyFactors.vbias','')         for scn in two_main_scenarios))
-olist.append(['','Cooling [$^\circ$C]' ] + list(all_configs[scn].GetValue('cooling','').replace('-',' $-$') for scn in two_main_scenarios))
-
-olist.append(['','Total LV+HV, no services'] + list('%s/%s'%(all_results[scn][0]['pnoservices_minTotal_str'],
-                                                             all_results[scn][0]['pnoservices_maxTotal_str']) for scn in two_main_scenarios))
-olist.append(['',' + type 1 cables, PP1 (Cooling system power)'] + list('%s/%s'%(all_results[scn][0]['pcoolingsys_minTotal_str'],
-                                                                                 all_results[scn][0]['pcoolingsys_maxTotal_str']) for scn in two_main_scenarios))
-olist.append(['',' + all services and power supplies (Wall power)'] + list('%s/%s'%(all_results[scn][0]['pwallpower_minTotal_str'],
-                                                                                    all_results[scn][0]['pwallpower_maxTotal_str']) for scn in two_main_scenarios))
-olist.append(['','Service power only'] + list('%s/%s'%(all_results[scn][0]['pservice_minTotal_str'],
-                                                       all_results[scn][0]['pservice_maxTotal_str']) for scn in two_main_scenarios))
-olist.append(['','Maximum $P_\text{HV}$ [kW]'      ] + list(all_results[scn][0]['phv_wleakage_maxTotal_str']     for scn in two_main_scenarios))
-
-olist.append(['','Max petal power (LV+HV) [W]'     ] + list(all_results[scn][0]['pmodulepetal_maxPetal_str']   for scn in two_main_scenarios))
-
-olist.append(['','Max LV tape power load (incl. tape losses) [W]'] + list(all_results[scn][0]['petaltapepower_maxPetal_str' ] for scn in two_main_scenarios))
-olist.append(['','Max $\Delta V_\text{tape}$ [V]'] + list(all_results[scn][0]['petaltapedeltav_maxPetal_str'] for scn in two_main_scenarios))
-olist.append(['','Max $I_\text{tape}$ [A]'       ] + list(all_results[scn][0]['itapepetal_maxPetal_str']     for scn in two_main_scenarios))
 #
 # Fill in the leftmost labels:
 #
-olist[0][0] = '\multirow{6}{*}{Safety Factors}'
-olist[6][0] = '\multirow{2}{*}{HV, Cooling}'
 olist[8][0] = '\multirow{3}{*}{Endcap System}'
 olist[9][0] = '\multirow{3}{*}{Min/Max}'
 olist[10][0] = '\multirow{3}{*}{Power [kW]}'
@@ -343,7 +405,59 @@ f.write(table)
 #f.write('\end{landscape}\n')
 
 #
-# Main Summary Table
+# Another summary table - this time of power estimates at the time of maximum total wall power
+#
+
+def AddDiskQuantity(rows,label,quantity,results_dict,scenario_list) :
+    for disk in range(6) :
+        row = ['Disk %d'%(disk),'']
+        if not disk :
+            row[1] = '\multirow{4}{*}{%s}'%(label)
+        index_r0dX = structure_names.index('R%dD%d'%(0,disk))
+        row += list('%s/%s'%(results_dict[scn][index_r0dX]['%s_maxOfDiskNo_str'%(quantity)],
+                             results_dict[scn][index_r0dX]['%s_ValueAtMax_pwallpower'%(quantity)]) for scn in scenario_list)
+        rows.append(row)
+    return
+
+def RowWithDetectorMaxAndAtMaxWallPower(label,quantity,results_dict,scenario_list) :
+    row = ['',label]
+    row += list('%s/%s'%(results_dict[scn][0]['%s_maxTotal_str'%(quantity)],
+                         results_dict[scn][0]['%stotal_ValueAtMax_pwallpower'%(quantity)]) for scn in scenario_list)
+    return row
+
+the_list = []
+
+GetSafetyFactorHeaderRows(the_list,all_configs,two_main_scenarios)
+the_list.append( RowWithDetectorMinMax('\textbf{Wall power Min/Max}','pwallpower',*tmp_args) )
+the_list.append( RowWithDetectorVal('\textbf{Month of max wall power}','pwallpower_maxTotal_index_str',*tmp_args) )
+AddDiskQuantity(the_list,'Petal $I_{tape}$ [A]','itapepetal',*tmp_args)
+the_list[-5][1] = '\multirow{4}{*}{%s}'%('(disk Max /')
+the_list[-4][1] = '\multirow{4}{*}{%s}'%('~~~~~value at max wall power)')
+the_list.append( RowWithDetectorVal('(at max wall power)','rmsitapepetal_ValueAtMax_pwallpower',*tmp_args) )
+the_list[-1][0] = '\multicolumn{1}{|l}{%s}'%('RMS Petal $I_{tape}$ [A]')
+
+the_list.append( RowWithDetectorMaxAndAtMaxWallPower('Type-1 LV cable','plosslvcablest1',*tmp_args) )
+the_list.append( RowWithDetectorMaxAndAtMaxWallPower('Type-2 LV cable','plosslvcablest2',*tmp_args) )
+the_list.append( RowWithDetectorMaxAndAtMaxWallPower('PP2 LV '        ,'plosslvpp2'     ,*tmp_args) )
+the_list.append( RowWithDetectorMaxAndAtMaxWallPower('Type-3 LV cable','plosslvcablest3',*tmp_args) )
+the_list.append( RowWithDetectorMaxAndAtMaxWallPower('Type-4 LV cable','plosslvcablest4',*tmp_args) )
+the_list.append( RowWithDetectorMaxAndAtMaxWallPower('LV Power Supply (PS)','plosslvPS' ,*tmp_args) )
+the_list[-6][0] = '\multirow{3}{*}{%s}'%('Cable / PP2 / PS')
+the_list[-5][0] = '\multirow{3}{*}{%s}'%('power losses [kW]')
+the_list[-4][0] = '\multirow{3}{*}{%s}'%('(Max / value at max')
+the_list[-3][0] = '\multirow{3}{*}{%s}'%('~~~~~~~~~~~~~~~wall power)')
+
+hlines = [5,7,9,15,16]
+caption = 'Breakdown of power estimates at the time of max wall power.'
+caption += ' The RMS current ($\sqrt{{1\over n}\Sigma i^2}$) is given instead of the average current in'
+caption += ' order to be able to calculate the power losses properly.'
+table = TableUtils.PrintLatexTable(the_list,caption=caption,hlines=hlines,justs=['l','l'])
+
+f.write(table)
+f.write('\clearpage\n')
+
+#
+# Breakdowns of different scenarios - power, HV power, sensor headroom, coolant headroom
 #
 safety_factor_list = ['Fluence','$R_{T}$','$I_D$','$I_A$','TID']
 other_parameters = ['[MRad]','[V]','[$^\circ$C]']
@@ -491,7 +605,7 @@ f.close()
 
 # make an auto-latex document
 os.system('cat %s/latex/FrontMatter.tex > %s/Scenarios_%s.tex'%(the_path,outputpath,wildcard))
-os.system('echo "\section{Safety Factor Scenarios}\n" >> %s/Scenarios_%s.tex'%(outputpath,wildcard))
+# os.system('echo "\section{Safety Factor Scenarios}\n" >> %s/Scenarios_%s.tex'%(outputpath,wildcard))
 os.system('cat %s/Scenarios.txt >> %s/Scenarios_%s.tex'%(outputpath,outputpath,wildcard))
 os.system('echo "\end{document}\n" >> %s/Scenarios_%s.tex'%(outputpath,wildcard))
 PlotUtils.pdflatex(outputpath,'Scenarios_%s.tex'%(wildcard))

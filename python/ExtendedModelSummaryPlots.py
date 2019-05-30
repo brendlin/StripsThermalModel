@@ -11,6 +11,7 @@ import Layout
 import CableLosses
 import PoweringEfficiency
 from array import array
+import math
 
 colors = {'L0':ROOT.kGreen,
           'L1':ROOT.kBlue+1,
@@ -240,6 +241,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             petalhvservices = []
             petalvoutlvpp2,vdrop_roundtrip,pserviceslvfullpetal = [],[],[]
             plosslvcablest1,plosslvcablest2,plosslvcablest34,plosslvpp2 = [],[],[],[]
+            plosslvcablest3,plosslvcablest4 = [],[]
             plosshvcablest1,plosshvcablest2,plosshvcablest34,plosshvpp2,ptapehv = [],[],[],[],[]
             petaltapedeltav,petaltapepower = [],[]
 
@@ -275,6 +277,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
                 pserviceslvfullpetal.append(CableLosses.PLVservicesFullSubstructure(itapepetal[i],tape_voltage_drop_r5))
                 plosslvcablest1.append(CableLosses.PlossLVCablesType1(itapepetal[i]))
                 plosslvcablest2.append(CableLosses.PlossLVCablesType2(itapepetal[i]))
+                plosslvcablest3.append(CableLosses.PlossLVCablesType3(itapepetal[i],tape_voltage_drop_r5))
+                plosslvcablest4.append(CableLosses.PlossLVCablesType4(itapepetal[i],tape_voltage_drop_r5))
                 plosslvcablest34.append(CableLosses.PlossLVCablesType3and4(itapepetal[i],tape_voltage_drop_r5))
                 plosslvpp2.append(CableLosses.Ppp2_LV(itapepetal[i],tape_voltage_drop_r5))
 
@@ -300,6 +304,8 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             result_dicts_petals[disk_layer]['pserviceslvfullpetal'] = MakeGraph('%sLVServicesPowerLossFullPetal%s%d'%(aa,bb,cc),'LV Services (cables + PP2) power loss for a full %s (both sides)'%(str_pet_stv),xtitle,'P [W]',x,pserviceslvfullpetal)
             result_dicts_petals[disk_layer]['plosslvcablest1']   = MakeGraph('%sLVPowerLossCablesType1%s%d'%(aa,bb,cc),'LV cables power loss, type I (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,plosslvcablest1)
             result_dicts_petals[disk_layer]['plosslvcablest2']   = MakeGraph('%sLVPowerLossCablesType2%s%d'%(aa,bb,cc),'LV cables power loss, type II (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,plosslvcablest2)
+            result_dicts_petals[disk_layer]['plosslvcablest3']   = MakeGraph('%sLVPowerLossCablesType3%s%d'%(aa,bb,cc),'LV cables power loss, type III (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,plosslvcablest3)
+            result_dicts_petals[disk_layer]['plosslvcablest4']   = MakeGraph('%sLVPowerLossCablesType4%s%d'%(aa,bb,cc),'LV cables power loss, type IV (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,plosslvcablest4)
             result_dicts_petals[disk_layer]['plosslvcablest34']  = MakeGraph('%sLVPowerLossCablesType34%s%d'%(aa,bb,cc),'LV cables power loss, type III/IV (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,plosslvcablest34)
             result_dicts_petals[disk_layer]['plosslvpp2']        = MakeGraph('%sLVPowerLossPP2%s%d'%(aa,bb,cc),'LV PP2 power loss, (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,plosslvpp2)
             result_dicts_petals[disk_layer]['petaltapedeltav']  = MakeGraph('%sLVTapeVoltageDrop%s%d'%(aa,bb,cc),'LV tape voltage drop (one %s side)'%(str_pet_stv),xtitle,'#Delta^{}V [V]',x,petaltapedeltav)
@@ -307,7 +313,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
 
             result_dicts_petals[disk_layer]['plosshvcablest1']  = MakeGraph('%sHVPowerLossCablesType1%s%d'%(aa,bb,cc),'HV cables power loss, type I (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,plosshvcablest1)
             result_dicts_petals[disk_layer]['plosshvcablest2']  = MakeGraph('%sHVPowerLossCablesType2%s%d'%(aa,bb,cc),'HV cables power loss, type II (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,plosshvcablest2)
-            result_dicts_petals[disk_layer]['plosshvcablest34']  = MakeGraph('%sHVPowerLossCablesType12%s%d'%(aa,bb,cc),'HV cables power loss, type III/IV (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,plosshvcablest34)
+            result_dicts_petals[disk_layer]['plosshvcablest34']  = MakeGraph('%sHVPowerLossCablesType34%s%d'%(aa,bb,cc),'HV cables power loss, type III/IV (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,plosshvcablest34)
             result_dicts_petals[disk_layer]['plosshvpp2']        = MakeGraph('%sHVPowerLossPP2%s%d'%(aa,bb,cc),'HV PP2 power loss, (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,plosshvpp2)
             result_dicts_petals[disk_layer]['ptapehv']           = MakeGraph('%sHVPowerLossTape%s%d'%(aa,bb,cc),'HV tape power loss, (one %s side)'%(str_pet_stv),xtitle,'P [W]',x,ptapehv)
 
@@ -323,7 +329,7 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             index = PlotUtils.GetResultDictIndex(names,0,disk_layer)
             for i in ['pmodulepetal','qsensorpetal','phv_wleakagepetal','itapepetal','isensorpetal',
                       'petalhvservices','petalvoutlvpp2','vdrop_roundtrip','pserviceslvfullpetal',
-                      'plosslvcablest1','plosslvcablest2',
+                      'plosslvcablest1','plosslvcablest2','plosslvcablest3','plosslvcablest4',
                       'plosslvcablest34','plosslvpp2','petaltapedeltav','petaltapepower',
                       'plosshvcablest1','plosshvcablest2','plosshvcablest34','plosshvpp2','ptapehv'] :
                 result_dicts[index][i] = result_dicts_petals[disk_layer][i]
@@ -370,19 +376,32 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     #
     # Process Totals
     #
+    avgitapepetal = [] # Average tape current (LV)
+    rmsitapepetal = [] # RMS tape current (LV)
     pnoservicestotal = [] # Power in both endcaps (LV+HV), excluding services (e.g. excluding cables, patch-panels)
     pcoolingsystotal = [] # Power in both endcaps, adding type-1 cables and PP1 losses
     pwallpowertotal  = [] # Including everything else
     phvtotal   = [] # Total HV Power (sensor+resistors) in full endcap or barrel (both sides)
     pservice   = [] # Service power only (opposite of noservices)
+    plosslvcablest1total,plosslvcablest2total,plosslvcablest3total,plosslvcablest4total = [],[],[],[]
+    plosslvpp2total = []
+    plosslvPStotal = []
     nModuleSides = 2.
     nDetectors = 2. # 2 barrel sides; 2 endcaps
     for i in range(GlobalSettings.nstep) :
+        avgitapepetal.append(0)
+        rmsitapepetal.append(0)
         pnoservicestotal.append(0)
         pcoolingsystotal.append(0)
         pwallpowertotal.append(0)
         phvtotal.append(0)
         pservice.append(0)
+        plosslvcablest1total.append(0)
+        plosslvcablest2total.append(0)
+        plosslvcablest3total.append(0)
+        plosslvcablest4total.append(0)
+        plosslvpp2total.append(0)
+        plosslvPStotal.append(0)
 
         for disk_layer in range(Layout.nlayers_or_disks) :
             index = PlotUtils.GetResultDictIndex(names,0,disk_layer)
@@ -396,17 +415,35 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
             list_pp2andlater = ['plosslvcablest2' ,'plosshvcablest2',
                                 'plosslvcablest34','plosshvcablest34','plosslvpp2','plosshvpp2']
 
+            avgitapepetal[i] += ( result_dicts[index]['itapepetal'].GetY()[i] ) / float(Layout.nlayers_or_disks)
+            rmsitapepetal[i] += ( result_dicts[index]['itapepetal'].GetY()[i] )**2 / float(Layout.nlayers_or_disks)
+
+            plosslvcablest1total[i] += result_dicts[index]['plosslvcablest1'].GetY()[i]
+            plosslvcablest2total[i] += result_dicts[index]['plosslvcablest2'].GetY()[i]
+            plosslvcablest3total[i] += result_dicts[index]['plosslvcablest3'].GetY()[i]
+            plosslvcablest4total[i] += result_dicts[index]['plosslvcablest4'].GetY()[i]
+            plosslvpp2total[i]      += result_dicts[index]['plosslvpp2'     ].GetY()[i]
+
             for value in list_noservices :
                 pnoservicestotal[i] += result_dicts[index][value].GetY()[i]
 
             for value in list_noservices + list_cooling :
                 pcoolingsystotal[i] += result_dicts[index][value].GetY()[i]
 
+            # Wall power needs the power supply losses - see later!
             for value in list_noservices + list_cooling + list_pp2andlater :
                 pwallpowertotal[i]  += result_dicts[index][value].GetY()[i]
 
+            # "services" needs the power supply losses - see later!
             for value in list_cooling + list_pp2andlater :
                 pservice[i] += result_dicts[index][value].GetY()[i]
+
+        # Calculate power supply losses, and propagate to other quantities too
+        plosslvPStotal[i] = pwallpowertotal[i] *(-1 + 1 / float(CableLosses.PowerSuppliesEfficency))
+        pwallpowertotal[i] = pwallpowertotal[i] / float(CableLosses.PowerSuppliesEfficency)
+        pservice[i] += plosslvPStotal[i]
+
+        rmsitapepetal[i] = math.sqrt(rmsitapepetal[i])
 
         # endcap                2              npetals/ring            nEndcaps (2)
         # barrel                2              nstaves/side            nSides (2)
@@ -415,13 +452,27 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
         pwallpowertotal[i]  *= (nModuleSides * Layout.nstaves_petals * nDetectors)
         phvtotal[i]         *= (nModuleSides * Layout.nstaves_petals * nDetectors)
         pservice[i]         *= (nModuleSides * Layout.nstaves_petals * nDetectors)
+        plosslvcablest1total[i] *= (nModuleSides * Layout.nstaves_petals * nDetectors)
+        plosslvcablest2total[i] *= (nModuleSides * Layout.nstaves_petals * nDetectors)
+        plosslvcablest3total[i] *= (nModuleSides * Layout.nstaves_petals * nDetectors)
+        plosslvcablest4total[i] *= (nModuleSides * Layout.nstaves_petals * nDetectors)
+        plosslvpp2total[i]      *= (nModuleSides * Layout.nstaves_petals * nDetectors)
+        plosslvPStotal[i]       *= (nModuleSides * Layout.nstaves_petals * nDetectors)
 
     gr = dict()
+    gr['avgitapepetal']     = MakeGraph('AverageTapeCurrentLV'  ,'Average tape LV %s current (one side)'%(structure_name),xtitle,'A_{%s} [A]'%('Avg'),x,avgitapepetal)
+    gr['rmsitapepetal']     = MakeGraph('RMSTapeCurrentLV'      ,'RMS tape LV %s current (one side)'%(structure_name),xtitle,'A_{%s} [A]'%('RMS'),x,rmsitapepetal)
     gr['pnoservicestotal']  = MakeGraph('TotalPowerNoServices'  ,'Total power in both %ss (no services)'%(structure_name),xtitle,'P_{%s} [W]'%('Total'),x,pnoservicestotal)
     gr['pcoolingsystotal']  = MakeGraph('TotalPowerCoolingSys'  ,'Total power in both %ss (cooling system power)'%(structure_name),xtitle,'P_{%s} [W]'%('Total'),x,pcoolingsystotal)
     gr['pwallpowertotal' ]  = MakeGraph('TotalWallPower'        ,'Total power in both %ss (wall power)'%(structure_name),xtitle,'P_{%s} [W]'%('Total'),x,pwallpowertotal)
     gr['phv_wleakagetotal'] = MakeGraph('TotalHVPower','Total HV power (sensor + resistors) in both %ss'%(structure_name),xtitle,'P_{%s} [W]'%('HV')   ,x,phvtotal  )
     gr['pservicetotal']     = MakeGraph('TotalServicePower','Total service power in both %ss'%(structure_name),xtitle,'P_{%s} [W]'%('Total')   ,x,pservice  )
+    gr['plosslvcablest1total'] = MakeGraph('Total_plosslvcablest1','plosslvcablest1',xtitle,'P_{%s} [W]'%('Total')   ,x,plosslvcablest1total)
+    gr['plosslvcablest2total'] = MakeGraph('Total_plosslvcablest2','plosslvcablest2',xtitle,'P_{%s} [W]'%('Total')   ,x,plosslvcablest2total)
+    gr['plosslvcablest3total'] = MakeGraph('Total_plosslvcablest3','plosslvcablest3',xtitle,'P_{%s} [W]'%('Total')   ,x,plosslvcablest3total)
+    gr['plosslvcablest4total'] = MakeGraph('Total_plosslvcablest4','plosslvcablest4',xtitle,'P_{%s} [W]'%('Total')   ,x,plosslvcablest4total)
+    gr['plosslvpp2total'     ] = MakeGraph('Total_plosslvpp2'     ,'plosslvpp2'     ,xtitle,'P_{%s} [W]'%('Total')   ,x,plosslvpp2total     )
+    gr['plosslvPStotal'] = MakeGraph('Total_plosslvPS'       ,'plosslvPS'      ,xtitle,'P_{%s} [W]'%('Total')   ,x,plosslvPStotal      )
 
     thermal_runaway_yeartotal = 999
     for disk_layer in range(Layout.nlayers_or_disks) :
@@ -432,7 +483,10 @@ def ProcessSummaryPlots(result_dicts,names,options,plotaverage=True,speciallegen
     if thermal_runaway_yeartotal == 999 :
         thermal_runaway_yeartotal = 0
 
-    for i in ['pnoservicestotal','pcoolingsystotal','pwallpowertotal','phv_wleakagetotal','pservicetotal'] :
+    for i in ['pnoservicestotal','pcoolingsystotal','pwallpowertotal','phv_wleakagetotal',
+              'pservicetotal','avgitapepetal','rmsitapepetal',
+              'plosslvcablest1total','plosslvcablest2total','plosslvcablest3total','plosslvcablest4total',
+              'plosslvPStotal','plosslvpp2total'] :
         result_dicts[0][i] = gr[i]
 
     # For summary tables in ProcessSummaryTables

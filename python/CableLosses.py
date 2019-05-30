@@ -51,8 +51,16 @@ def Resistance_LVType2() :
     return (LVType2ResistancePerMeter*Type2LengthOneWay*2)
 
 # Round-trip resistance
+def Resistance_LVType3() :
+    return LVType3ResistancePerMeter*Type3LengthOneWay*2
+
+# Round-trip resistance
+def Resistance_LVType4() :
+    return LVType4ResistancePerMeter*Type4LengthOneWay*2
+
+# Round-trip resistance
 def Resistance_LVType3and4() :
-    return (LVType3ResistancePerMeter*Type3LengthOneWay*2 + LVType4ResistancePerMeter*Type4LengthOneWay*2)
+    return Resistance_LVType3() + Resistance_LVType4()
 
 # Vout_LV_pp2 is the return voltage to the pp2
 # Ihalfsubstructure should be 'itapepetal' from ExtendedModelSummaryPlots.py
@@ -78,6 +86,12 @@ def PlossLVCablesType1(Ihalfsubstructure) :
 
 def PlossLVCablesType2(Ihalfsubstructure) :
     return (Ihalfsubstructure**2) * Resistance_LVType2()
+
+def PlossLVCablesType3(Ihalfsubstructure,vdrop_tape_r5) :
+    return (ILVtype3andType4(Ihalfsubstructure,vdrop_tape_r5)**2) * Resistance_LVType3()
+
+def PlossLVCablesType4(Ihalfsubstructure,vdrop_tape_r5) :
+    return (ILVtype3andType4(Ihalfsubstructure,vdrop_tape_r5)**2) * Resistance_LVType4()
 
 def PlossLVCablesType3and4(Ihalfsubstructure,vdrop_tape_r5) :
     return (ILVtype3andType4(Ihalfsubstructure,vdrop_tape_r5)**2) * Resistance_LVType3and4()
