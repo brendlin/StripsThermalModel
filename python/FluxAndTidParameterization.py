@@ -33,6 +33,7 @@ def GetFluxEndcap(ring,disk) :
 
 def GetTIDEndcap(ring,disk) :
     # return 3e3 + (3e4 - 3e3)*(5-ring)/5.
+    # Output is in kRad
 
     # S2.2D -- 4000 fb-1 - corrected below!
     return [[ 0.313 , 0.325 , 0.338 , 0.367 , 0.405 , 0.438 ] ,
@@ -40,7 +41,7 @@ def GetTIDEndcap(ring,disk) :
             [ 0.145 , 0.154 , 0.160 , 0.163 , 0.176 , 0.199 ] ,
             [ 0.119 , 0.120 , 0.128 , 0.139 , 0.149 , 0.164 ] ,
             [ 0.084 , 0.087 , 0.094 , 0.098 , 0.108 , 0.121 ] ,
-            [ 0.065 , 0.067 , 0.071 , 0.077 , 0.087 , 0.098 ]][ring][disk] * 100000. * 3./4.
+            [ 0.065 , 0.067 , 0.071 , 0.077 , 0.087 , 0.098 ]][ring][disk] * 100000. * 3./4. # value in kRad
 
     # S1.9 ITk: Strip endcap -- 3000 fb-1
     # table has units of MGy. 1 MGy = 0.1 MRad = 100 kRad = 100 000 Rad
@@ -100,9 +101,11 @@ def GetFluxBarrel(module,layer) :
 
 
 def GetTIDBarrel(module,layer) :
+    # Output is in kRad
 
     # S1.9 ITk: Strip barrel
-    # table has units of MGy. 1 MGy = 0.1 MRad = 100 kRad = 100 000 Rad
+    # table has units of MGy. 1 MGy = 0.1 MRad = 100 kRad = 100 000 Rad FALSE FALSE FALSE
+    # table has units of MGy. 1 MGy = 100 MRad = 100,000 kRad
     return [[ 0.171 , 0.095 , 0.0550 , 0.0300 ] ,
             [ 0.162 , 0.097 , 0.0564 , 0.0295 ] ,
             [ 0.169 , 0.098 , 0.0552 , 0.0296 ] ,
@@ -116,7 +119,7 @@ def GetTIDBarrel(module,layer) :
             [ 0.204 , 0.112 , 0.0624 , 0.0340 ] ,
             [ 0.209 , 0.111 , 0.0638 , 0.0340 ] ,
             [ 0.215 , 0.117 , 0.0645 , 0.0349 ] ,
-            [ 0.216 , 0.116 , 0.0656 , 0.0357 ] ][module][layer] * 100000.
+            [ 0.216 , 0.116 , 0.0656 , 0.0357 ] ][module][layer] * 100000. # value in kRad
 
 
 # Here we want max flux for a given module in a layer, instead of the max flux of RX across disks
