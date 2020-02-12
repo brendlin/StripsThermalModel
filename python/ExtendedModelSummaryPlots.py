@@ -585,7 +585,10 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                 the_graph = result_dicts[index][quantity_name+'petal']
                 # For "tid" take max, or value at max petal power
                 ppetal = list(result_dicts[index]['pmodulepetal'].GetY()[i] for i in range(result_dicts[index]['pmodulepetal'].GetN()))
-                tid_index = ppetal.index(max(ppetal))
+
+                # assume TID bump occurs in the first 5 years
+                chopoff_index = int(5/GlobalSettings.step)
+                tid_index = ppetal[:chopoff_index].index(max(ppetal[:chopoff_index]))
 
                 if target_index == 'start' :
                     the_lists[-1].append(the_graph.GetY()[0])
@@ -593,7 +596,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                     the_lists[-1].append(the_graph.GetY()[the_graph.GetN()-1])
                 else :
                     result_start = the_graph.GetY()[0]
-                    result_max   = max(list(the_graph.GetY()[i] for i in range(the_graph.GetN())))
+                    result_max   = max( list(the_graph.GetY()[i] for i in range(the_graph.GetN()))[:chopoff_index] )
                     result_tid   = the_graph.GetY()[tid_index]
                     result_eol   = the_graph.GetY()[the_graph.GetN()-1]
                     if (result_max == result_start) or (result_max == result_eol) :
@@ -617,7 +620,8 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
             else :
                 the_graph = result_dicts[0][quantity_name+'total']
                 # For "tid" take max, or value at max petal power
-                ptotal = list(result_dicts[0]['pmoduletotal'].GetY()[i] for i in range(result_dicts[0]['pmoduletotal'].GetN()))
+                chopoff_index = int(5/GlobalSettings.step)
+                ptotal = list(result_dicts[0]['pmoduletotal'].GetY())[:chopoff_index]
                 tid_index = ptotal.index(max(ptotal))
 
                 if target_index == 'start' :
@@ -626,7 +630,7 @@ def ProcessSummaryTables(quantity_name,result_dicts,structure_names,options,targ
                     endcap_total = the_graph.GetY()[the_graph.GetN()-1]
                 else :
                     result_start = the_graph.GetY()[0]
-                    result_max   = max(list(the_graph.GetY()[i] for i in range(the_graph.GetN())))
+                    result_max   = max(list(the_graph.GetY())[:chopoff_index])
                     result_tid   = the_graph.GetY()[tid_index]
                     result_eol   = the_graph.GetY()[the_graph.GetN()-1]
                     if (result_max == result_start) or (result_max == result_eol) :
