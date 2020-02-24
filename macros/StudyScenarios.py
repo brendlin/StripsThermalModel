@@ -76,8 +76,8 @@ for scenario in scenarios_o2 :
 
     # Load the saved numpy dictionary
     import numpy as np
-    all_results[scenario] = np.load('%s/%s/Results.npy'%(inputpath,scenario))
-    all_configs[scenario] = np.load('%s/%s/Config.npy'%(inputpath,scenario)).item()
+    all_results[scenario] = np.load('%s/%s/Results.npy'%(inputpath,scenario), allow_pickle=True)
+    all_configs[scenario] = np.load('%s/%s/Config.npy'%(inputpath,scenario),  allow_pickle=True).item()
 
 if len(two_main_scenarios) < 2 :
     print 'Need the two main scenarios'
