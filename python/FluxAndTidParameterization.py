@@ -4,17 +4,30 @@
 
 def GetFluxEndcap(ring,disk) :
     # return 2e14 + (1e15 - 2e14)*((5-ring) + disk)/10.
-    
-    # S2.2D -- 4000 fb-1 - corrected below!
+
+    # S3.1Q6 -- 4000 fb-1 - corrected below!
+    # https://twiki.cern.ch/twiki/bin/view/Atlas/RadiationBackgroundSimulationsStep3X
     # Table has units of 10^14 cm^-2
-    return [[ 6.72 , 6.85 , 7.13 , 7.66 , 8.45 ,10.57 ] ,
-            [ 5.26 , 5.40 , 5.70 , 6.16 , 6.95 , 8.67 ] ,
-            [ 4.47 , 4.62 , 4.93 , 5.39 , 6.08 , 7.53 ] ,
-            [ 4.07 , 4.24 , 4.47 , 4.97 , 5.65 , 6.86 ] ,
-            [ 3.42 , 3.57 , 3.86 , 4.26 , 4.87 , 5.84 ] ,
-            [ 3.06 , 3.20 , 3.48 , 3.86 , 4.40 , 5.17 ] ][ring][disk] * 1.0e14 * 3./4.
+    return [[ 7.57 , 7.86 , 8.24 , 8.80 , 9.58 , 10.96 ] ,
+            [ 5.82 , 6.07 , 6.45 , 6.90 , 7.62 ,  8.66 ] ,
+            [ 4.90 , 5.15 , 5.49 , 5.95 , 6.52 ,  7.40 ] ,
+            [ 4.45 , 4.67 , 4.96 , 5.40 , 5.96 ,  6.71 ] ,
+            [ 3.74 , 3.92 , 4.21 , 4.60 , 5.07 ,  5.70 ] ,
+            [ 3.31 , 3.48 , 3.73 , 4.11 , 4.55 ,  5.11 ] ][ring][disk] * 1.0e14 * 3./4.
+
+
+    # S2.2D -- 4000 fb-1 - corrected below!
+    # https://twiki.cern.ch/twiki/bin/view/Atlas/RadiationBackgroundSimulationsStep2X
+    # Table has units of 10^14 cm^-2
+    # return [[ 6.72 , 6.85 , 7.13 , 7.66 , 8.45 ,10.57 ] ,
+    #         [ 5.26 , 5.40 , 5.70 , 6.16 , 6.95 , 8.67 ] ,
+    #         [ 4.47 , 4.62 , 4.93 , 5.39 , 6.08 , 7.53 ] ,
+    #         [ 4.07 , 4.24 , 4.47 , 4.97 , 5.65 , 6.86 ] ,
+    #         [ 3.42 , 3.57 , 3.86 , 4.26 , 4.87 , 5.84 ] ,
+    #         [ 3.06 , 3.20 , 3.48 , 3.86 , 4.40 , 5.17 ] ][ring][disk] * 1.0e14 * 3./4.
 
     # S1.9 -- 3000 fb-1
+    # https://twiki.cern.ch/twiki/bin/view/Atlas/RadiationBackgroundSimulationsFullyInclinedAt4
     # Table has units of 10^14 cm^-2
     # return [[ 5.03 , 5.12 , 5.38 , 5.67 , 6.25 , 7.74 ] ,
     #         [ 3.93 , 4.03 , 4.22 , 4.57 , 5.14 , 6.36 ] ,
@@ -35,15 +48,27 @@ def GetTIDEndcap(ring,disk) :
     # return 3e3 + (3e4 - 3e3)*(5-ring)/5.
     # Output is in kRad
 
+    # S3.1Q6 -- 4000 fb-1 - corrected below!
+    # https://twiki.cern.ch/twiki/bin/view/Atlas/RadiationBackgroundSimulationsStep3X
+    return [[ 0.343 , 0.360 , 0.384 , 0.418 , 0.474 , 0.532 ] ,
+            [ 0.201 , 0.217 , 0.231 , 0.251 , 0.277 , 0.297 ] ,
+            [ 0.153 , 0.167 , 0.173 , 0.184 , 0.194 , 0.216 ] ,
+            [ 0.122 , 0.132 , 0.137 , 0.153 , 0.165 , 0.173 ] ,
+            [ 0.091 , 0.096 , 0.099 , 0.104 , 0.115 , 0.127 ] ,
+            [ 0.067 , 0.071 , 0.077 , 0.086 , 0.091 , 0.101 ]][ring][disk] * 100000. * 3./4. # value in kRad
+
+
     # S2.2D -- 4000 fb-1 - corrected below!
-    return [[ 0.313 , 0.325 , 0.338 , 0.367 , 0.405 , 0.438 ] ,
-            [ 0.193 , 0.198 , 0.217 , 0.224 , 0.247 , 0.282 ] ,
-            [ 0.145 , 0.154 , 0.160 , 0.163 , 0.176 , 0.199 ] ,
-            [ 0.119 , 0.120 , 0.128 , 0.139 , 0.149 , 0.164 ] ,
-            [ 0.084 , 0.087 , 0.094 , 0.098 , 0.108 , 0.121 ] ,
-            [ 0.065 , 0.067 , 0.071 , 0.077 , 0.087 , 0.098 ]][ring][disk] * 100000. * 3./4. # value in kRad
+    # https://twiki.cern.ch/twiki/bin/view/Atlas/RadiationBackgroundSimulationsStep2X
+    # return [[ 0.313 , 0.325 , 0.338 , 0.367 , 0.405 , 0.438 ] ,
+    #         [ 0.193 , 0.198 , 0.217 , 0.224 , 0.247 , 0.282 ] ,
+    #         [ 0.145 , 0.154 , 0.160 , 0.163 , 0.176 , 0.199 ] ,
+    #         [ 0.119 , 0.120 , 0.128 , 0.139 , 0.149 , 0.164 ] ,
+    #         [ 0.084 , 0.087 , 0.094 , 0.098 , 0.108 , 0.121 ] ,
+    #         [ 0.065 , 0.067 , 0.071 , 0.077 , 0.087 , 0.098 ]][ring][disk] * 100000. * 3./4. # value in kRad
 
     # S1.9 ITk: Strip endcap -- 3000 fb-1
+    # https://twiki.cern.ch/twiki/bin/view/Atlas/RadiationBackgroundSimulationsFullyInclinedAt4
     # table has units of MGy. 1 MGy = 0.1 MRad = 100 kRad = 100 000 Rad
     # return [[ 0.227 , 0.239 , 0.248 , 0.268 , 0.291 , 0.311 ] ,
     #         [ 0.144 , 0.148 , 0.155 , 0.165 , 0.181 , 0.201 ] ,
