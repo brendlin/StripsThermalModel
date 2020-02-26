@@ -136,6 +136,7 @@ def ReloadPythonModule(name) :
 def ReloadAllPythonModules() :
     #                   Module                               Dependencies
     ReloadPythonModule('python.GlobalSettings'           ) # none
+    ReloadPythonModule('python.FluxAndTidParameterization') # Config
     ReloadPythonModule('python.AbcTidBump'               ) # Config
     ReloadPythonModule('python.PoweringEfficiency'       ) # Config
     ReloadPythonModule('python.Layout'                   ) # Config
@@ -166,6 +167,7 @@ def AddConfigurationOptions(opt_parser) :
     opt_parser.add_option('--tidpess',action='store_true',default=False,dest='tidpess',help='TID pessimistic scenario (optimistic is False)')
     opt_parser.add_option('--vbias'  ,type='float' ,default=None,dest='vbias'  ,help='Vbias (default is 500V)')
     opt_parser.add_option('--preirr' ,type='float' ,default=None,dest='preirr' ,help='Pre-irradiation (in MRad - default is 0)')
+    opt_parser.add_option('--version_fluxtid',type='string' ,default=None,dest='version_fluxtid' ,help='Flux and TID version')
     return
 
 # --------------------------------
@@ -183,6 +185,7 @@ def SetMissingConfigsUsingCommandLine(options,config='') :
                     'SafetyFactors.vbias'                  : options.vbias,
                     'SafetyFactors.TIDpessimistic'         : options.tidpess,
                     'OperationalProfiles.PreIrradiation'   : options.preirr,
+                    'FluxAndTidParameterization.ModelVersion': options.version_fluxtid,
                     }
 
     for k in value_to_set.keys() :
