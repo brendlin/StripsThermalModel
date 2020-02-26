@@ -80,6 +80,7 @@ def Ihcc_digital(Thcc,d,D) :
     tmp_dig = FrontEndComponents.hccId
     scale_corr = FrontEndComponents.hccScaleCorrection
     bump = AbcTidBump.tid_scalePlusShape(Thcc, d, D)
+    # Note that this "scale_corr" is the same exact algebra as the "BumpedFraction", just written differently.
     return nhcc * ( (bump - 1.) * scale_corr + 1.) * tmp_dig
 
 def Ihcc(Thcc,d,D) :
