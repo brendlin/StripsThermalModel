@@ -144,10 +144,12 @@ for scenario in scenarios :
     # Calculate maximum total value (input to tables)
     #
     for quantity_name in ['pnoservices','pcoolingsys','pwallpower','pservice','phv_wleakage',
-                          'plosslvcablest1','plosslvcablest2','plosslvcablest3','plosslvcablest4','plosslvpp2','plosslvPS'] :
+                          'plosslvcablest1','plosslvcablest2','plosslvcablest3','plosslvcablest4','plosslvpp2','plosslvPS','pwallpower'] :
         if runaway :
             tmp_dict['%s_maxTotal_str'%(quantity_name)] = RunawayText
             tmp_dict['%s_minTotal_str'%(quantity_name)] = RunawayText
+            tmp_dict['%s_maxTotal_index'%(quantity_name)] = -1
+            tmp_dict['%s_maxTotal_index_str'%(quantity_name)] = 'N/A'
             continue
         nstep = tmp_dict[quantity_name+'total'].GetN()
 
@@ -222,6 +224,9 @@ for scenario in scenarios :
     for quantity_name in ['itapepetal','pmodulepetal','petalvoutlvpp2','vdrop_roundtrip','petaltapedeltav','petaltapepower'] :
         if runaway :
             all_results[scenario][0]['%s_maxPetal_str'%(quantity_name)] = RunawayText
+            for disk in range(6) :
+                index = structure_names.index('R%dD%d'%(0,disk))
+                all_results[scenario][index]['%s_maxOfDiskNo_str'%(quantity_name)] = 'N/A'
             continue
         maxpetalval = None
         for disk in range(6) :
@@ -272,6 +277,8 @@ for scenario in scenarios :
             index_r0dX = structure_names.index('R%dD%d'%(0,disk))
             tmp_dict = all_results[scenario][index_r0dX]
             max_i = all_results[scenario][0]['pwallpower_maxTotal_index']
+            if max_i == -1 :
+                max_i = tmp_dict[quantity_name].GetN() - 1
             tmp_dict['%s_ValueAtMax_pwallpower'%(quantity_name)] = StringWithNSigFigs(tmp_dict[quantity_name].GetY()[max_i],3)
 
     #
@@ -281,6 +288,9 @@ for scenario in scenarios :
                           'plosslvcablest1total','plosslvcablest2total','plosslvcablest3total','plosslvcablest4total','plosslvpp2total','plosslvPStotal',
                           ] :
         max_i = all_results[scenario][0]['pwallpower_maxTotal_index']
+        if max_i == -1 :
+            max_i = all_results[scenario][0][quantity_name].GetN() - 1
+
         val = all_results[scenario][0][quantity_name].GetY()[max_i]
         if quantity_name in [
             'plosslvcablest1total','plosslvcablest2total','plosslvcablest3total','plosslvcablest4total',
